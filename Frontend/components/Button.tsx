@@ -23,7 +23,7 @@ const Button = ({
   return (
     <TouchableOpacity
       onPress={!disabled ? onPress : undefined} // Disable onPress if the button is disabled
-      className={`items-center justify-center w-full rounded-lg px-[18px] py-3 ${
+      className={`items-center mb-2 justify-center w-full rounded-lg px-[18px] py-3 ${
         disabled ? "bg-white" : bgColor
       } ${hasBorder ? borderColor : ""} ${hasBorder ? "border" : ""}`}
       disabled={disabled} // Disable touch events
