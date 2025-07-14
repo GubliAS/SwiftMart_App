@@ -4,6 +4,8 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  Alert,
+  Clipboard,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -11,13 +13,11 @@ const InvitedList = ({ people, onRemove, onClose  }: any) => {
   const invitationLink = "https://swiftmart.app/split-cart/invite?cartId=12345";
 
   const handleCopy = async () => {
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(invitationLink);
-        // Optionally, show a success message here
-      } catch (err) {
-        // Optionally, handle error here
-      }
+    try {
+      await Clipboard.setString(invitationLink);
+      Alert.alert('Success', 'Link copied to clipboard!');
+    } catch (err) {
+      Alert.alert('Error', 'Failed to copy link');
     }
   };
 

@@ -81,16 +81,40 @@ const CartScreen = () => {
   const [isInviteVisible, setIsInviteVisible] = useState(false);
   const [showCartList, setShowCartList] = useState(false);
 
-  // Handle new cart creation
+  // ✅ FIXED: Safe cart creation without overwriting existing carts
   useEffect(() => {
     if (params.newCart) {
-      const newCart = JSON.parse(params.newCart as string);
-      setCarts(prevCarts => [...prevCarts, newCart]);
-      setSelectedCartId(newCart.id);
+      try {
+        const incoming = JSON.parse(params.newCart as string);
+
+        if (!incoming.id || !incoming.name) {
+          console.warn("Missing required cart fields.");
+          return;
+        }
+
+        const cartExists = carts.some(cart => cart.id === incoming.id);
+
+        if (!cartExists) {
+          const newCart = {
+            id: incoming.id,
+            name: incoming.name,
+            items: Array.isArray(incoming.items) ? incoming.items : [],
+            invited: Array.isArray(incoming.invited) ? incoming.invited : [],
+          };
+
+          setCarts(prev => [...prev, newCart]);
+          setSelectedCartId(newCart.id);
+          setShowCartList(false);
+        } else {
+          console.log(`Cart with id ${incoming.id} already exists — not adding duplicate.`);
+        }
+      } catch (err) {
+        console.error("Error parsing newCart:", err);
+      }
     }
   }, [params.newCart]);
 
-  const selectedCart = carts.find((cart) => cart.id === selectedCartId);
+  const selectedCart = carts.find((cart) => cart.id === selectedCartId) || carts[0];
 
   const updateQuantity = (itemId: string, amount: number) => {
     setCarts((prevCarts) =>
@@ -149,13 +173,12 @@ const CartScreen = () => {
   const total = subtotal + shipping;
 
   const handleCreateCartPress = () => {
-    router.push('./components/CreateCartScreen'); // Changed to navigate to CreateCartScreen
+    router.push('./components/CreateCartScreen');
     setShowCartList(false);
   };
 
   return (
     <SafeAreaView className="flex-1 bg-neutral-20 p-4">
-      {/* Header */}
       <View className="flex-row items-center p-4" style={{ marginTop: 24 }}>
         <TouchableOpacity
           className="flex-row items-center"
@@ -166,36 +189,37 @@ const CartScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Cart Selection */}
       <View className="mb-4 z-50">
-        <TouchableOpacity
-          style={{ position: "relative", alignItems: "center" }}
-          onPress={() => setShowCartList(!showCartList)}
-          className="w-full gap-2 flex-row items-center justify-center border-b border-neutral-30 pb-2"
-        >
-          <View className="flex-row items-center justify-center w-full">
+        <View className="flex-row items-center border-b border-neutral-30 pb-2">
+          <View className="w-16" />
+          <TouchableOpacity
+            className="flex-1 flex-row items-center justify-center"
+            onPress={() => setShowCartList(!showCartList)}
+          >
             <Text className="font-semibold text-[30px]">{selectedCart?.name}</Text>
             {showCartList ? (
-              <Entypo name="chevron-up" size={20} color="black" />
+              <Entypo name="chevron-up" size={20} color="black" className="ml-2" />
             ) : (
-              <Entypo name="chevron-down" size={20} color="black" />
+              <Entypo name="chevron-down" size={20} color="black" className="ml-2" />
             )}
-          </View>
+          </TouchableOpacity>
 
-          {selectedCartId !== "default" && (
+          {selectedCartId !== "default" ? (
             <TouchableOpacity
-              style={{ position: "absolute", right: 0, top: 5 }}
+              className="w-16 items-center"
               onPress={() => setIsInviteVisible(true)}
             >
               <Ionicons name="person-add-outline" size={28} color="#156651" />
               {(selectedCart?.invited?.length ?? 0) > 0 && (
-                <View className="absolute -top-2 -right-2 bg-primary rounded-full w-5 h-5 flex items-center justify-center">
+                <View className="absolute -top-1 right-0 bg-primary rounded-full w-5 h-5 flex items-center justify-center">
                   <Text className="text-white text-xs">{(selectedCart?.invited?.length ?? 0)}</Text>
                 </View>
               )}
             </TouchableOpacity>
+          ) : (
+            <View className="w-16" />
           )}
-        </TouchableOpacity>
+        </View>
 
         {showCartList && (
           <View className="bg-transparent w-full shadow p-4 rounded-lg max-h-60">
@@ -220,11 +244,17 @@ const CartScreen = () => {
                     <Text style={{ color: "#888", fontSize: 14, marginLeft: 8 }}>(default)</Text>
                   ) : (
                     <View className="flex-row items-center gap-4">
-                      <Ionicons
-                        name="person-add-outline"
-                        size={20}
-                        color="#156651"
-                      />
+                      <TouchableOpacity onPress={() => {
+                        setSelectedCartId(cart.id);
+                        setShowCartList(false);
+                        setIsInviteVisible(true);
+                      }}>
+                        <Ionicons
+                          name="person-add-outline"
+                          size={20}
+                          color="#156651"
+                        />
+                      </TouchableOpacity>
                       <TouchableOpacity onPress={() => handleDeleteCart(cart.id)}>
                         <MaterialCommunityIcons
                           name="trash-can-outline"
@@ -243,14 +273,13 @@ const CartScreen = () => {
                 textColor="text-primary"
                 hasBorder={true}
                 disabled={false}
-                onPress={handleCreateCartPress} // Updated to use the new handler
+                onPress={handleCreateCartPress}
               />
             </ScrollView>
           </View>
         )}
       </View>
 
-      {/* Cart Items */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <FlatList
           data={selectedCart?.items || []}
@@ -266,7 +295,6 @@ const CartScreen = () => {
         />
       </ScrollView>
 
-      {/* Cart Total Button */}
       <TouchableOpacity
         className="bg-primary shadow-slate-950 shadow-xl p-4 rounded-2xl mb-2 absolute bottom-6 right-4 w-16 h-16"
         onPress={() => setIsModalVisible(true)}
@@ -274,7 +302,6 @@ const CartScreen = () => {
         <AntDesign name="shoppingcart" size={24} color="white" />
       </TouchableOpacity>
 
-      {/* Cart Total Modal */}
       <ShoppingCartTotalModal
         isVisible={isModalVisible}
         subtotal={subtotal}
@@ -290,7 +317,6 @@ const CartScreen = () => {
         }}
       />
 
-      {/* Invite List Modal */}
       <Modal
         isVisible={isInviteVisible}
         onBackdropPress={() => setIsInviteVisible(false)}
