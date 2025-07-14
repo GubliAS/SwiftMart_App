@@ -41,7 +41,7 @@ const PaymentFormScreen = ({ type, onSave, onCancel }: PaymentFormProps) => {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={{ marginLeft: 16 }}>{'<'}</Text>
+          <Text style={{ marginLeft: 16, color: '#000000' }}>{'<'}</Text>
         </TouchableOpacity>
       ),
     });
@@ -129,7 +129,7 @@ const PaymentFormScreen = ({ type, onSave, onCancel }: PaymentFormProps) => {
                       <Text className={`font-Manrope ${
                         card.type === cardType ? 'text-primary' : 'text-text'
                       }`}>
-                        {cardType}
+                        {String(cardType)}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -194,14 +194,26 @@ const PaymentFormScreen = ({ type, onSave, onCancel }: PaymentFormProps) => {
                       fontSize: 16,
                       color: '#222',
                       backgroundColor: 'transparent',
-                      paddingVertical: 18, // Increased
-                      minHeight: 48,       // Ensures a minimum height
+                      paddingVertical: 18,
+                      minHeight: 48,
                     }}
-                    placeholder="MM/YY"
-                    placeholderTextColor="#B0B0B0"
-                    keyboardType="numeric"
+                    placeholder="MM-YY"
+                    maxLength={5}
                     value={card.expiry}
-                    onChangeText={(text) => setCard({ ...card, expiry: text })}
+                    onChangeText={(text) => {
+                      // Remove any non-digit characters
+                      const cleaned = text.replace(/\D/g, '');
+                      
+                      // Format as MM-YY
+                      let formatted = cleaned;
+                      if (cleaned.length >= 2) {
+                        formatted = `${cleaned.slice(0, 2)}-${cleaned.slice(2)}`;
+                      }
+                      
+                      setCard({ ...card, expiry: formatted });
+                    }}
+                    keyboardType="numeric"
+                    placeholderTextColor="#B0B0B0"
                   />
                 </View>
               </View>
@@ -267,7 +279,7 @@ const PaymentFormScreen = ({ type, onSave, onCancel }: PaymentFormProps) => {
                       <Text className={`font-Manrope ${
                         mobileMoney.network === network ? 'text-primary' : 'text-text'
                       }`}>
-                        {network}
+                        {String(network)}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -317,7 +329,7 @@ const PaymentFormScreen = ({ type, onSave, onCancel }: PaymentFormProps) => {
               onPress={handleSave}
             >
               <Text className="text-BodyBold font-Manrope text-neutral-10">
-                {type === 'card' ? 'Add Card' : 'Confirm'}
+                {type === 'card' ? String('Add Card') : String('Confirm')}
               </Text>
             </TouchableOpacity>
           </View>

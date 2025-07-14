@@ -4,6 +4,7 @@ import { ChevronLeft, X, Copy } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Button from '@/components/Button';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCart } from '@/app/context/CartContext';
 
 type Cart = {
   id: string;
@@ -16,19 +17,21 @@ const CreateCartScreen = () => {
   const [cartName, setCartName] = useState('');
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const [cartLink, setCartLink] = useState('');
-  const [newCart, setNewCart] = useState<Cart | null>(null);
   const router = useRouter();
+  const { addCart, selectCart } = useCart(); // Use the cart context
 
   const handleCreateCart = () => {
     if (!cartName.trim()) return;
-    const newCartId = Date.now().toString();
-    const cartData = {
-      id: newCartId,
-      name: cartName.trim(),
-      items: [],
-      invited: []
-    };
-    setNewCart(cartData);
+    
+    // Generate a unique ID combining timestamp and random string
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 8);
+    const newCartId = `cart_${timestamp}_${random}`;
+    
+    // Add the cart using the context
+    addCart(cartName.trim());
+    
+    // Set up the invite link
     const newCartLink = `https://swiftmart.tg/split-cart/invite?${newCartId}`;
     setCartLink(newCartLink);
     setSuccessModalVisible(true);
@@ -41,15 +44,10 @@ const CreateCartScreen = () => {
 
   const handleCloseSuccess = () => {
     setSuccessModalVisible(false);
-    if (newCart) {
-      router.push({
-        pathname: '../CartScreen',
-        params: { newCart: JSON.stringify(newCart) }
-      });
-    }
     setCartName('');
     setCartLink('');
-    setNewCart(null);
+    // Simply navigate back to CartScreen
+    router.push('../CartScreen');
   };
 
   return (
