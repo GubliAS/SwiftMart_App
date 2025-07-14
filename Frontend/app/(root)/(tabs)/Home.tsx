@@ -19,6 +19,7 @@ import CarouselCard from "@/components/CarouselCard";
 import ProductCard from "@/components/ProductCard"; // Importing ProductCard as a default export
 import productData from "@/constants/productData"; // Import the product data
 import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const carouselData = [
   {
@@ -109,10 +110,10 @@ const Home = () => {
   };
 
   return (
-    <View className="font-Manrope bg-white flex-1">
+    <SafeAreaView className="font-Manrope  bg-white flex-1">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         {/* Header and Search Bar */}
-        <View className="absolute w-full top-0 left-0 right-0 z-10 bg-white px-4">
+        <View className=" w-full  bg-white px-4">
           {/* Header */}
           <View className="flex-row items-center justify-between">
             <Pressable>
@@ -157,7 +158,6 @@ const Home = () => {
             contentContainerStyle={{
               paddingBottom: 16,
               paddingHorizontal: 16,
-              paddingTop: 120, // Adjust this value based on the height of the header and search bar
             }}
           >
             <View className="gap-4">
@@ -192,7 +192,6 @@ const Home = () => {
           <ScrollView
           contentContainerClassName="flex-1 overflow-visible"
             contentContainerStyle={{
-              paddingTop: 120, // Adjust this value based on the height of the header and search bar
             }}
           >
             <View className="gap-4 flex">
@@ -274,7 +273,7 @@ const Home = () => {
           </ScrollView>
         )}
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
