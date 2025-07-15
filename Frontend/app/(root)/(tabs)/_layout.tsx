@@ -8,7 +8,7 @@ import React from "react";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 const Layout = () => (
-  <SafeAreaView className="flex-1 font-Manrope bg-white">
+  <View className="flex-1 pb-4 font-Manrope bg-white">
     <StatusBar style="dark" />
     <View style={{ flex: 1, overflow: "hidden" }}>
       <Tabs
@@ -111,7 +111,7 @@ const Layout = () => (
         />
       </Tabs>
     </View>
-  </SafeAreaView>
+  </View>
 );
 
 export default Layout;

@@ -18,6 +18,8 @@ import {
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
+import GoogleIcon from "@/assets/svgs/google.svg"
+import Facebook from "@/assets/svgs/facebook.svg"
 
 const SellerRegister = () => {
   const [firstName, setFirstName] = useState("");
@@ -412,17 +414,19 @@ const SellerRegister = () => {
             </View>
             {/* Social Buttons */}
             <IconButton
-              icon={require("@/assets/images/google-icon.png")}
+            IconComponent={GoogleIcon}
               BtnText="Continue with Google"
-              textColor="text-secondary"
-              borderColor="border-secondary"
+              textColor="text-primary"
+              borderColor="border-primary"
               bgColor="bg-neutral-10"
             />
+
             <IconButton
-              icon={require("@/assets/images/facebook-icon.png")}
-              BtnText="Continue with Facebook"
-              textColor="text-secondary"
-              borderColor="border-secondary"
+            IconComponent={Facebook}
+            fillColor="#1877F2"
+            BtnText="Continue with Facebook"
+              textColor="text-primary"
+              borderColor="border-primary"
               bgColor="bg-neutral-10"
             />
             {/* Login Link */}

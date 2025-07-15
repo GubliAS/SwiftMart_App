@@ -31,7 +31,7 @@ const Button = ({
       <Text
         className={`text-BodyBold ${
           disabled ? bgColor.replace("bg-", "text-") : textColor
-        }`}
+        } font-Manrope`}
       >
         {BtnText}
       </Text>

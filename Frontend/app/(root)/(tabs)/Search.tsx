@@ -7,6 +7,7 @@ import {
   Keyboard,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from "react-native";
 import React, { useState, useRef } from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -15,10 +16,12 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import ProductCard from "@/components/ProductCard"; // Import ProductCard
 import productData from "@/constants/productData"; // Import product data
-import { Product } from "@/constants/productData"; // Import Product type
+import type { Product } from "@/constants/productData"; // Import Product type
 import { useSearchContext } from "@/components/SearchContext";
 import SearchLabel from "@/components/searchLabel";
 import { useRouter } from "expo-router"; // Import the router
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 const popularSearches = [
   {
@@ -99,6 +102,8 @@ const Search = () => {
   };
 
   return (
+        <SafeAreaView className="font-Manrope  bg-white flex-1">
+    
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View className="flex-1 font-Manrope bg-white px-4 py-6">
         {/* Search Bar */}
@@ -121,7 +126,7 @@ const Search = () => {
             <Feather name="camera" size={20} color="#404040" />
           </Pressable>
         </View>
-
+        <ScrollView>
         {/* Last Search Section */}
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-4">
@@ -204,8 +209,11 @@ const Search = () => {
             ))}
           </View>
         </View>
+        </ScrollView>
+
       </View>
     </TouchableWithoutFeedback>
+    </SafeAreaView>
   );
 };
 

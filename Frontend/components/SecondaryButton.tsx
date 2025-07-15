@@ -23,7 +23,7 @@ const SecondaryButton = ({
       <Text
         className={`text-BodyBold ${
           disabled ? "text-secondary" : "text-white"
-        }`}
+        } font-Manrope`}
       >
         {BtnText}
       </Text>
