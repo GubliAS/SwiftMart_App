@@ -1,7 +1,10 @@
 import { Stack } from 'expo-router';
+import { CheckoutProvider } from '../context/CheckoutContext';
 
 export default function Layout() {
   return (
-    <Stack screenOptions={{ headerShown: false }} />
+    <CheckoutProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+    </CheckoutProvider>
   );
 }

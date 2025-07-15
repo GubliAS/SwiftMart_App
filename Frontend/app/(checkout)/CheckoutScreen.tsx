@@ -8,43 +8,23 @@ import OrderStatusModal from './components/OrderStatusModal';
 import { ChevronLeft } from 'lucide-react-native';
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useRoute } from '@react-navigation/native';
 import ShoppingCartTotalModal from './components/ShoppingCartTotalModal';
+import { useCheckout } from '../context/CheckoutContext';
 
 // Image imports
 const houseIcon = require('../../assets/images/house.png');
 const mastercardIcon = require('../../assets/images/mastercard.png');
 
-type Address = {
-  name: string;
-  street: string;
-  city: string;
-  country: string;
-  region?: string;
-  zipCode?: string;
-  phone?: string;
-};
-
-type PaymentMethod = {
-  type: string;
-  last4: string;
-  fullNumber?: string;
-  network?: string;
-  phone?: ReactNode;
-};
-
-type RouteParams = {
-  savedCard?: string;
-  savedMobile?: string;
-  selectedAddress?: string;
-  [key: string]: any;
-};
-
 const CheckoutScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const route = useRoute() as { params?: RouteParams };
-  const { savedCard, savedMobile, selectedAddress } = route.params || {};
+  const { address, paymentMethod } = useCheckout();
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Address in checkout:', address);
+    console.log('Payment method in checkout:', paymentMethod);
+  }, [address, paymentMethod]);
 
   // Parse cart from params
   const cart = params.cart ? JSON.parse(params.cart as string) : undefined;
@@ -57,49 +37,6 @@ const CheckoutScreen = () => {
     ) || 0;
   const shipping = 6.96; 
   const total = subtotal + shipping;
-
-  // State for address and payment method
-  const [address, setAddress] = useState<Address | undefined>({
-    name: 'John Doe',
-    street: '5482 Adobe Falls Road',
-    city: 'Accra',
-    region: 'Greater Accra',
-    country: 'Ghana',
-    zipCode: '00233',
-    phone: '+233 123 456 789'
-  });
-  
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | undefined>({
-    type: 'MasterCard',
-    last4: '1234',
-    fullNumber: '**** **** **** 1234'
-  });
-
-  //  useEffect to update paymentMethod when a new card is added
-  useEffect(() => {
-    if (savedCard) {
-      let cardObj;
-      try {
-        cardObj = typeof savedCard === 'string' ? JSON.parse(savedCard) : savedCard;
-        setPaymentMethod(cardObj);
-      } catch {
-        // fallback or error handling
-      }
-    }
-  }, [savedCard]);
-
-  // useEffect to update address when a new address is selected
-  useEffect(() => {
-    if (selectedAddress) {
-      let addressObj;
-      try {
-        addressObj = typeof selectedAddress === 'string' ? JSON.parse(selectedAddress) : selectedAddress;
-        setAddress(addressObj);
-      } catch {
-        // fallback or error handling
-      }
-    }
-  }, [selectedAddress]);
 
   // State for modal visibility
   const [isOrderModalVisible, setIsOrderModalVisible] = useState(false);
@@ -202,7 +139,7 @@ const CheckoutScreen = () => {
                   <View className="flex-row justify-between items-center mb-2">
                     <Text className="text-BodyBold font-Manrope text-text">{address.name || 'No name provided'}</Text>
                     <View className="bg-neutral-20 px-2 py-1 rounded">
-                      <Text className="text-sm font-medium text-neutral-60">ZIP: {address.zipCode}</Text>
+                      <Text className="text-sm font-medium text-neutral-60">ZIP: {address.zipCode || 'N/A'}</Text>
                     </View>
                   </View>
                   
@@ -213,8 +150,8 @@ const CheckoutScreen = () => {
                 </View>
               </View>
             ) : (
-              <View style={{ alignItems: 'center', marginTop: 12 }}>
-                <Text className="text-BodyRegular font-Manrope text-neutral-60 italic">
+              <View className="py-4">
+                <Text className="text-BodyRegular font-Manrope text-neutral-60 text-center">
                   No address has been chosen.
                 </Text>
               </View>
@@ -246,8 +183,8 @@ const CheckoutScreen = () => {
                 </View>
               </View>
             ) : (
-              <View style={{ alignItems: 'center', marginTop: 12 }}>
-                <Text className="text-BodyRegular font-Manrope text-neutral-60 italic">
+              <View className="py-4">
+                <Text className="text-BodyRegular font-Manrope text-neutral-60 text-center">
                   No payment method has been chosen.
                 </Text>
               </View>
@@ -292,6 +229,42 @@ const CheckoutScreen = () => {
       <OrderStatusModal
         isVisible={isOrderModalVisible}
         onClose={handleCloseOrderModal}
+        paymentDetails={{
+          paymentMethod: paymentMethod?.type,
+          cardNumber: paymentMethod?.fullNumber || paymentMethod?.last4,
+          expiryDate: paymentMethod?.type !== 'MobileMoney' ? (paymentMethod as any)?.expiry : undefined,
+          cvv: paymentMethod?.type !== 'MobileMoney' ? (paymentMethod as any)?.cvv : undefined,
+          network: paymentMethod?.network,
+          phone: paymentMethod?.type === 'MobileMoney' ? String(paymentMethod?.phone || paymentMethod?.last4) : undefined
+        }}
+        addressDetails={{
+          country: address?.country || '',
+          countryCode: address?.zipCode || '',
+          name: address?.name || '',
+          phone: address?.phone || '',
+          street: address?.street || '',
+          city: address?.city || '',
+          region: address?.region || '',
+          zipCode: address?.zipCode || '',
+          isDefault: false
+        }}
+        onTrackOrder={() => {
+          console.log('Track order');
+          setIsOrderModalVisible(false);
+        }}
+        onGoToHomePage={() => {
+          console.log('Go to home page');
+          setIsOrderModalVisible(false);
+          router.push('/(root)/(tabs)/Home');
+        }}
+        onRetry={() => {
+          console.log('Retry order');
+          setIsOrderModalVisible(false);
+        }}
+        onContactSupport={() => {
+          console.log('Contact support');
+          setIsOrderModalVisible(false);
+        }}
       />
     </>
   );
