@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, Dimensions, TouchableOpacity, Image, PanResponder, Animated, Easing } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import Button from "@/components/Button";
+import { useRouter } from 'expo-router';
 
 type OrderStatusModalProps = {
   isVisible: boolean;
@@ -16,6 +17,8 @@ type OrderStatusModalProps = {
     expiryDate?: string;
     cvv?: string;
     paymentMethod?: string;
+    phone?: string;
+    network?: string;
   };
   // Address validation
   addressDetails?: {
@@ -47,7 +50,13 @@ export default function OrderStatusModal({
   paymentDetails,
   addressDetails
 }: OrderStatusModalProps) {
+  const router = useRouter();
   const [status, setStatus] = useState<OrderStatus>('processing');
+
+  const handleGoToHome = () => {
+    onClose(); // Close the modal first
+    router.replace('/(root)/(tabs)/Home'); // Navigate directly to the Home screen
+  };
   const [pan] = useState(new Animated.ValueXY());
   const spinAnimation = useState(new Animated.Value(0))[0];
 
@@ -101,45 +110,117 @@ export default function OrderStatusModal({
   }, [isVisible]);
 
   const validatePaymentDetails = (payment?: OrderStatusModalProps['paymentDetails']) => {
-    if (!payment) return false;    
-    const { paymentMethod } = payment;    
-
-    // For all payment methods (mobile_money, bank_transfer, card)
-    // We just need to ensure a payment method was selected
-    if (paymentMethod) {
-      return true;
+    if (!payment || !payment.paymentMethod) return false;
+    
+    const { paymentMethod, cardNumber, phone, network, expiryDate, cvv } = payment;
+    
+    // For Mobile Money validation
+    if (paymentMethod === 'MobileMoney') {
+      if (!phone || !network) return false;
+      
+      // Validate Ghanaian mobile money numbers
+      const cleanPhone = phone.replace(/\s+/g, '').replace(/[^\d]/g, '');
+      
+      // Check if phone number is valid for the selected network
+      switch (network) {
+        case 'MTN':
+          // MTN numbers: 024, 025, 053, 054, 055, 059
+          return /^0(24|25|53|54|55|59)\d{7}$/.test(cleanPhone);
+        case 'Vodafone':
+          // Vodafone numbers: 020, 050, 051, 052, 056
+          return /^0(20|50|51|52|56)\d{7}$/.test(cleanPhone);
+        case 'AirtelTigo':
+          // AirtelTigo numbers: 026, 027, 028, 057, 058
+          return /^0(26|27|28|57|58)\d{7}$/.test(cleanPhone);
+        default:
+          return false;
+      }
     }
-
+    
+    // For Card payments
+    if (paymentMethod === 'VISA' || paymentMethod === 'MasterCard' || paymentMethod === 'VISA/MasterCard') {
+      if (!cardNumber) return false;
+      
+      const cleanCardNumber = cardNumber.replace(/\s+/g, '').replace(/[^\d]/g, '');
+      
+      // Basic card number validation (Luhn algorithm)
+      const validateCardNumberLuhn = (number: string) => {
+        let sum = 0;
+        let isEvenIndex = false;
+        
+        for (let i = number.length - 1; i >= 0; i--) {
+          let digit = parseInt(number[i]);
+          
+          if (isEvenIndex) {
+            digit *= 2;
+            if (digit > 9) digit -= 9;
+          }
+          
+          sum += digit;
+          isEvenIndex = !isEvenIndex;
+        }
+        
+        return sum % 10 === 0;
+      };
+      
+      // Check card number length and Luhn validation
+      const isValidCardNumber = cleanCardNumber.length >= 13 && 
+                               cleanCardNumber.length <= 19 && 
+                               validateCardNumberLuhn(cleanCardNumber);
+      
+      // If expiry date is provided, validate it
+      let isValidExpiry = true;
+      if (expiryDate) {
+        const [month, year] = expiryDate.split('-');
+        const monthNum = parseInt(month);
+        const yearNum = parseInt('20' + year);
+        
+        if (monthNum < 1 || monthNum > 12) {
+          isValidExpiry = false;
+        } else {
+          const currentDate = new Date();
+          const currentYear = currentDate.getFullYear();
+          const currentMonth = currentDate.getMonth() + 1;
+          
+          if (yearNum < currentYear || (yearNum === currentYear && monthNum < currentMonth)) {
+            isValidExpiry = false;
+          }
+        }
+      }
+      
+      // If CVV is provided, validate it
+      let isValidCVV = true;
+      if (cvv) {
+        // Most cards use 3 digits, American Express uses 4
+        const expectedLength = 3; // Default to 3 for VISA/MasterCard
+        isValidCVV = cvv.length === expectedLength && /^\d+$/.test(cvv);
+      }
+      
+      return isValidCardNumber && isValidExpiry && isValidCVV;
+    }
+    
     return false;
   };
 
   const validateAddressDetails = (address?: OrderStatusModalProps['addressDetails']) => {
     if (!address) return false;
     
-    const { street, city, country, region, zipCode, name, phone } = address;
+    // We just need the essential address fields
+    const { street, city, country, name, phone } = address;
     
-    // Check if required fields are present
-    if (!street || !city || !country || !name || !phone || !region) return false;
+    // Basic validation - check if essential fields exist and aren't empty
+    const hasValidName = name && name.trim().length >= 2;
+    const hasValidStreet = street && street.trim().length >= 5;
+    const hasValidCity = city && city.trim().length >= 2;
+    const hasValidCountry = country && country.trim().length >= 2;
+    const hasValidPhone = phone && phone.trim().length >= 10;
     
-    // Basic validation for address fields
-    const hasValidStreet = street.trim().length >= 5;
-    const hasValidCity = city.trim().length >= 2;
-    const hasValidCountry = country.trim().length >= 2;
-    const hasValidRegion = region.trim().length >= 2;
-    const hasValidName = name.trim().length >= 2;
-    const hasValidPhone = phone.trim().length >= 10;
-    
-    // ZIP code is optional
-    const hasValidZipCode = !zipCode || zipCode.trim().length >= 4;
-
-    return (
-      hasValidStreet && 
-      hasValidCity && 
-      hasValidCountry && 
-      hasValidRegion && 
-      hasValidName && 
-      hasValidPhone && 
-      hasValidZipCode
+    return !!(
+      hasValidName &&
+      hasValidStreet &&
+      hasValidCity &&
+      hasValidCountry &&
+      hasValidPhone
     );
   };
 
@@ -154,6 +235,11 @@ export default function OrderStatusModal({
           console.log('Payment Details:', {
             received: !!paymentDetails,
             paymentMethod: paymentDetails?.paymentMethod || 'none',
+            phone: paymentDetails?.phone || 'none',
+            network: paymentDetails?.network || 'none',
+            cardNumber: paymentDetails?.cardNumber ? 'present' : 'none',
+            expiryDate: paymentDetails?.expiryDate || 'none',
+            cvv: paymentDetails?.cvv ? 'present' : 'none',
             hasPaymentDetails: !!paymentDetails,
           });
 
@@ -162,12 +248,12 @@ export default function OrderStatusModal({
             received: !!addressDetails,
             hasAddressDetails: !!addressDetails,
             fields: addressDetails ? {
-              street: !!addressDetails.street && addressDetails.street.length > 0,
-              city: !!addressDetails.city && addressDetails.city.length > 0,
-              country: !!addressDetails.country && addressDetails.country.length > 0,
-              name: !!addressDetails.name && addressDetails.name.length > 0,
-              phone: !!addressDetails.phone && addressDetails.phone.length > 0,
-              region: !!addressDetails.region && addressDetails.region.length > 0
+              street: !!addressDetails.street && addressDetails.street.trim().length >= 5,
+              city: !!addressDetails.city && addressDetails.city.trim().length >= 2,
+              country: !!addressDetails.country && addressDetails.country.trim().length >= 2,
+              name: !!addressDetails.name && addressDetails.name.trim().length >= 2,
+              phone: !!addressDetails.phone && addressDetails.phone.trim().length >= 10,
+              region: !!addressDetails.region && addressDetails.region.trim().length >= 2
             } : null
           });
           
@@ -240,7 +326,7 @@ export default function OrderStatusModal({
                 textColor="text-[#111]"
                 hasBorder
                 borderColor="border-neutral-200"
-                onPress={onGoToHomePage}
+                onPress={handleGoToHome}
               />
             </View>
           </>

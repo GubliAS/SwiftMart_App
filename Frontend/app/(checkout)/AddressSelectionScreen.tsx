@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import SavedAddressCard from './components/SavedAddressCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native'; // or useEffect if not using navigation
+import { useCheckout } from '../context/CheckoutContext';
 
 type Address = {
   id: string;
@@ -22,6 +23,7 @@ type Address = {
 
 const AddressSelectionScreen: React.FC = () => {
   const router = useRouter();
+  const { setAddress, clearAddress } = useCheckout();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
@@ -41,10 +43,22 @@ const AddressSelectionScreen: React.FC = () => {
 
   const handleConfirm = () => {
     const selectedAddress = addresses.find(address => address.id === selectedAddressId);
-    router.push({
-      pathname: './CheckoutScreen',
-      params: { selectedAddress: JSON.stringify(selectedAddress) },
-    });
+    if (selectedAddress) {
+      // Convert the address format and save to context
+      const addressForCheckout = {
+        name: selectedAddress.name,
+        street: selectedAddress.street,
+        city: selectedAddress.city,
+        country: selectedAddress.country,
+        region: selectedAddress.region,
+        zipCode: selectedAddress.code,
+        phone: selectedAddress.phone
+      };
+      console.log('Selected address:', selectedAddress);
+      console.log('Address for checkout:', addressForCheckout);
+      setAddress(addressForCheckout);
+    }
+    router.push('/(checkout)/CheckoutScreen');
   };
 
   const handleDeleteAddress = async (addressId: string) => {
@@ -53,6 +67,11 @@ const AddressSelectionScreen: React.FC = () => {
     const updatedAddresses = addresses.filter((addr: any) => addr.id !== addressId);
     await AsyncStorage.setItem('addresses', JSON.stringify(updatedAddresses));
     setAddresses(updatedAddresses);
+    
+    // If all addresses are deleted, clear the checkout address
+    if (updatedAddresses.length === 0) {
+      clearAddress();
+    }
   };
 
   useFocusEffect(
@@ -94,7 +113,12 @@ const AddressSelectionScreen: React.FC = () => {
           {addresses.map((address) => (
             <SavedAddressCard
               key={address.id}
-              address={address}
+              address={{
+                ...address,
+                countryCode: address.code,
+                zipCode: address.code,
+                isDefault: address.isDefault || false
+              }}
               onEdit={() => handleEditAddress(address.id)}
               onDelete={() => handleDeleteAddress(address.id)}
               isSelected={selectedAddressId === address.id}

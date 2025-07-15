@@ -50,6 +50,7 @@ const AddAddressScreen = () => {
       // Create new address object
       const newAddress = {
         ...formData,
+        code: formData.zipCode, // Map zipCode to code for compatibility
         id: Date.now().toString(), // unique id
       };
 
