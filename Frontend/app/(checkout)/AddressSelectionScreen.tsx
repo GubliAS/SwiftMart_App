@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { Text } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import SavedAddressCard from './components/SavedAddressCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native'; // or useEffect if not using navigation
-import { useCheckout } from '../context/CheckoutContext';
+import { useCheckout } from '../context/_CheckoutContext';
 
 type Address = {
   id: string;
@@ -26,19 +25,35 @@ const AddressSelectionScreen: React.FC = () => {
   const { setAddress, clearAddress } = useCheckout();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const handleAddAddress = () => {
-    router.push('./components/AddAddress');
+  const loadAddresses = async () => {
+    const stored = await AsyncStorage.getItem('addresses');
+    setAddresses(stored ? JSON.parse(stored) : []);
   };
 
-  const handleEditAddress = (addressId: string) => {
-    router.push({
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadAddresses();
+    setRefreshing(false);
+  };
+
+  const handleAddAddress = async () => {
+    await router.push('./components/AddAddress');
+    // Refresh addresses after returning from add address screen
+    loadAddresses();
+  };
+
+  const handleEditAddress = async (addressId: string) => {
+    await router.push({
       pathname: './components/AddAddress',
       params: { 
         addressId,
         editMode: 'true'
       }
     });
+    // Refresh addresses after returning from edit address screen
+    loadAddresses();
   };
 
   const handleConfirm = () => {
@@ -74,18 +89,18 @@ const AddressSelectionScreen: React.FC = () => {
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const loadAddresses = async () => {
-        const stored = await AsyncStorage.getItem('addresses');
-        setAddresses(stored ? JSON.parse(stored) : []);
-      };
-      loadAddresses();
-    }, [])
-  );
+  useEffect(() => {
+    // Load addresses when component mounts
+    loadAddresses();
+  }, []);
 
   return (
-    <ScrollView className="flex-1 bg-white">
+    <ScrollView 
+      className="flex-1 bg-white"
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       {/* Back Button */}
       <View className="flex-row items-center p-4 mt-16">
         <TouchableOpacity

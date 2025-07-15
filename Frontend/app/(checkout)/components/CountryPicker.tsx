@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, Modal, SectionList, TextInput } from 'react-native';
+import { View, TouchableOpacity, Text, Modal, SectionList, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { countries } from '../../../constants/countries';
 
@@ -41,43 +41,48 @@ const CountryPicker = ({
         animationType="slide"
         transparent={false}
       >
-        <View className="flex-1 p-4">
-          <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-Heading5 font-Manrope">Select Country</Text>
-            <TouchableOpacity onPress={() => setModalVisible(false)}>
-              <AntDesign name="close" size={24} color="#888" />
-            </TouchableOpacity>
-          </View>
+        <KeyboardAvoidingView
+          className="flex-1"
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
+          <View className="flex-1 p-4">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-Heading5 font-Manrope">Select Country</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <AntDesign name="close" size={24} color="#888" />
+              </TouchableOpacity>
+            </View>
 
-          <TextInput
-            className="border border-neutral-200 rounded-lg p-4 mb-4 font-Manrope"
-            placeholder="Search country"
-            value={searchText}
-            onChangeText={setSearchText}
-          />
+            <TextInput
+              className="border border-neutral-200 rounded-lg p-4 mb-4 font-Manrope"
+              placeholder="Search country"
+              value={searchText}
+              onChangeText={setSearchText}
+            />
 
-          <SectionList
-            sections={sectionedCountries}
-            keyExtractor={(item) => item.name}
-            renderSectionHeader={({ section: { title } }) => (
-              <View
-                style={{
-                  backgroundColor: '#E5E7EB', // Tailwind's neutral-200
-                  paddingVertical: 6,
-                  paddingHorizontal: 16,
-                  width: '100%',
-                }}
-              >
-                <Text style={{ fontWeight: 'bold', color: '#222', fontSize: 16 }}>
-                  {title}
-                </Text>
-              </View>
-            )}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                className="py-3 border-b border-neutral-100 flex-row items-center"
-                onPress={() => {
-                  onSelect(item.name, item.code, item.flag);
+            <SectionList
+              sections={sectionedCountries}
+              keyExtractor={(item) => item.name}
+              renderSectionHeader={({ section: { title } }) => (
+                <View
+                  style={{
+                    backgroundColor: '#E5E7EB', // Tailwind's neutral-200
+                    paddingVertical: 6,
+                    paddingHorizontal: 16,
+                    width: '100%',
+                  }}
+                >
+                  <Text style={{ fontWeight: 'bold', color: '#222', fontSize: 16 }}>
+                    {title}
+                  </Text>
+                </View>
+              )}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  className="py-3 border-b border-neutral-100 flex-row items-center"
+                  onPress={() => {
+                    onSelect(item.name, item.code, item.flag);
                   setModalVisible(false);
                 }}
               >
@@ -88,6 +93,7 @@ const CountryPicker = ({
             )}
           />
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </>
   );
