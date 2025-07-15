@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, Dimensions, TouchableOpacity, Image, PanResponder, Animated } from 'react-native';
+import { View, Text, Modal, Dimensions, TouchableOpacity, Image, PanResponder, Animated, Easing } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import Button from "@/components/Button";
 
@@ -49,6 +49,28 @@ export default function OrderStatusModal({
 }: OrderStatusModalProps) {
   const [status, setStatus] = useState<OrderStatus>('processing');
   const [pan] = useState(new Animated.ValueXY());
+  const spinAnimation = useState(new Animated.Value(0))[0];
+
+  // Create the spinning animation
+  useEffect(() => {
+    if (status === 'processing') {
+      Animated.loop(
+        Animated.timing(spinAnimation, {
+          toValue: 1,
+          duration: 1500,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        })
+      ).start();
+    } else {
+      spinAnimation.setValue(0);
+    }
+  }, [status]);
+
+  const spin = spinAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg']
+  });
   
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
@@ -80,36 +102,12 @@ export default function OrderStatusModal({
 
   const validatePaymentDetails = (payment?: OrderStatusModalProps['paymentDetails']) => {
     if (!payment) return false;    
-    const { cardNumber, expiryDate, cvv, paymentMethod } = payment;    
+    const { paymentMethod } = payment;    
 
-    // For mobile money payments
-    if (paymentMethod === 'mobile_money') {
-      // Mobile money only needs a valid payment method
-      // In a real app, you would also validate phone number and network provider
+    // For all payment methods (mobile_money, bank_transfer, card)
+    // We just need to ensure a payment method was selected
+    if (paymentMethod) {
       return true;
-    }
-
-    // For bank transfer payments
-    if (paymentMethod === 'bank_transfer') {
-      // Bank transfers will be handled by the payment provider
-      return true;
-    }
-
-    // For card payments
-    if (paymentMethod === 'card') {
-      // Check if all card details are present
-      if (!cardNumber || !expiryDate || !cvv) return false;      
-      // Basic card validation
-      const isValidCardNumber = cardNumber.replace(/\s/g, '').length >= 15;
-      const isValidCVV = cvv.length >= 3;      
-      // Expiry date validation (MM/YY format)
-      const [month, year] = expiryDate.split('/');
-      const currentYear = new Date().getFullYear() % 100;
-      const currentMonth = new Date().getMonth() + 1;      
-      const isValidExpiry = Number(year) > currentYear || 
-        (Number(year) === currentYear && Number(month) >= currentMonth);
-
-      return isValidCardNumber && isValidCVV && isValidExpiry;
     }
 
     return false;
@@ -151,42 +149,50 @@ export default function OrderStatusModal({
         try {
           // Simulate API delay
           await new Promise(resolve => setTimeout(resolve, 2000));
-          
-          console.log('Payment Details received:', paymentDetails);
-          console.log('Address Details received:', addressDetails);
+
+          // Detailed payment validation logging
+          console.log('Payment Details:', {
+            received: !!paymentDetails,
+            paymentMethod: paymentDetails?.paymentMethod || 'none',
+            hasPaymentDetails: !!paymentDetails,
+          });
+
+          // Detailed address validation logging
+          console.log('Address Details:', {
+            received: !!addressDetails,
+            hasAddressDetails: !!addressDetails,
+            fields: addressDetails ? {
+              street: !!addressDetails.street && addressDetails.street.length > 0,
+              city: !!addressDetails.city && addressDetails.city.length > 0,
+              country: !!addressDetails.country && addressDetails.country.length > 0,
+              name: !!addressDetails.name && addressDetails.name.length > 0,
+              phone: !!addressDetails.phone && addressDetails.phone.length > 0,
+              region: !!addressDetails.region && addressDetails.region.length > 0
+            } : null
+          });
           
           const hasValidPayment = validatePaymentDetails(paymentDetails);
           const hasValidAddress = validateAddressDetails(addressDetails);
 
-          console.log('Validation Results:', {
-            payment: {
-              isValid: hasValidPayment,
-              details: paymentDetails
-            },
-            address: {
-              isValid: hasValidAddress,
-              details: addressDetails
-            }
+          console.log('Final Validation Results:', {
+            paymentValid: hasValidPayment,
+            addressValid: hasValidAddress,
           });
 
           if (hasValidPayment && hasValidAddress) {
             setStatus('success');
           } else {
             setStatus('failed');
-            console.log('Validation failed because:', {
-              payment: hasValidPayment ? 'valid' : 'missing or invalid payment details',
-              address: hasValidAddress ? 'valid' : 'missing or invalid address details'
-            });
           }
         } catch (error) {
-          setStatus('failed');
           console.error('Order processing error:', error);
+          setStatus('failed');
         }
       };
 
       validateOrderDetails();
     }
-  }, [isVisible, paymentDetails, addressDetails]);
+  }, [isVisible, paymentDetails, addressDetails, status]);
 
   // Removed header and address render functions as they should not be in this modal
 
@@ -197,7 +203,9 @@ export default function OrderStatusModal({
           <>
             <View className="w-40 h-40 rounded-full bg-[#E7F1EF] items-center justify-center mb-8">
               <View className="w-20 h-20 rounded-full bg-primary items-center justify-center">
-                <MaterialCommunityIcons name="timer-sand" size={40} color="#fff" />
+                <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                  <MaterialCommunityIcons name="timer-sand" size={40} color="#fff" />
+                </Animated.View>
               </View>
             </View>
             <Text className="text-2xl font-Manrope font-bold text-[#111] mb-4">Processing Order</Text>

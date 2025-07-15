@@ -18,6 +18,8 @@ import PrimaryButton from "@/components/PrimaryButton";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import DropDownPicker from "react-native-dropdown-picker";
+import GoogleIcon from "@/assets/svgs/google.svg";
+import Facebook from "@/assets/svgs/facebook.svg"
 
 const BuyerRegister = () => {
   const [firstName, setFirstName] = useState("");
@@ -363,14 +365,14 @@ const BuyerRegister = () => {
                   <Text
                     className={`text-BodySmallRegular ${
                       passwordCriteria.length ? "text-primary" : "text-alert"
-                    }`}
+                    } font-Manrope`}
                   >
                     • At least 8 characters
                   </Text>
                   <Text
                     className={`text-BodySmallRegular ${
                       passwordCriteria.uppercase ? "text-primary" : "text-alert"
-                    }`}
+                    } font-Manrope`}
                   >
                     • At least one uppercase letter
                   </Text>
@@ -379,14 +381,14 @@ const BuyerRegister = () => {
                       passwordCriteria.specialChar
                         ? "text-primary"
                         : "text-alert"
-                    }`}
+                    } font-Manrope`}
                   >
                     • At least one special character
                   </Text>
                   <Text
                     className={`text-BodySmallRegular ${
                       passwordCriteria.number ? "text-primary" : "text-alert"
-                    }`}
+                    } font-Manrope`}
                   >
                     • At least one number
                   </Text>
@@ -396,10 +398,10 @@ const BuyerRegister = () => {
 
             {/* Terms and Conditions */}
             <View className="w-full ">
-              <Text className="w-full text-BodySmallRegular text-neutral-70">
+              <Text className="w-full text-BodySmallRegular text-neutral-70 font-Manrope">
                 By clicking Create Account, you acknowledge you have read and
-                agreed to our <Text className="text-primary">Terms of Use</Text>{" "}
-                and <Text className="text-primary">Privacy Policy</Text>
+                agreed to our <Text className="text-primary font-Manrope">Terms of Use</Text>{" "}
+                and <Text className="text-primary font-Manrope">Privacy Policy</Text>
               </Text>
             </View>
 
@@ -411,7 +413,7 @@ const BuyerRegister = () => {
             />
             {/* Error Message */}
             {errorMessage !== "" && (
-              <Text className="text-alert text-BodySmallRegular  text-center">
+              <Text className="text-alert text-BodySmallRegular text-center font-Manrope">
                 {errorMessage}
               </Text>
             )}
@@ -419,20 +421,22 @@ const BuyerRegister = () => {
             {/* OR Separator */}
             <View className="flex flex-row items-center">
               <View className="h-[1px] flex-1 bg-neutral-50" />
-              <Text className="mx-4 text-Caption text-text">OR</Text>
+              <Text className="mx-4 text-Caption text-text font-Manrope">OR</Text>
               <View className="h-[1px] flex-1 bg-neutral-50" />
             </View>
             {/* Social Buttons */}
             <IconButton
-              icon={require("@/assets/images/google-icon.png")}
+            IconComponent={GoogleIcon}
               BtnText="Continue with Google"
               textColor="text-primary"
               borderColor="border-primary"
               bgColor="bg-neutral-10"
             />
+
             <IconButton
-              icon={require("@/assets/images/facebook-icon.png")}
-              BtnText="Continue with Facebook"
+            IconComponent={Facebook}
+            fillColor="#1877F2"
+            BtnText="Continue with Facebook"
               textColor="text-primary"
               borderColor="border-primary"
               bgColor="bg-neutral-10"

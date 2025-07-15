@@ -303,8 +303,8 @@ const Login = () => {
               keyboardShouldPersistTaps="handled"
             >
               <View className="w-[343px] gap-2">
-                <Text className="text-Heading2 text-text">Welcome Back!</Text>
-                <Text className="text-BodyRegular text-neutral-70">
+                <Text className="text-Heading2 text-text font-Manrope">Welcome Back!</Text>
+                <Text className="text-BodyRegular text-neutral-70 font-Manrope">
                   Enter your email to start shopping and get awesome deals
                   today!
                 </Text>
@@ -405,7 +405,7 @@ const Login = () => {
 
                 {/* Error Message */}
                 {errorMessage !== "" && (
-                  <Text className="text-alert text-BodySmallRegular text-center ">
+                  <Text className="text-alert text-BodySmallRegular text-center font-Manrope">
                     {errorMessage}
                   </Text>
                 )}
@@ -509,10 +509,10 @@ const Login = () => {
                     {isResettingPassword ? (
                       <>
                         <View className="items-center gap-2 mb-2 w-[319px]">
-                          <Text className="text-Heading3 text-text ">
+                          <Text className="text-Heading3 text-text font-Manrope">
                             Create New Password!
                           </Text>
-                          <Text className="text-BodyRegular text-neutral-70 text-center ">
+                          <Text className="text-BodyRegular text-neutral-70 text-center font-Manrope">
                             The new passwords should match each other and also
                             meet the criteria.
                           </Text>
@@ -664,12 +664,12 @@ const Login = () => {
                     ) : isEnteringCode ? (
                       <>
                         <View className="items-center gap-2 mb-2 w-[319px]">
-                          <Text className="text-Heading3 text-text ">
+                          <Text className="text-Heading3 text-text font-Manrope">
                             {normalCodeText
                               ? "Forgot Password!"
                               : "Invalid Code!"}
                           </Text>
-                          <Text className="text-BodyRegular text-neutral-70 text-center ">
+                          <Text className="text-BodyRegular text-neutral-70 text-center font-Manrope">
                             {normalCodeText
                               ? "Enter code"
                               : "The code you entered is incorrect. Please try again."}
@@ -711,12 +711,12 @@ const Login = () => {
                     ) : (
                       <>
                         <View className="items-center gap-2 mb-2 w-[319px]">
-                          <Text className="text-Heading3 text-text ">
+                          <Text className="text-Heading3 text-text font-Manrope">
                             {isEmailAssigned
                               ? "Forgot Password!"
                               : "No Account Found!"}
                           </Text>
-                          <Text className="text-BodyRegular text-neutral-70 text-center ">
+                          <Text className="text-BodyRegular text-neutral-70 text-center font-Manrope">
                             {isEmailAssigned
                               ? "Enter your email"
                               : "The email address you entered is not linked to any SwiftMart account."}

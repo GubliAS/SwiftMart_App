@@ -162,7 +162,7 @@ const FilteredProducts = () => {
           onPress={() => router.back()}
         >
           <Entypo name="chevron-left" size={24} color="black" />
-          <Text className="text-BodyRegular text-primary">Back</Text>
+          <Text className="text-BodyRegular text-primary font-Manrope">Back</Text>
         </Pressable>
       </View>
 

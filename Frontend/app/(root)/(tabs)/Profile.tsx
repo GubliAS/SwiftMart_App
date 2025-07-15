@@ -10,6 +10,7 @@ import React from "react";
 import { Entypo, Feather, MaterialIcons } from "@expo/vector-icons";
 import PrimaryButton from "@/components/PrimaryButton";
 import ProfileCard from "@/components/ProfileCard";
+import { router } from "expo-router";
 
 const Profile = () => {
   return (
@@ -57,10 +58,10 @@ const Profile = () => {
             contentContainerClassName="gap-4"
           >
             <View className="">
-              <PrimaryButton BtnText="Become A Seller" />
+              <PrimaryButton BtnText="Become A Seller" onPress={() => { router.push("/(seller_dashboard)/SellerGetStarted") }} />
             </View>
             <View className="gap-4">
-              <Text className="text-BodyBold text-text">General</Text>
+              <Text className="text-BodyBold text-text font-Manrope">General</Text>
               {/* Transaction Card */}
               <ProfileCard
                 text="Transaction"
@@ -105,7 +106,7 @@ const Profile = () => {
               />
             </View>
             <View className="gap-4">
-              <Text className="text-BodyBold text-text">General</Text>
+              <Text className="text-BodyBold text-text font-Manrope">General</Text>
               {/* Transaction Card */}
               <ProfileCard
                 text="Get in Touch With Us"
@@ -116,7 +117,7 @@ const Profile = () => {
                 }
               />
             </View>
-            <Text className="text-center text-neutral-60 text-Caption mt-4">
+            <Text className="text-center text-neutral-60 text-Caption mt-4 font-Manrope">
               App version: 1.0
             </Text>
           </ScrollView>

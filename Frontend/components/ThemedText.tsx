@@ -19,6 +19,7 @@ export function ThemedText({
 
   return (
     <Text
+      className="font-Manrope"
       style={[
         { color },
         type === 'default' ? styles.default : undefined,

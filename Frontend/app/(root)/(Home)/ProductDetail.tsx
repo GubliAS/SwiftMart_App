@@ -217,27 +217,27 @@ const ProductDetail = () => {
         <View className="px-4  gap-4 mt-[54px] ">
           <View className="gap-2">
             <View className="justify-between flex-row items-center">
-              <Text className="text-BodyRegular text-text ">
+              <Text className="text-BodyRegular text-text font-Manrope">
                 {product.name}
               </Text>
               <View className="border  items-center  px-4 py-2 border-neutral-90 rounded-[10px]">
-                <Text className="text-BodyRegular text-neutral-80 ">
+                <Text className="text-BodyRegular text-neutral-80 font-Manrope">
                   {product.condition}
                 </Text>
               </View>
             </View>
             <View className="flex-row items-center gap-2 ">
-              <Text className="text-Heading2  text-text">
+              <Text className="text-Heading2 text-text font-Manrope">
                 ${variant?.price || product.price}
               </Text>
-              <Text className="text-BodySmallRegular line-through text-text">
+              <Text className="text-BodySmallRegular line-through text-text font-Manrope">
                 ${product.originalPrice}
               </Text>
 
               {/* Discount Badge */}
               {(product as any).discount && (
                 <View className=" h-[20px] left-1 bg-alert px-2 py-1 rounded-tl-[10px] rounded-br-[10px]">
-                  <Text className="text-white text-[10px] font-semibold">
+                  <Text className="text-white text-[10px] font-semibold font-Manrope">
                     {(product as any).discount}% OFF
                   </Text>
                 </View>
@@ -246,7 +246,7 @@ const ProductDetail = () => {
 
             <View className="flex-row items-center gap-1 ">
               <AntDesign name="star" size={18} color="#EBB65B" />
-              <Text className="text-Captiontext-gray-700">
+              <Text className="text-Captiontext-gray-700 font-Manrope">
                 {product.rating}
               </Text>
             </View>

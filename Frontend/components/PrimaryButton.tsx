@@ -23,7 +23,7 @@ const PrimaryButton = ({
       <Text
         className={`text-BodyBold ${
           disabled ? "text-primary" : "text-white"
-        }`}
+        } font-Manrope`}
       >
         {BtnText}
       </Text>

@@ -20,6 +20,7 @@ import ProductCard from "@/components/ProductCard"; // Importing ProductCard as 
 import productData from "@/constants/productData"; // Import the product data
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Logo from "@/assets/svgs/LogoLG2.svg"
 
 const carouselData = [
   {
@@ -121,6 +122,7 @@ const Home = () => {
                 style={{ height: 55, width: 55 }}
                 source={require("@/assets/images/LogoLG.png")}
               />
+              
             </Pressable>
             <Pressable>
               <Feather name="bell" size={28} color="#404040" />
@@ -161,7 +163,7 @@ const Home = () => {
             }}
           >
             <View className="gap-4">
-              <Text className="text-Heading3 text-text">
+              <Text className="font-Manrope text-Heading3 text-text">
                 Shop by Categories
               </Text>
               <View className="flex-row flex-wrap justify-between gap-y-4">
@@ -178,7 +180,7 @@ const Home = () => {
                     >
                       <View className="bg-black/20 absolute h-full w-full" />
                       <View className="absolute h-full justify-center items-center w-full">
-                        <Text className="text-neutral-10 text-Heading4 font-bold text-center">
+                        <Text className="font-Manrope text-neutral-10 text-Heading4 font-bold text-center">
                           {category.name}
                         </Text>
                       </View>
@@ -236,11 +238,11 @@ const Home = () => {
               {/* Main Content */}
               <View className="px-4 gap-4 overflow-visible">
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-Heading3 text-text">
+                  <Text className="font-Manrope text-Heading3 text-text">
                     Special Offers
                   </Text>
                   <TouchableOpacity onPress={() => router.push({ pathname: '/FilteredProducts', params: { specialOffers: 'true' } })}>
-                    <Text className="text-BodySmallBold text-primary">
+                    <Text className="font-Manrope text-BodySmallBold text-primary">
                       See More
                     </Text>
                   </TouchableOpacity>

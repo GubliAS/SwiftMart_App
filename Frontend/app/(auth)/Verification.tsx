@@ -170,7 +170,7 @@ const Verification = () => {
                   <Text
                     className={`text-Heading3 ${
                       isCodeCorrect === false ? "text-alert" : "text-text"
-                    } text-center`}
+                    } text-center font-Manrope`}
                   >
                     {isCodeCorrect === false
                       ? "Incorrect Code"
@@ -179,14 +179,14 @@ const Verification = () => {
                   <Text
                     className={`text-BodyRegular ${
                       isCodeCorrect === false ? "text-alert" : "text-neutral-70"
-                    }`}
+                    } font-Manrope`}
                   >
                     {isCodeCorrect === false
                       ? "Please make sure the code is correct"
                       : "We have sent a verification code to"}
                   </Text>
                   {isCodeCorrect !== false && (
-                    <Text className="text-BodyBold text-text">{email}</Text>
+                    <Text className="text-BodyBold text-text font-Manrope">{email}</Text>
                   )}
                 </View>
 
