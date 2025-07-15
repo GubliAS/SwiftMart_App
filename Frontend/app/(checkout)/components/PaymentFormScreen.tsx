@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Image, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { AlignLeft, Calendar, Shield } from 'lucide-react-native'; // Update import
 import { useRouter } from 'expo-router';
-import { useCheckout } from '../../context/CheckoutContext';
+import { useCheckout } from '../../context/_CheckoutContext';
 
 // Image imports
 const visaIcon = require('../../../assets/images/visa.png');

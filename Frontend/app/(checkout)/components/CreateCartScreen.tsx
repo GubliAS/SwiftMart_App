@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Clipboard, Alert, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, TextInput, Clipboard, Alert, TouchableOpacity, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { ChevronLeft, X, Copy } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Button from '@/components/Button';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useCart } from '@/app/context/CartContext';
+import { useCart } from '@/app/context/_CartContext';
 
 type Cart = {
   id: string;
@@ -51,23 +51,28 @@ const CreateCartScreen = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white p-5">
-      {/* Header */}
-      <View className="flex-row items-center mt-10 mb-6">
-        <TouchableOpacity onPress={() => router.back()}>
-          <ChevronLeft size={28} color="#222" />
-        </TouchableOpacity>
-        <Text className="text-Heading3 ml-24">Create Cart</Text>
-      </View>
+    <KeyboardAvoidingView
+      className="flex-1 bg-white"
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <SafeAreaView className="flex-1 bg-white p-5">
+        {/* Header */}
+        <View className="flex-row items-center mt-10 mb-6">
+          <TouchableOpacity onPress={() => router.back()}>
+            <ChevronLeft size={28} color="#222" />
+          </TouchableOpacity>
+          <Text className="text-Heading3 ml-24">Create Cart</Text>
+        </View>
 
-      {/* Cart Creation Form */}
-      <Text className="text-base text-text mb-4 mt-8">What is the name of the cart?</Text>
-      <TextInput
-        placeholder="Enter Cart Name"
-        value={cartName}
-        onChangeText={setCartName}
-        className="border border-gray-200 rounded-lg p-3 mb-6 text-base bg-white"
-        autoFocus
+        {/* Cart Creation Form */}
+        <Text className="text-base text-text mb-4 mt-8">What is the name of the cart?</Text>
+        <TextInput
+          placeholder="Enter Cart Name"
+          value={cartName}
+          onChangeText={setCartName}
+          className="border border-gray-200 rounded-lg p-3 mb-6 text-base bg-white"
+          autoFocus
       />
       
       <View className="mt-8">
@@ -140,6 +145,7 @@ const CreateCartScreen = () => {
         </View>
       </Modal>
     </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 

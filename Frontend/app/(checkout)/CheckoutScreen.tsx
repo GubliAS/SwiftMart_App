@@ -9,7 +9,7 @@ import { ChevronLeft } from 'lucide-react-native';
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import ShoppingCartTotalModal from './components/ShoppingCartTotalModal';
-import { useCheckout } from '../context/CheckoutContext';
+import { useCheckout } from '../context/_CheckoutContext';
 
 // Image imports
 const houseIcon = require('../../assets/images/house.png');
