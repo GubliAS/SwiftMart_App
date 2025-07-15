@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -50,6 +50,7 @@ const AddAddressScreen = () => {
       // Create new address object
       const newAddress = {
         ...formData,
+        code: formData.zipCode, // Map zipCode to code for compatibility
         id: Date.now().toString(), // unique id
       };
 
@@ -75,7 +76,11 @@ const AddAddressScreen = () => {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <KeyboardAvoidingView 
+      className="flex-1 bg-white"
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
       {/* Header */}
       <View className="flex-row items-center p-4 mt-16">
         <TouchableOpacity
@@ -92,7 +97,10 @@ const AddAddressScreen = () => {
         </Text>
       </View>
 
-      <ScrollView className="px-4 pt-4 pb-40">
+      <ScrollView className="px-4 pt-4 pb-40" keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         {/* Country/Region */}
         <View className="mb-1">
           <Text className="text-BodyRegular font-Manrope text-neutral-80 mb-1">
@@ -224,7 +232,7 @@ const AddAddressScreen = () => {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

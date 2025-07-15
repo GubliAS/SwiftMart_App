@@ -6,7 +6,7 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import "@/global.css";
 import { Stack } from "expo-router";
-import { CartProvider } from "./context/CartContext";
+import { CartProvider } from "./context/_CartContext";
 import { SearchProvider } from "@/components/SearchContext";
 
 SplashScreen.preventAutoHideAsync();

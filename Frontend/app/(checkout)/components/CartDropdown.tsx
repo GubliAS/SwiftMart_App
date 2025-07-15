@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Modal, TextInput, StyleSheet } from 'react-native';
 import { Entypo, Feather } from '@expo/vector-icons';
-import { useCart } from '@/app/context/CartContext';
+import { useCart } from '@/app/context/_CartContext';
 import { useRouter } from 'expo-router';
 
 const CartDropdown = () => {

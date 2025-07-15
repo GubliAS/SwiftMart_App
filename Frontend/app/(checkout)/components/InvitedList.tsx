@@ -6,6 +6,8 @@ import {
   TextInput,
   Alert,
   Clipboard,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -22,12 +24,16 @@ const InvitedList = ({ people, onRemove, onClose  }: any) => {
   };
 
   return (
-    <View className="bg-white p-4 rounded-2xl">
-      <Text className="font-Manrope text-BodyBold mb-4 text-center">
-        Copy this link to invite others
-      </Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <View className="bg-white p-4 rounded-2xl">
+        <Text className="font-Manrope text-BodyBold mb-4 text-center">
+          Copy this link to invite others
+        </Text>
 
-      <View className="flex-row items-center border border-neutral-30 rounded-lg p-2 mb-4">
+        <View className="flex-row items-center border border-neutral-30 rounded-lg p-2 mb-4">
         <TextInput
           className="flex-1"
           editable={false}
@@ -62,6 +68,7 @@ const InvitedList = ({ people, onRemove, onClose  }: any) => {
         </Text>
       </TouchableOpacity>
     </View>
+    </KeyboardAvoidingView>
   );
 };
 

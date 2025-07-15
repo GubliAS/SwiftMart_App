@@ -8,6 +8,7 @@ import PaymentFormScreen from './components/PaymentFormScreen';
 // import ChoosePaymentTypeScreen from './components/ChoosePaymentTypeScreen';
 import { PlusIcon } from 'react-native-heroicons/outline';
 import ChoosePaymentTypeScreen from './components/ChoosePaymentTypeScreen';
+import { useCheckout } from '../context/_CheckoutContext';
 
 type PaymentMethod = {
   id: string;
@@ -20,6 +21,7 @@ type PaymentMethod = {
 
 const PaymentSelectionScreen = () => {
   const router = useRouter();
+  const { setPaymentMethod } = useCheckout();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState<'card' | 'mobile'>('card');
@@ -43,18 +45,23 @@ const PaymentSelectionScreen = () => {
           : newMethod.last4 ?? '',
       }
     ]);
+    
+    // Save to context
+    const paymentForCheckout = {
+      type: newMethod.type,
+      last4: newMethod.type === 'MobileMoney'
+        ? newMethod.phone ?? ''
+        : newMethod.last4 ?? '',
+      fullNumber: newMethod.type !== 'MobileMoney' ? (newMethod as any).number : undefined,
+      network: newMethod.type === 'MobileMoney' ? newMethod.network : undefined,
+      phone: newMethod.type === 'MobileMoney' ? newMethod.phone : undefined,
+      expiry: newMethod.type !== 'MobileMoney' ? (newMethod as any).expiry : undefined,
+      cvv: newMethod.type !== 'MobileMoney' ? (newMethod as any).cvv : undefined,
+    };
+    setPaymentMethod(paymentForCheckout);
+    
     setShowForm(false);
-    router.push({
-      pathname: '/(checkout)/CheckoutScreen',
-      params: { savedCard: JSON.stringify({
-        ...newMethod,
-        phone: newMethod.type === 'MobileMoney' ? newMethod.phone : undefined,
-        network: newMethod.type === 'MobileMoney' ? newMethod.network : undefined,
-        last4: newMethod.type === 'MobileMoney'
-          ? newMethod.phone ?? ''
-          : newMethod.last4 ?? '',
-      }) }
-    });
+    router.push('/(checkout)/CheckoutScreen');
   };
 
   return (
