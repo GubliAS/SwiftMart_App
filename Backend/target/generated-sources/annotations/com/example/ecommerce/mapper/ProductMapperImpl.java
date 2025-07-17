@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-25T23:35:17+0000",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
+    date = "2025-07-17T22:29:58+0000",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.42.50.v20250628-1110, environment: Java 21.0.7 (Eclipse Adoptium)"
 )
 @Component
 public class ProductMapperImpl implements ProductMapper {
@@ -23,9 +23,9 @@ public class ProductMapperImpl implements ProductMapper {
         ProductDTO productDTO = new ProductDTO();
 
         productDTO.setCategoryId( productCategoryId( product ) );
+        productDTO.setDescription( product.getDescription() );
         productDTO.setId( product.getId() );
         productDTO.setName( product.getName() );
-        productDTO.setDescription( product.getDescription() );
         productDTO.setProductImage( product.getProductImage() );
 
         return productDTO;
@@ -40,9 +40,9 @@ public class ProductMapperImpl implements ProductMapper {
         Product product = new Product();
 
         product.setCategory( productDTOToProductCategory( dto ) );
+        product.setDescription( dto.getDescription() );
         product.setId( dto.getId() );
         product.setName( dto.getName() );
-        product.setDescription( dto.getDescription() );
         product.setProductImage( dto.getProductImage() );
 
         return product;

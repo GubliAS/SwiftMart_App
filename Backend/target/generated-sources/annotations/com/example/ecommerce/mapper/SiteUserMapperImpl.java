@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-25T23:35:17+0000",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
+    date = "2025-07-17T22:30:00+0000",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.42.50.v20250628-1110, environment: Java 21.0.7 (Eclipse Adoptium)"
 )
 @Component
 public class SiteUserMapperImpl implements SiteUserMapper {
@@ -25,11 +25,11 @@ public class SiteUserMapperImpl implements SiteUserMapper {
 
         SiteUserDTO siteUserDTO = new SiteUserDTO();
 
-        siteUserDTO.setId( user.getId() );
         siteUserDTO.setEmailAddress( user.getEmailAddress() );
+        siteUserDTO.setId( user.getId() );
+        siteUserDTO.setPassword( user.getPassword() );
         siteUserDTO.setPhoneNumber( user.getPhoneNumber() );
         siteUserDTO.setRoles( roleSetToRoleDTOSet( user.getRoles() ) );
-        siteUserDTO.setPassword( user.getPassword() );
 
         return siteUserDTO;
     }
@@ -42,10 +42,10 @@ public class SiteUserMapperImpl implements SiteUserMapper {
 
         SiteUser siteUser = new SiteUser();
 
-        siteUser.setId( dto.getId() );
         siteUser.setEmailAddress( dto.getEmailAddress() );
-        siteUser.setPhoneNumber( dto.getPhoneNumber() );
+        siteUser.setId( dto.getId() );
         siteUser.setPassword( dto.getPassword() );
+        siteUser.setPhoneNumber( dto.getPhoneNumber() );
         siteUser.setRoles( roleDTOSetToRoleSet( dto.getRoles() ) );
 
         return siteUser;
