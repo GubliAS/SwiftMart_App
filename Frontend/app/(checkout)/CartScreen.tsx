@@ -6,7 +6,7 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView } from "react-native";
 import CartItem from "./components/CartItem";
 import { useState, useEffect } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -18,65 +18,16 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import InvitedList from "./components/InvitedList";
 import ShoppingCartTotalModal from "./components/ShoppingCartTotalModal";
 import Modal from "react-native-modal";
+import { useCart } from "../context/_CartContext";
 
-const cartObject = [
-  {
-    id: "default",
-    name: "My Cart",
-    items: [
-      {
-        id: "1",
-        image: require("../../assets/images/yellow-chair.png"),
-        title: "EKERÖ",
-        price: 230.0,
-        oldPrice: 512.58,
-        color: "Yellow",
-        quantity: 1,
-      },
-      {
-        id: "2",
-        image: require("../../assets/images/yellow-chair.png"),
-        title: "STRANDMON",
-        price: 274.13,
-        oldPrice: 865.66,
-        color: "Grey",
-        quantity: 1,
-      },
-    ],
-    invited: [],
-  },
-  {
-    id: "newcart",
-    name: "Christmas Cart",
-    items: [
-      {
-        id: "1",
-        image: require("../../assets/images/yellow-chair.png"),
-        title: "EKERÖ",
-        price: 230.0,
-        oldPrice: 512.58,
-        color: "Yellow",
-        quantity: 1,
-      },
-      {
-        id: "2",
-        image: require("../../assets/images/yellow-chair.png"),
-        title: "STRANDMON",
-        price: 274.13,
-        oldPrice: 865.66,
-        color: "Grey",
-        quantity: 1,
-      },
-    ],
-    invited: ["user1@example.com", "user2@example.com"],
-  },
-];
+
 
 const CartScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const [carts, setCarts] = useState(cartObject);
-  const [selectedCartId, setSelectedCartId] = useState("default");
+  // const [_, ] = useState(cartObject);
+  const { carts, removeCart, setSelectedCartId, selectedCartId, updateItemQuantity, handleRemovePerson } = useCart(); // Use the cart context
+  // const [selectedCartId, setSelectedCartId] = useState("default");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isInviteVisible, setIsInviteVisible] = useState(false);
   const [showCartList, setShowCartList] = useState(false);
@@ -92,7 +43,7 @@ const CartScreen = () => {
           return;
         }
 
-        const cartExists = carts.some(cart => cart.id === incoming.id);
+        const cartExists = carts.some((cart) => cart.id === incoming.id);
 
         if (!cartExists) {
           const newCart = {
@@ -102,11 +53,13 @@ const CartScreen = () => {
             invited: Array.isArray(incoming.invited) ? incoming.invited : [],
           };
 
-          setCarts(prev => [...prev, newCart]);
+          // setCarts((prev) => [...prev, newCart]);
           setSelectedCartId(newCart.id);
           setShowCartList(false);
         } else {
-          console.log(`Cart with id ${incoming.id} already exists — not adding duplicate.`);
+          console.log(
+            `Cart with id ${incoming.id} already exists — not adding duplicate.`
+          );
         }
       } catch (err) {
         console.error("Error parsing newCart:", err);
@@ -114,54 +67,8 @@ const CartScreen = () => {
     }
   }, [params.newCart]);
 
-  const selectedCart = carts.find((cart) => cart.id === selectedCartId) || carts[0];
-
-  const updateQuantity = (itemId: string, amount: number) => {
-    setCarts((prevCarts) =>
-      prevCarts.map((cart) =>
-        cart.id === selectedCartId
-          ? {
-              ...cart,
-              items: cart.items.map((item) =>
-                item.id === itemId
-                  ? { ...item, quantity: Math.max(1, item.quantity + amount) }
-                  : item
-              ),
-            }
-          : cart
-      )
-    );
-  };
-
-  const handleDeleteCart = (cartId: string) => {
-    if (cartId === "default") return;
-
-    Alert.alert("Delete Cart", "Are you sure you want to delete this cart?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        onPress: () => {
-          setCarts((prevCarts) => prevCarts.filter((cart) => cart.id !== cartId));
-          if (selectedCartId === cartId) {
-            setSelectedCartId("default");
-          }
-        },
-      },
-    ]);
-  };
-
-  const handleRemovePerson = (person: string) => {
-    setCarts((prevCarts) =>
-      prevCarts.map((cart) =>
-        cart.id === selectedCartId
-          ? {
-              ...cart,
-              invited: cart.invited.filter((p) => p !== person),
-            }
-          : cart
-      )
-    );
-  };
+  const selectedCart =
+    carts.find((cart) => cart.id === selectedCartId) || carts[0];
 
   const subtotal =
     selectedCart?.items.reduce(
@@ -173,7 +80,7 @@ const CartScreen = () => {
   const total = subtotal + shipping;
 
   const handleCreateCartPress = () => {
-    router.push('./components/CreateCartScreen');
+    router.push("./components/CreateCartScreen");
     setShowCartList(false);
   };
 
@@ -182,10 +89,12 @@ const CartScreen = () => {
       <View className="flex-row items-center p-4" style={{ marginTop: 24 }}>
         <TouchableOpacity
           className="flex-row items-center"
-          onPress={() => router.push('/')}
+          onPress={() => router.push("/")}
         >
           <Entypo name="chevron-left" size={24} color="#156651" />
-          <Text className="text-BodyRegular font-Manrope text-primary ml-2">Go To Home</Text>
+          <Text className="text-BodyRegular font-Manrope text-primary ml-2">
+            Go To Home
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -196,11 +105,23 @@ const CartScreen = () => {
             className="flex-1 flex-row items-center justify-center"
             onPress={() => setShowCartList(!showCartList)}
           >
-            <Text className="font-semibold text-[30px]">{selectedCart?.name}</Text>
+            <Text className="font-semibold text-[30px]">
+              {selectedCart?.name}
+            </Text>
             {showCartList ? (
-              <Entypo name="chevron-up" size={20} color="black" className="ml-2" />
+              <Entypo
+                name="chevron-up"
+                size={20}
+                color="black"
+                className="ml-2"
+              />
             ) : (
-              <Entypo name="chevron-down" size={20} color="black" className="ml-2" />
+              <Entypo
+                name="chevron-down"
+                size={20}
+                color="black"
+                className="ml-2"
+              />
             )}
           </TouchableOpacity>
 
@@ -212,7 +133,9 @@ const CartScreen = () => {
               <Ionicons name="person-add-outline" size={28} color="#156651" />
               {(selectedCart?.invited?.length ?? 0) > 0 && (
                 <View className="absolute -top-1 right-0 bg-primary rounded-full w-5 h-5 flex items-center justify-center">
-                  <Text className="text-white text-xs">{(selectedCart?.invited?.length ?? 0)}</Text>
+                  <Text className="text-white text-xs">
+                    {selectedCart?.invited?.length ?? 0}
+                  </Text>
                 </View>
               )}
             </TouchableOpacity>
@@ -235,27 +158,37 @@ const CartScreen = () => {
                 >
                   <Text
                     style={{ fontSize: 16 }}
-                    className={`${cart.id === selectedCartId ? "font-bold text-primary" : ""}`}
+                    className={`${
+                      cart.id === selectedCartId ? "font-bold text-primary" : ""
+                    }`}
                   >
                     {cart.name}
                   </Text>
 
                   {cart.id === "default" ? (
-                    <Text style={{ color: "#888", fontSize: 14, marginLeft: 8 }}>(default)</Text>
+                    <Text
+                      style={{ color: "#888", fontSize: 14, marginLeft: 8 }}
+                    >
+                      (default)
+                    </Text>
                   ) : (
                     <View className="flex-row items-center gap-4">
-                      <TouchableOpacity onPress={() => {
-                        setSelectedCartId(cart.id);
-                        setShowCartList(false);
-                        setIsInviteVisible(true);
-                      }}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setSelectedCartId(cart.id);
+                          setShowCartList(false);
+                          setIsInviteVisible(true);
+                        }}
+                      >
                         <Ionicons
                           name="person-add-outline"
                           size={20}
                           color="#156651"
                         />
                       </TouchableOpacity>
-                      <TouchableOpacity onPress={() => handleDeleteCart(cart.id)}>
+                      <TouchableOpacity
+                        onPress={() => removeCart(cart.id)}
+                      >
                         <MaterialCommunityIcons
                           name="trash-can-outline"
                           size={20}
@@ -288,8 +221,8 @@ const CartScreen = () => {
           renderItem={({ item }) => (
             <CartItem
               {...item}
-              onDecrease={() => updateQuantity(item.id, -1)}
-              onIncrease={() => updateQuantity(item.id, 1)}
+              onDecrease={() => updateItemQuantity(selectedCartId, item.id, -1)}
+              onIncrease={() => updateItemQuantity(selectedCartId, item.id, 1)}
             />
           )}
         />
@@ -311,8 +244,8 @@ const CartScreen = () => {
         onCheckout={() => {
           setIsModalVisible(false);
           router.push({
-            pathname: '/(checkout)/CheckoutScreen',
-            params: { cart: JSON.stringify(selectedCart) }
+            pathname: "/(checkout)/CheckoutScreen",
+            params: { cart: JSON.stringify(selectedCart) },
           });
         }}
       />
@@ -324,7 +257,7 @@ const CartScreen = () => {
       >
         <InvitedList
           people={selectedCart?.invited || []}
-          onRemove={handleRemovePerson}
+          onRemove={()=> handleRemovePerson(selectedCartId, "")}
           onClose={() => setIsInviteVisible(false)}
         />
       </Modal>

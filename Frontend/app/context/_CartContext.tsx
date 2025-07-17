@@ -29,6 +29,7 @@ type CartContextType = {
   updateItemQuantity: (cartId: string, itemId: string, amount: number) => void;
   addItemToCart: (cartId: string, item: CartItem) => void;
   selectCart: (id: string) => void;
+  handleRemovePerson: (cartId: string,person: string) => void;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -194,6 +195,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+   const handleRemovePerson = (cartId: string, person: string) => {
+    setCarts((prevCarts) =>
+      prevCarts.map((cart) =>
+        cart.id === cartId
+          ? {
+              ...cart,
+              invited: cart.invited?.filter((p) => p !== person),
+            }
+          : cart
+      )
+    );
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -205,6 +219,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         updateItemQuantity,
         addItemToCart,
         selectCart,
+        handleRemovePerson,
       }}
     >
       {children}

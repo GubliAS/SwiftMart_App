@@ -4,7 +4,7 @@ import { AntDesign, Entypo } from "@expo/vector-icons";
 type Cart = {
   id: string;
   name: string;
-  // add other properties if needed
+ 
 };
 
 type CartSelectionButtonProps = {
