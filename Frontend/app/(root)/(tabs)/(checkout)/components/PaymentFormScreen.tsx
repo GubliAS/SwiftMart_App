@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Image, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { AlignLeft, Calendar, Shield } from 'lucide-react-native'; // Update import
 import { useRouter } from 'expo-router';
-<<<<<<< HEAD:Frontend/app/(checkout)/components/PaymentFormScreen.tsx
-import { useCheckout } from '../../../context/_CheckoutContext';
-=======
-import { useCheckout } from '../../../../context/_CheckoutContext';
->>>>>>> bf9c4fe9655a8112f0fbb86ca27c4f86192a72a5:Frontend/app/(root)/(tabs)/(checkout)/components/PaymentFormScreen.tsx
+import { useCheckout } from '@/context/_CheckoutContext';
 
 // Image imports
 const visaIcon = require('../../../../../assets/images/visa.png');

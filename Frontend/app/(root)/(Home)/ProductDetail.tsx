@@ -512,8 +512,8 @@ const ProductDetail = () => {
               });
               setWishlistAction("added");
             }
-            setShowAddedToWishlist(true);
-            setTimeout(() => setShowAddedToWishlist(false), 1500);
+              setShowAddedToWishlist(true);
+              setTimeout(() => setShowAddedToWishlist(false), 1500);
           }}
         >
           {isWishlisted(product.id) ? (
