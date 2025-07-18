@@ -34,19 +34,19 @@ export default function RootLayout() {
   return (
     <WishlistProvider>
       <NotificationProvider>
-        <SearchProvider>
-          <CartProvider>
-            <View className="font-Manrope" style={{ flex: 1 }}>
-              <StatusBar style="dark" />
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="index" options={{ headerShown: false }} />
-                <Stack.Screen name="(auth)" />
-                <Stack.Screen name="(root)" options={{ headerShown: false }} />
-                <Stack.Screen name="+not-found" />
-              </Stack>
-            </View>
-          </CartProvider>
-        </SearchProvider>
+    <SearchProvider>
+      <CartProvider>
+        <View className="font-Manrope" style={{ flex: 1 }}>
+          <StatusBar style="dark" />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(root)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </View>
+      </CartProvider>
+    </SearchProvider>
       </NotificationProvider>
     </WishlistProvider>
   );

@@ -7,13 +7,13 @@ import { Stack } from 'expo-router'
 const _layout = () => {
   return (
     <View className='flex-1 font-Manrope bg-white'>
-      <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false }} >
+        <StatusBar style="dark" />
+        <Stack screenOptions={{ headerShown: false }} >
 
-        <Stack.Screen name="+not-found" />
-        </Stack>
-      
-      </View>
+          <Stack.Screen name="+not-found" />
+          </Stack>
+        
+        </View>
   )
 }
 

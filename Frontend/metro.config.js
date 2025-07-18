@@ -14,4 +14,9 @@ config.resolver = {
   sourceExts: [...config.resolver.sourceExts, "svg"],
 };
 
+config.resolver.alias = {
+  ...(config.resolver.alias || {}),
+  '@': __dirname,
+};
+
 module.exports = withNativeWind(config, { input: "./global.css" });

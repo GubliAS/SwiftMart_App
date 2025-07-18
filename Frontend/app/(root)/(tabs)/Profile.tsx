@@ -43,7 +43,7 @@ const Profile = () => {
           onPress={() => router.push("/(root)/(profile)/Notifications")}
           className="relative"
         >
-          <Feather name="bell" size={24} color="white" />
+        <Feather name="bell" size={24} color="white" />
           {unreadCount > 0 && (
             <View className="absolute -top-1 -right-1 w-4 h-4 bg-alert rounded-full items-center justify-center">
               <Text className="text-[10px] text-white font-bold">

@@ -3,8 +3,8 @@ import { View, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { OrderCard } from './components';
-import { OrderListItem } from './types';
+import OrderCard from '@/components/orders/OrderCard';
+import { OrderListItem } from '@/types/orders';
 
 const TransactionPage = () => {
   const router = useRouter();
