@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-25T23:35:17+0000",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
+    date = "2025-07-17T22:29:56+0000",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.42.50.v20250628-1110, environment: Java 21.0.7 (Eclipse Adoptium)"
 )
 @Component
 public class AddressMapperImpl implements AddressMapper {
@@ -23,14 +23,14 @@ public class AddressMapperImpl implements AddressMapper {
         AddressDTO addressDTO = new AddressDTO();
 
         addressDTO.setCountryId( addressCountryId( address ) );
-        addressDTO.setId( address.getId() );
-        addressDTO.setUnitNumber( address.getUnitNumber() );
-        addressDTO.setStreetNumber( address.getStreetNumber() );
         addressDTO.setAddressLine1( address.getAddressLine1() );
         addressDTO.setAddressLine2( address.getAddressLine2() );
         addressDTO.setCity( address.getCity() );
-        addressDTO.setRegion( address.getRegion() );
+        addressDTO.setId( address.getId() );
         addressDTO.setPostalCode( address.getPostalCode() );
+        addressDTO.setRegion( address.getRegion() );
+        addressDTO.setStreetNumber( address.getStreetNumber() );
+        addressDTO.setUnitNumber( address.getUnitNumber() );
 
         return addressDTO;
     }
@@ -44,14 +44,14 @@ public class AddressMapperImpl implements AddressMapper {
         Address address = new Address();
 
         address.setCountry( addressDTOToCountry( dto ) );
-        address.setId( dto.getId() );
-        address.setUnitNumber( dto.getUnitNumber() );
-        address.setStreetNumber( dto.getStreetNumber() );
         address.setAddressLine1( dto.getAddressLine1() );
         address.setAddressLine2( dto.getAddressLine2() );
         address.setCity( dto.getCity() );
-        address.setRegion( dto.getRegion() );
+        address.setId( dto.getId() );
         address.setPostalCode( dto.getPostalCode() );
+        address.setRegion( dto.getRegion() );
+        address.setStreetNumber( dto.getStreetNumber() );
+        address.setUnitNumber( dto.getUnitNumber() );
 
         return address;
     }

@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-25T23:35:17+0000",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
+    date = "2025-07-17T22:29:59+0000",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.42.50.v20250628-1110, environment: Java 21.0.7 (Eclipse Adoptium)"
 )
 @Component
 public class OrderStatusHistoryMapperImpl implements OrderStatusHistoryMapper {
@@ -25,8 +25,8 @@ public class OrderStatusHistoryMapperImpl implements OrderStatusHistoryMapper {
 
         orderStatusHistoryDTO.setOrderId( entityOrderId( entity ) );
         orderStatusHistoryDTO.setStatusId( entityStatusId( entity ) );
-        orderStatusHistoryDTO.setId( entity.getId() );
         orderStatusHistoryDTO.setChangedAt( entity.getChangedAt() );
+        orderStatusHistoryDTO.setId( entity.getId() );
 
         return orderStatusHistoryDTO;
     }
@@ -41,8 +41,8 @@ public class OrderStatusHistoryMapperImpl implements OrderStatusHistoryMapper {
 
         orderStatusHistory.setOrder( orderStatusHistoryDTOToShopOrder( dto ) );
         orderStatusHistory.setStatus( orderStatusHistoryDTOToOrderStatus( dto ) );
-        orderStatusHistory.setId( dto.getId() );
         orderStatusHistory.setChangedAt( dto.getChangedAt() );
+        orderStatusHistory.setId( dto.getId() );
 
         return orderStatusHistory;
     }
