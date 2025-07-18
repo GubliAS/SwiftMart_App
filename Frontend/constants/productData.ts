@@ -2,6 +2,9 @@ const productData = [
   // Electronics & Devices
   {
     id: 1,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Electronics & Devices",
     image: require("@/assets/images/smartphone.jpg"),
     name: "Smartphone Pro X15",
@@ -54,6 +57,9 @@ const productData = [
   },
   {
     id: 2,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Electronics & Devices",
     image: require("@/assets/images/laptop.jpeg"),
     name: "UltraBook 14 Pro",
@@ -102,6 +108,9 @@ const productData = [
   // Sports & Fitness
   {
     id: 3,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Sports & Fitness",
     image: require("@/assets/images/yogamat.jpeg"),
     name: "EcoYoga Pro Mat",
@@ -132,6 +141,9 @@ const productData = [
   },
   {
     id: 4,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Sports & Fitness",
     image: require("@/assets/images/dumbellset.jpeg"),
     name: "Dumbbell Set",
@@ -158,6 +170,9 @@ const productData = [
   // Computer & Accessories
   {
     id: 5,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Computer & Accessories",
     image: require("@/assets/images/mechanicalkeyboard.jpeg"),
     name: "Mechanical Keyboard",
@@ -195,6 +210,9 @@ const productData = [
   },
   {
     id: 6,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Computer & Accessories",
     image: require("@/assets/images/gamingmouse.jpeg"),
     name: "Gaming Mouse",
@@ -221,6 +239,9 @@ const productData = [
   // Beauty & Personal Care
   {
     id: 7,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Beauty & Personal Care",
     image: require("@/assets/images/facecream.jpeg"),
     name: "Face Cream",
@@ -244,6 +265,9 @@ const productData = [
   },
   {
     id: 8,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Beauty & Personal Care",
     image: require("@/assets/images/hairdryer.jpeg"),
     name: "Hair Dryer",
@@ -270,6 +294,9 @@ const productData = [
   // Office & Stationery
   {
     id: 9,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Office & Stationery",
     image: require("@/assets/images/notebookset.jpeg"),
     name: "Notebook Set",
@@ -293,6 +320,9 @@ const productData = [
   },
   {
     id: 10,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Office & Stationery",
     image: require("@/assets/images/deskorganiser.jpeg"),
     name: "Desk Organizer",
@@ -319,6 +349,9 @@ const productData = [
   // Home & Living
   {
     id: 11,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Home & Living",
     image: require("@/assets/images/sofa.jpeg"),
     name: "Sofa",
@@ -356,6 +389,9 @@ const productData = [
   },
   {
     id: 12,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Home & Living",
     image: require("@/assets/images/diningtable.jpeg"),
     name: "Dining Table",
@@ -382,6 +418,9 @@ const productData = [
   // Fashion
   {
     id: 13,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Fashion",
     image: require("@/assets/images/leatherjacket.jpeg"),
     name: "Leather Jacket",
@@ -419,6 +458,9 @@ const productData = [
   },
   {
     id: 14,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Fashion",
     image: require("@/assets/images/sneakers.jpeg"),
     name: "Sneakers",
@@ -459,6 +501,9 @@ const productData = [
   // Automotive & Tools
   {
     id: 15,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Automotive & Tools",
     image: require("@/assets/images/vacuumcleaner.jpeg"),
     name: "Car Vacuum Cleaner",
@@ -482,6 +527,9 @@ const productData = [
   },
   {
     id: 16,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Automotive & Tools",
     image: require("@/assets/images/toolset.jpeg"),
     name: "Tool Set",
@@ -508,6 +556,9 @@ const productData = [
   // Groceries & Essentials
   {
     id: 17,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Groceries & Essentials",
     image: require("@/assets/images/organicrice.jpeg"),
     name: "Organic Rice",
@@ -531,6 +582,9 @@ const productData = [
   },
   {
     id: 18,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Groceries & Essentials",
     image: require("@/assets/images/cookingoil.jpeg"),
     name: "Cooking Oil",
@@ -557,6 +611,9 @@ const productData = [
   // Kids & Toys
   {
     id: 19,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Kids & Toys",
     image: require("@/assets/images/buildingblocks.jpeg"),
     name: "Building Blocks",
@@ -580,6 +637,9 @@ const productData = [
   },
   {
     id: 20,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Kids & Toys",
     image: require("@/assets/images/stuffedanimal.jpeg"),
     name: "Stuffed Animal",
@@ -606,6 +666,9 @@ const productData = [
   // New products
   {
     id: 21,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Electronics & Devices",
     image: require("@/assets/images/ipad.jpeg"),
     name: "Tablet Air 11",
@@ -629,6 +692,9 @@ const productData = [
   },
   {
     id: 22,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Home & Living",
     image: require("@/assets/images/modernlamp.jpeg"),
     name: "Modern Table Lamp",
@@ -651,6 +717,9 @@ const productData = [
   },
   {
     id: 23,
+    sellerId: 1,
+    promoId: null,
+    promoPrice: null,
     category: "Fashion",
     image: require("@/assets/images/jeans.jpg"),
     name: "Classic Blue Jeans",

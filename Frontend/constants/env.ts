@@ -1,7 +1,8 @@
 // API environment config
 // Change this value for development/production as needed
 
-export const BASE_URL = "http://172.20.10.13:8080"; // e.g. http://localhost:8080 or your deployed backend URL
+// Use EXPO_PUBLIC_API_URL from .env for backend integration
+export const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080"; // Set this in your .env file
 
 // Usage:
 // import { BASE_URL } from "@/constants/env";

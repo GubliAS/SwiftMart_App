@@ -19,7 +19,7 @@ const GetStarted = () => {
      
       {/* TextBox */}
       <View className="items-center w-[335px] gap-8">
-        <Text className="text-Heading3 text-text text-center tracking-wide font-Manrope">
+        <Text className="text-Heading3 text-text text-center  font-Manrope">
           Your one-stop shop for everything you love
         </Text>
         <Text className="text-Heading5 font-Manrope text-text tracking-tight">

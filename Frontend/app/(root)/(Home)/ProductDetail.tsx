@@ -17,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import PrimaryButton from "@/components/PrimaryButton";
 import DropDownPicker from "react-native-dropdown-picker";
 import Button from "@/components/Button";
+import { useWishlist } from "@/context/WishlistContext";
 
 const ProductDetail = () => {
   const router = useRouter();
@@ -43,7 +44,6 @@ const ProductDetail = () => {
           product.shippingOptions[0]?.type) ||
           ""
   );
-  const [wishlisted, setWishlisted] = useState(false);
   const [showAddedToCart, setShowAddedToCart] = useState(false);
   const [showAddedToWishlist, setShowAddedToWishlist] = useState(false);
   const [wishlistAction, setWishlistAction] = useState<"added" | "removed">(
@@ -58,6 +58,8 @@ const ProductDetail = () => {
   const [cartItems, setCartItems] = useState(
     carts.map((c) => ({ label: c, value: c }))
   );
+
+  const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist();
 
   // Drag-to-close modal state
   const panY = useState(new Animated.Value(0))[0];
@@ -175,6 +177,29 @@ const ProductDetail = () => {
         <View className="flex-row items-center justify-between px-4 pt-2">
           <TouchableOpacity onPress={() => router.back()}>
             <Entypo name="chevron-left" size={28} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              if (isWishlisted(product.id)) {
+                console.log('Removing from wishlist:', product.id, product.name);
+                removeFromWishlist(product.id);
+              } else {
+                console.log('Adding to wishlist:', product.id, product.name);
+                addToWishlist({
+                  id: product.id,
+                  name: product.name,
+                  image: product.image,
+                  price: parseFloat(product.price),
+                  originalPrice: parseFloat(product.originalPrice),
+                  discount: product.discount ? parseFloat(product.discount) : undefined,
+                  rating: product.rating,
+                });
+              }
+            }}
+            className="absolute top-2 right-4 z-10 bg-white/80 rounded-full p-2"
+            style={{ elevation: 2 }}
+          >
+            <AntDesign name={isWishlisted(product.id) ? "heart" : "hearto"} size={24} color="#EB1A1A" />
           </TouchableOpacity>
         </View>
         {/* Product Image */}
@@ -471,16 +496,27 @@ const ProductDetail = () => {
             marginRight: 8,
           }}
           onPress={() => {
-            setWishlisted((prev) => {
-              const newValue = !prev;
-              setWishlistAction(newValue ? "added" : "removed");
-              setShowAddedToWishlist(true);
-              setTimeout(() => setShowAddedToWishlist(false), 1500);
-              return newValue;
-            });
+            const currentlyWishlisted = isWishlisted(product.id);
+            if (currentlyWishlisted) {
+              removeFromWishlist(product.id);
+              setWishlistAction("removed");
+            } else {
+              addToWishlist({
+                id: product.id,
+                name: product.name,
+                image: product.image,
+                price: parseFloat(product.price),
+                originalPrice: parseFloat(product.originalPrice),
+                discount: product.discount ? parseFloat(product.discount) : undefined,
+                rating: product.rating,
+              });
+              setWishlistAction("added");
+            }
+            setShowAddedToWishlist(true);
+            setTimeout(() => setShowAddedToWishlist(false), 1500);
           }}
         >
-          {wishlisted ? (
+          {isWishlisted(product.id) ? (
             <AntDesign name="heart" size={24} color="#E44A4A" />
           ) : (
             <AntDesign name="hearto" size={24} color="#156651" />

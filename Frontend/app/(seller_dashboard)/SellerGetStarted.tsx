@@ -1,3 +1,6 @@
+// SellerGetStarted.tsx
+// This is the entry screen for seller onboarding. It welcomes the user and navigates to the registration step.
+
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";

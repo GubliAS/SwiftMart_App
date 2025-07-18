@@ -26,6 +26,8 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 // @ts-ignore
 import * as SecureStore from "expo-secure-store";
+import GoogleIcon from "@/assets/svgs/google.svg";
+import Facebook from "@/assets/svgs/facebook.svg"
 
 const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -418,21 +420,23 @@ const Login = () => {
                 <View className="h-[1px] flex-1 bg-neutral-50" />
               </View>
 
-              {/* Social Buttons */}
-              <IconButton
-                icon={require("@/assets/images/google-icon.png")}
-                BtnText="Continue with Google"
-                textColor="text-primary"
-                borderColor="border-primary"
-                bgColor="bg-neutral-10"
-              />
-              <IconButton
-                icon={require("@/assets/images/facebook-icon.png")}
-                BtnText="Continue with Facebook"
-                textColor="text-primary"
-                borderColor="border-primary"
-                bgColor="bg-neutral-10"
-              />
+                {/* Social Buttons */}
+            <IconButton
+            IconComponent={GoogleIcon}
+              BtnText="Continue with Google"
+              textColor="text-primary"
+              borderColor="border-primary"
+              bgColor="bg-neutral-10"
+            />
+
+            <IconButton
+            IconComponent={Facebook}
+            fillColor="#1877F2"
+            BtnText="Continue with Facebook"
+              textColor="text-primary"
+              borderColor="border-primary"
+              bgColor="bg-neutral-10"
+            />
 
               {/* Register Link */}
               <View className="flex-row items-center justify-center">

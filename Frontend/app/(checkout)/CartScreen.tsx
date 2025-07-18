@@ -6,7 +6,7 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import CartItem from "./components/CartItem";
 import { useState, useEffect } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";

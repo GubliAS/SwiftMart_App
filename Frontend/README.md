@@ -36,6 +36,18 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
+## Environment Variables
+
+Create a `.env` file in the `Frontend` directory with the following:
+
+```
+EXPO_PUBLIC_API_URL=http://your-backend-url:8080
+```
+
+- This variable is used throughout the app for all backend API calls.
+- You can set different values for development, staging, and production.
+- Do not commit secrets or production URLs to version control.
+
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:

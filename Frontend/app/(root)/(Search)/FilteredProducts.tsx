@@ -366,7 +366,7 @@ const FilteredProducts = () => {
               <View className="flex-row flex-wrap overflow-visible justify-between gap-y-4">
                 {searchedProducts.map((product) => (
                   <View key={product.id} className="w-[48%]">
-                    <TouchableOpacity onPress={() => router.push({ pathname: '/(root)/(Home)/ProductDetail', params: { productId: product.id } })}>
+                    <TouchableOpacity activeOpacity={0.8} onPress={() => router.push({ pathname: '/(root)/(Home)/ProductDetail', params: { productId: product.id } })}>
                       <ProductCard
                         image={product.image}
                         name={product.name}

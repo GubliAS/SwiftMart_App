@@ -1,3 +1,6 @@
+// SellerFinished.tsx
+// This is the final onboarding screen. It congratulates the seller and navigates to the dashboard home.
+
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";

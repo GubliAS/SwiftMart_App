@@ -1,3 +1,7 @@
+// SellerSettings.tsx
+// This screen allows the seller to manage store info, contact info, payout preferences, and notification settings.
+// It uses context for payout and notification state, and supports editing via modals.
+
 import {
   View,
   Text,
@@ -11,37 +15,48 @@ import {
   Modal,
   TextInput,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Entypo } from "@expo/vector-icons";
 import SettingOption from "@/components/SettingOption";
 import MasterCard from "@/assets/svgs/mastercard.svg";
 import IconButton from "@/components/IconButton";
 import Exit from "@/assets/svgs/exit.svg";
-import { PhoneNumberUtil, PhoneNumberFormat } from "google-libphonenumber";
+import { formatPhoneNumber } from "@/constants/formatUtils";
 import PrimaryButton from "@/components/PrimaryButton";
-
-const phoneUtil = PhoneNumberUtil.getInstance();
-
-const formatPhoneNumber = (text: string, selectedCountryCode: string) => {
-  try {
-    const phoneNumber = phoneUtil.parse(text, selectedCountryCode); // Use the selected country code
-    return phoneUtil.format(phoneNumber, PhoneNumberFormat.INTERNATIONAL); // e.g., "+1 234 567 8901"
-  } catch (error) {
-    return text; // Return the original text if parsing fails
-  }
-};
+import { useRouter, useLocalSearchParams } from "expo-router"; // Import useRouter and useLocalSearchParams for navigation and handling parameters
+import VisaSvg from "@/assets/svgs/visa.svg";
+import MasterCardSvg from "@/assets/svgs/mastercard.svg";
+import MobileMoneySvg from "@/assets/svgs/mobile-money.svg";
+import { iconMap } from "@/constants/iconMap";
+import SecondaryButton from "@/components/SecondaryButton";
+import { useNotification } from "@/context/NotificationContext";
+import { usePayout } from "@/context/PayoutContext";
 
 const SellerSettings = () => {
-  const [newOrderNotification, setNewOrderNotification] = useState(false);
-  const [lowStockNotification, setLowStockNotification] = useState(false);
-  const [swiftMartAnnouncements, setSwiftMartAnnouncements] = useState(false);
+  const router = useRouter();
+  const { updatedPayoutMethod } = useLocalSearchParams(); // Retrieve the updated payout method from parameters
+  const {
+    newOrderNotification, setNewOrderNotification,
+    lowStockNotification, setLowStockNotification,
+    swiftMartAnnouncements, setSwiftMartAnnouncements
+  } = useNotification();
+  const { payoutMethods, defaultPayoutMethodId } = usePayout();
+  const defaultPayoutMethod = payoutMethods.find((m: any) => m.id === defaultPayoutMethodId);
 
-  // Modal state
+  // --- State for payout methods and default payout method comes from context ---
+  // payoutMethods: array of all saved payout methods
+  // defaultPayoutMethodId: id of the default payout method
+  // defaultPayoutMethod: the actual default payout method object
+
+  // --- Modal state for editing store/contact fields ---
+  // modalVisible: controls modal visibility
+  // currentField/currentValue: track which field is being edited
   const [modalVisible, setModalVisible] = useState(false);
   const [currentField, setCurrentField] = useState(""); // Field being edited
   const [currentValue, setCurrentValue] = useState(""); // Value of the field being edited
 
-  // Field values
+  // --- Store/Contact Info State ---
+  // storeName, storeDescription, email, selectedCountryCode, phoneNumber
   const [storeName, setStoreName] = useState("Swift Deals Ghana");
   const [storeDescription, setStoreDescription] = useState("What you sell...");
   const [email, setEmail] = useState("user@mail.com");
@@ -50,12 +65,31 @@ const SellerSettings = () => {
     formatPhoneNumber("+233241234567", "GH")
   ); // Format the default value
 
+  // --- useEffect: Handles updates to payout method from navigation params ---
+  useEffect(() => {
+    if (updatedPayoutMethod) {
+      try {
+        const parsedMethod = JSON.parse(
+          Array.isArray(updatedPayoutMethod)
+            ? updatedPayoutMethod[0]
+            : updatedPayoutMethod
+        );
+        // The selectedPayoutMethod state is removed, so we don't need to update it here.
+        // The iconMap will be used to display the icon if the parsed method has an icon.
+      } catch (error) {
+        console.error("Failed to parse updatedPayoutMethod:", error);
+      }
+    }
+  }, [updatedPayoutMethod]);
+
+  // --- handleEditPress: Opens modal for editing a field ---
   const handleEditPress = (field: string, value: string) => {
     setCurrentField(field);
     setCurrentValue(value);
     setModalVisible(true);
   };
 
+  // --- handleSave: Saves the edited field value ---
   const handleSave = () => {
     switch (currentField) {
       case "Store Name":
@@ -75,6 +109,32 @@ const SellerSettings = () => {
     }
     setModalVisible(false);
   };
+
+  // --- handlePayoutEdit: Navigates to payout selection screen ---
+  const handlePayoutEdit = () => {
+    // Navigate to Payout Selection screen and pass the current payout method
+    router.push({
+      pathname: "/(seller_dashboard)/PayoutSelection",
+      params: {
+        currentPayoutMethod: JSON.stringify(defaultPayoutMethod), // Pass current payout method as a parameter
+      },
+    });
+  };
+
+  // --- IconComponent: Dynamically renders the icon for the payout method ---
+  let IconComponent = null;
+  if (
+    defaultPayoutMethod &&
+    typeof defaultPayoutMethod.icon === "string" &&
+    iconMap[defaultPayoutMethod.icon]
+  ) {
+    IconComponent = iconMap[defaultPayoutMethod.icon];
+  } else if (
+    defaultPayoutMethod &&
+    typeof defaultPayoutMethod.icon === "function"
+  ) {
+    IconComponent = defaultPayoutMethod.icon;
+  }
 
   return (
     <View className="flex-1 bg-neutral-10 ">
@@ -135,31 +195,57 @@ const SellerSettings = () => {
 
           {/* Payout Preferences */}
           <View className="flex flex-row items-center justify-between">
-            <Text className="text-text font-Manrope text-Heading4 ">
+            <Text className="text-text font-Manrope text-Heading4">
               Payout Preferences
             </Text>
-            <TouchableOpacity className="mr-4">
-              <Text className="font-Manrope text-secondary text-BodySmallRegular">
-                Edit
-              </Text>
-            </TouchableOpacity>
+            {defaultPayoutMethod ? (
+              <TouchableOpacity
+                className="mr-4"
+                onPress={handlePayoutEdit}
+              >
+                <Text className="font-Manrope text-secondary text-BodySmallRegular">
+                  Edit
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                className="mr-4"
+                onPress={() => router.push("/(seller_dashboard)/PayoutSelection")}
+              >
+                <Text className="font-Manrope text-secondary text-BodySmallRegular">
+                  Add Payout Method
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
-          <View
-            style={{
-              boxShadow: "2px 4px 24px 0px rgba(0, 0, 0, 0.10)",
-            }}
-            className="flex flex-row items-center gap-4 p-4 rounded-[14px] "
-          >
-            <MasterCard width={100} height={100} />
-            <View className="gap-2">
-              <Text className="text-Heading5 text-text font-Manrope">
-                MasterCard
-              </Text>
-              <Text className="text-BodySmallRegular text-neutral-60 font-Manrope">
-                **** **** **** 1234
-              </Text>
+          {defaultPayoutMethod ? (
+            <View
+              style={{
+                boxShadow: "2px 4px 24px 0px rgba(0, 0, 0, 0.10)",
+              }}
+              className="flex flex-row items-center gap-4 p-4 rounded-[14px]"
+            >
+              {IconComponent ? (
+                <IconComponent width={100} height={100} />
+              ) : (
+                <Text>No Icon Available</Text>
+              )}
+              <View className="gap-2">
+                <Text className="text-Heading5 text-text font-Manrope">
+                  {defaultPayoutMethod?.name || "No Payout Method Added"}
+                </Text>
+                <Text className="text-BodySmallRegular text-neutral-60 font-Manrope">
+                  {defaultPayoutMethod?.name === "Mobile Money"
+                    ? defaultPayoutMethod?.number
+                    : `**** **** **** ${defaultPayoutMethod?.number}`}
+                </Text>
+              </View>
             </View>
-          </View>
+          ) : (
+            <Text className="text-neutral-60 text-BodyRegular font-Manrope mt-2">
+              No payout methods added yet. Please add a payout method to receive payouts.
+            </Text>
+          )}
 
           {/* Notification Settings */}
           <Text className="text-text font-Manrope text-Heading4 ">
@@ -266,7 +352,7 @@ const SellerSettings = () => {
                 className="border border-neutral-40 rounded-lg px-4 py-2 text-BodyRegular text-text font-Manrope"
               />
               <View className="my-auto">
-                <PrimaryButton BtnText="Save" onPress={handleSave} />
+                <SecondaryButton BtnText="Save" onPress={handleSave} />
               </View>
             </View>
           </TouchableWithoutFeedback>

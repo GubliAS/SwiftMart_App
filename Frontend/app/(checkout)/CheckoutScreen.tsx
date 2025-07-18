@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Text } from 'react-native';
 import type { ReactNode } from 'react';
@@ -9,7 +9,7 @@ import { ChevronLeft } from 'lucide-react-native';
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import ShoppingCartTotalModal from './components/ShoppingCartTotalModal';
-import { useCheckout } from '../context/_CheckoutContext';
+import { useCheckout } from '../../context/_CheckoutContext';
 
 // Image imports
 const houseIcon = require('../../assets/images/house.png');

@@ -258,7 +258,7 @@ const Home = () => {
                   }}
                 >
                   {productData.filter(product => product.discount).slice(0, 10).map((product) => (
-                    <TouchableOpacity key={product.id} onPress={() => router.push({ pathname: '/(root)/(Home)/ProductDetail', params: { productId: product.id } })}>
+                    <TouchableOpacity activeOpacity={0.80} key={product.id} onPress={() => router.push({ pathname: '/(root)/(Home)/ProductDetail', params: { productId: product.id } })}>
                       <ProductCard
                         image={product.image}
                         name={product.name}

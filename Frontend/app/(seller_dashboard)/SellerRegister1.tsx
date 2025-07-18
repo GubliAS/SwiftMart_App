@@ -1,3 +1,7 @@
+// SellerRegister1.tsx
+// This screen is part of seller onboarding. It collects the store name and a photo of the seller's national ID.
+// The user can pick or take a photo, and must enter a store name to proceed.
+
 import SecondaryButton from "@/components/SecondaryButton";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
