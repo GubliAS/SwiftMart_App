@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-25T23:35:17+0000",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
+    date = "2025-07-17T22:29:58+0000",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.42.50.v20250628-1110, environment: Java 21.0.7 (Eclipse Adoptium)"
 )
 @Component
 public class ShopOrderMapperImpl implements ShopOrderMapper {
@@ -27,10 +27,10 @@ public class ShopOrderMapperImpl implements ShopOrderMapper {
         shopOrderDTO.setShippingMethodId( orderShippingMethodId( order ) );
         shopOrderDTO.setId( order.getId() );
         shopOrderDTO.setOrderDate( order.getOrderDate() );
+        shopOrderDTO.setOrderStatus( order.getOrderStatus() );
+        shopOrderDTO.setOrderTotal( order.getOrderTotal() );
         shopOrderDTO.setPaymentMethodId( order.getPaymentMethodId() );
         shopOrderDTO.setShippingAddress( order.getShippingAddress() );
-        shopOrderDTO.setOrderTotal( order.getOrderTotal() );
-        shopOrderDTO.setOrderStatus( order.getOrderStatus() );
 
         return shopOrderDTO;
     }
@@ -47,10 +47,10 @@ public class ShopOrderMapperImpl implements ShopOrderMapper {
         shopOrder.setShippingMethod( shopOrderDTOToShippingMethod( dto ) );
         shopOrder.setId( dto.getId() );
         shopOrder.setOrderDate( dto.getOrderDate() );
+        shopOrder.setOrderStatus( dto.getOrderStatus() );
+        shopOrder.setOrderTotal( dto.getOrderTotal() );
         shopOrder.setPaymentMethodId( dto.getPaymentMethodId() );
         shopOrder.setShippingAddress( dto.getShippingAddress() );
-        shopOrder.setOrderTotal( dto.getOrderTotal() );
-        shopOrder.setOrderStatus( dto.getOrderStatus() );
 
         return shopOrder;
     }

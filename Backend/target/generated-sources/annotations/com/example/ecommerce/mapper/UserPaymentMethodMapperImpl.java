@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-25T23:35:17+0000",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
+    date = "2025-07-17T22:29:57+0000",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.42.50.v20250628-1110, environment: Java 21.0.7 (Eclipse Adoptium)"
 )
 @Component
 public class UserPaymentMethodMapperImpl implements UserPaymentMethodMapper {
@@ -25,11 +25,11 @@ public class UserPaymentMethodMapperImpl implements UserPaymentMethodMapper {
 
         userPaymentMethodDTO.setUserId( entityUserId( entity ) );
         userPaymentMethodDTO.setPaymentTypeId( entityPaymentTypeId( entity ) );
-        userPaymentMethodDTO.setId( entity.getId() );
-        userPaymentMethodDTO.setProvider( entity.getProvider() );
         userPaymentMethodDTO.setAccountNumber( entity.getAccountNumber() );
         userPaymentMethodDTO.setExpiryDate( entity.getExpiryDate() );
+        userPaymentMethodDTO.setId( entity.getId() );
         userPaymentMethodDTO.setIsDefault( entity.getIsDefault() );
+        userPaymentMethodDTO.setProvider( entity.getProvider() );
 
         return userPaymentMethodDTO;
     }
@@ -44,11 +44,11 @@ public class UserPaymentMethodMapperImpl implements UserPaymentMethodMapper {
 
         userPaymentMethod.setUser( userPaymentMethodDTOToSiteUser( dto ) );
         userPaymentMethod.setPaymentType( userPaymentMethodDTOToPaymentType( dto ) );
-        userPaymentMethod.setId( dto.getId() );
-        userPaymentMethod.setProvider( dto.getProvider() );
         userPaymentMethod.setAccountNumber( dto.getAccountNumber() );
         userPaymentMethod.setExpiryDate( dto.getExpiryDate() );
+        userPaymentMethod.setId( dto.getId() );
         userPaymentMethod.setIsDefault( dto.getIsDefault() );
+        userPaymentMethod.setProvider( dto.getProvider() );
 
         return userPaymentMethod;
     }

@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-25T23:35:16+0000",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
+    date = "2025-07-17T22:30:01+0000",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.42.50.v20250628-1110, environment: Java 21.0.7 (Eclipse Adoptium)"
 )
 @Component
 public class PromotionMapperImpl implements PromotionMapper {
@@ -21,12 +21,12 @@ public class PromotionMapperImpl implements PromotionMapper {
 
         PromotionDTO promotionDTO = new PromotionDTO();
 
-        promotionDTO.setId( promotion.getId() );
-        promotionDTO.setName( promotion.getName() );
         promotionDTO.setDescription( promotion.getDescription() );
         promotionDTO.setDiscountRate( promotion.getDiscountRate() );
-        promotionDTO.setStartDate( promotion.getStartDate() );
         promotionDTO.setEndDate( promotion.getEndDate() );
+        promotionDTO.setId( promotion.getId() );
+        promotionDTO.setName( promotion.getName() );
+        promotionDTO.setStartDate( promotion.getStartDate() );
 
         return promotionDTO;
     }
@@ -39,12 +39,12 @@ public class PromotionMapperImpl implements PromotionMapper {
 
         Promotion promotion = new Promotion();
 
-        promotion.setId( dto.getId() );
-        promotion.setName( dto.getName() );
         promotion.setDescription( dto.getDescription() );
         promotion.setDiscountRate( dto.getDiscountRate() );
-        promotion.setStartDate( dto.getStartDate() );
         promotion.setEndDate( dto.getEndDate() );
+        promotion.setId( dto.getId() );
+        promotion.setName( dto.getName() );
+        promotion.setStartDate( dto.getStartDate() );
 
         return promotion;
     }
