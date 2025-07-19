@@ -48,7 +48,6 @@ const MobileMoneyDetails = () => {
         ?.name, // Store the provider name separately
     };
 
-    console.log("New Mobile Money Details:", newMobileMoneyDetails); // Debugging log
     setPayoutMethods((prev: any[]) => {
       const updated = [...prev, newMobileMoneyDetails];
       if (updated.length === 1) setDefaultPayoutMethodId(newMobileMoneyDetails.id);

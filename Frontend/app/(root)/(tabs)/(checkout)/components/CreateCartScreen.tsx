@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Clipboard, Alert, TouchableOpacity, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { ChevronLeft, X, Copy } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import Button from '@/components/Button';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCart } from '@/app/context/_CartContext';
@@ -19,6 +19,7 @@ const CreateCartScreen = () => {
   const [cartLink, setCartLink] = useState('');
   const router = useRouter();
   const { addCart, selectCart } = useCart(); // Use the cart context
+  const params = useLocalSearchParams();
 
   const handleCreateCart = () => {
     if (!cartName.trim()) return;
@@ -46,8 +47,12 @@ const CreateCartScreen = () => {
     setSuccessModalVisible(false);
     setCartName('');
     setCartLink('');
-    // Simply navigate back to CartScreen
-    router.push('../CartScreen');
+    // If returnTo param is provided, go back to ProductDetail with productId
+    if (params.returnTo && params.productId) {
+      router.replace({ pathname: params.returnTo as string, params: { productId: params.productId, closeCartModal: true } });
+    } else {
+      router.push('../CartScreen');
+    }
   };
 
   return (
@@ -59,7 +64,13 @@ const CreateCartScreen = () => {
       <SafeAreaView className="flex-1 bg-white p-5">
         {/* Header */}
         <View className="flex-row items-center mt-10 mb-6">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => {
+            if (params.returnTo && params.productId) {
+              router.replace({ pathname: params.returnTo as string, params: { productId: params.productId, closeCartModal: true } });
+            } else {
+              router.back();
+            }
+          }}>
             <ChevronLeft size={28} color="#222" />
           </TouchableOpacity>
           <Text className="text-Heading3 ml-24">Create Cart</Text>

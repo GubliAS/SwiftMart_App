@@ -1,6 +1,6 @@
 import { View, Text } from "react-native";
 import Modal from "react-native-modal";
-import Button from "@/components/Button";
+import PrimaryButton from "@/components/PrimaryButton";
 
 type ShoppingCartTotalModalProps = {
   isVisible: boolean;
@@ -9,6 +9,7 @@ type ShoppingCartTotalModalProps = {
   onClose: () => void;
   onCheckout?: () => void; // Make checkout optional
   showCheckoutButton?: boolean; // Control whether to show the checkout button
+  disableCheckout?: boolean;
 };
 
 const ShoppingCartTotalModal = ({
@@ -18,6 +19,7 @@ const ShoppingCartTotalModal = ({
   onClose,
   onCheckout,
   showCheckoutButton = false, // Default to false
+  disableCheckout = false,
 }: ShoppingCartTotalModalProps) => {
   const total = subtotal + shipping;
 
@@ -54,12 +56,9 @@ const ShoppingCartTotalModal = ({
         </View>
 
         {showCheckoutButton && onCheckout && (
-          <Button
+          <PrimaryButton
             BtnText="Checkout"
-            bgColor="bg-primary"
-            textColor="text-neutral-10"
-            hasBorder={true}
-            disabled={false}
+            disabled={!!disableCheckout}
             onPress={onCheckout}
           />
         )}

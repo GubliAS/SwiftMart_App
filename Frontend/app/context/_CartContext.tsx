@@ -11,9 +11,14 @@ type CartItem = {
   id: string;
   name: string;
   quantity: number;
+  shippingOption?: {
+    type: string;
+    price: number;
+    duration?: string;
+  };
 };
 
-type Cart = {
+export type Cart = {
   id: string;
   name: string;
   items: CartItem[];
@@ -38,56 +43,8 @@ const DEFAULT_CARTS: Cart[] = [
   {
     id: "default",
     name: "My Cart",
-    items: [
-      {
-        id: "1",
-        image: require("../../assets/images/yellow-chair.png"),
-        title: "EKERÖ",
-        name: "EKERÖ",
-        price: 230.0,
-        oldPrice: 512.58,
-        color: "Yellow",
-        quantity: 1,
-      },
-      {
-        id: "2",
-        image: require("../../assets/images/yellow-chair.png"),
-        title: "STRANDMON",
-        name: "STRANDMON",
-        price: 274.13,
-        oldPrice: 865.66,
-        color: "Grey",
-        quantity: 1,
-      },
-    ],
+    items: [],
     invited: [],
-  },
-  {
-    id: "newcart",
-    name: "Christmas Cart",
-    items: [
-      {
-        id: "1",
-        image: require("../../assets/images/yellow-chair.png"),
-        title: "EKERÖ",
-        name: "EKERÖ",
-        price: 230.0,
-        oldPrice: 512.58,
-        color: "Yellow",
-        quantity: 1,
-      },
-      {
-        id: "2",
-        image: require("../../assets/images/yellow-chair.png"),
-        title: "STRANDMON",
-        name: "STRANDMON",
-        price: 274.13,
-        oldPrice: 865.66,
-        color: "Grey",
-        quantity: 1,
-      },
-    ],
-    invited: ["user1@example.com", "user2@example.com"],
   },
 ];
 
@@ -142,9 +99,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     saveData();
   }, [carts, selectedCartId]);
 
+  // One-time clear for all users to remove old carts and products
+  useEffect(() => {
+    const clearOldCarts = async () => {
+      const alreadyReset = await AsyncStorage.getItem('CARTS_RESET_V2');
+      if (!alreadyReset) {
+        await AsyncStorage.removeItem('USER_CARTS');
+        await AsyncStorage.removeItem('SELECTED_CART_ID');
+        await AsyncStorage.setItem('CARTS_RESET_V2', 'true');
+        setCarts(DEFAULT_CARTS);
+        setSelectedCartId('default');
+      }
+    };
+    clearOldCarts();
+  }, []);
+
   const addCart = (name: string) => {
+    // Use a robust unique ID
+    const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : Date.now().toString() + Math.random().toString(36).substr(2, 9);
     const newCart: Cart = {
-      id: Date.now().toString(),
+      id: uniqueId,
       name,
       items: [],
       invited: []

@@ -231,39 +231,8 @@ export default function OrderStatusModal({
           // Simulate API delay
           await new Promise(resolve => setTimeout(resolve, 2000));
 
-          // Detailed payment validation logging
-          console.log('Payment Details:', {
-            received: !!paymentDetails,
-            paymentMethod: paymentDetails?.paymentMethod || 'none',
-            phone: paymentDetails?.phone || 'none',
-            network: paymentDetails?.network || 'none',
-            cardNumber: paymentDetails?.cardNumber ? 'present' : 'none',
-            expiryDate: paymentDetails?.expiryDate || 'none',
-            cvv: paymentDetails?.cvv ? 'present' : 'none',
-            hasPaymentDetails: !!paymentDetails,
-          });
-
-          // Detailed address validation logging
-          console.log('Address Details:', {
-            received: !!addressDetails,
-            hasAddressDetails: !!addressDetails,
-            fields: addressDetails ? {
-              street: !!addressDetails.street && addressDetails.street.trim().length >= 5,
-              city: !!addressDetails.city && addressDetails.city.trim().length >= 2,
-              country: !!addressDetails.country && addressDetails.country.trim().length >= 2,
-              name: !!addressDetails.name && addressDetails.name.trim().length >= 2,
-              phone: !!addressDetails.phone && addressDetails.phone.trim().length >= 10,
-              region: !!addressDetails.region && addressDetails.region.trim().length >= 2
-            } : null
-          });
-          
           const hasValidPayment = validatePaymentDetails(paymentDetails);
           const hasValidAddress = validateAddressDetails(addressDetails);
-
-          console.log('Final Validation Results:', {
-            paymentValid: hasValidPayment,
-            addressValid: hasValidAddress,
-          });
 
           if (hasValidPayment && hasValidAddress) {
             setStatus('success');
@@ -271,7 +240,6 @@ export default function OrderStatusModal({
             setStatus('failed');
           }
         } catch (error) {
-          console.error('Order processing error:', error);
           setStatus('failed');
         }
       };

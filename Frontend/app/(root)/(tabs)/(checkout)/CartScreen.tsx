@@ -56,13 +56,8 @@ const CartScreen = () => {
           // setCarts((prev) => [...prev, newCart]);
           setSelectedCartId(newCart.id);
           setShowCartList(false);
-        } else {
-          console.log(
-            `Cart with id ${incoming.id} already exists — not adding duplicate.`
-          );
         }
       } catch (err) {
-        console.error("Error parsing newCart:", err);
       }
     }
   }, [params.newCart]);
@@ -76,7 +71,7 @@ const CartScreen = () => {
       0
     ) || 0;
 
-  const shipping = 5.99;
+  const shipping = selectedCart?.items.reduce((sum, item) => sum + (item.shippingOption?.price || 0), 0) || 0;
   const total = subtotal + shipping;
 
   const handleCreateCartPress = () => {
@@ -98,13 +93,13 @@ const CartScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <View className="mb-4 z-50">
-        <View className="flex-row items-center border-b border-neutral-30 pb-2">
-          <View className="w-16" />
+      <View className="mb-4   z-50">
+        <View className="flex-row px-4 items-center border-b border-neutral-30 pb-2">
           <TouchableOpacity
             className="flex-1 flex-row items-center justify-center"
             onPress={() => setShowCartList(!showCartList)}
           >
+           
             <Text className="font-semibold text-[30px]">
               {selectedCart?.name}
             </Text>
@@ -127,7 +122,7 @@ const CartScreen = () => {
 
           {selectedCartId !== "default" ? (
             <TouchableOpacity
-              className="w-16 items-center"
+              className="w-16 absolute right-4 items-center"
               onPress={() => setIsInviteVisible(true)}
             >
               <Ionicons name="person-add-outline" size={28} color="#156651" />
@@ -145,7 +140,7 @@ const CartScreen = () => {
         </View>
 
         {showCartList && (
-          <View className="bg-transparent w-full shadow p-4 rounded-lg max-h-60">
+          <View className="bg-transparent  shadow p-4 rounded-lg max-h-60">
             <ScrollView showsVerticalScrollIndicator={false}>
               {carts.map((cart) => (
                 <TouchableOpacity
@@ -154,7 +149,7 @@ const CartScreen = () => {
                     setSelectedCartId(cart.id);
                     setShowCartList(false);
                   }}
-                  className="flex bg-white py-3 rounded-xl px-8 h-[50px] flex-row justify-between items-center mb-3"
+                  className="flex  bg-white py-3 rounded-xl px-4 h-[50px] flex-row justify-between items-center mb-3"
                 >
                   <Text
                     style={{ fontSize: 16 }}
@@ -172,7 +167,7 @@ const CartScreen = () => {
                       (default)
                     </Text>
                   ) : (
-                    <View className="flex-row items-center gap-4">
+                    <View className="flex-row items-center  gap-4">
                       <TouchableOpacity
                         onPress={() => {
                           setSelectedCartId(cart.id);
@@ -213,8 +208,9 @@ const CartScreen = () => {
         )}
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerClassName="px-4" showsVerticalScrollIndicator={false}>
         <FlatList
+        className="overflow-visible"
           data={selectedCart?.items || []}
           keyExtractor={(item) => item.id}
           scrollEnabled={false}
@@ -241,7 +237,9 @@ const CartScreen = () => {
         shipping={shipping}
         onClose={() => setIsModalVisible(false)}
         showCheckoutButton={true}
+        disableCheckout={!selectedCart?.items || selectedCart.items.length === 0}
         onCheckout={() => {
+          if (!selectedCart?.items || selectedCart.items.length === 0) return;
           setIsModalVisible(false);
           router.push({
             pathname: "/(root)/(tabs)/(checkout)/CheckoutScreen",

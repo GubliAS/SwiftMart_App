@@ -8,12 +8,16 @@ const _layout = () => {
   return (
     <View className='flex-1 font-Manrope bg-white'>
         <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false }} >
-
+        <Stack 
+          screenOptions={{ 
+            headerShown: false,
+            animation: 'default'
+          }} 
+        >
           <Stack.Screen name="+not-found" />
-          </Stack>
-        
-        </View>
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+    </View>
   )
 }
 

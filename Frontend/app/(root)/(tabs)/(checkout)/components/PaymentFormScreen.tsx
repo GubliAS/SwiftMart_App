@@ -16,11 +16,19 @@ type PaymentFormProps = {
   type: 'card' | 'mobile';
   onSave: (data: any) => void;
   onCancel: () => void;
+  useCheckoutContext?: boolean;
 };
 
-const PaymentFormScreen = ({ type, onSave, onCancel }: PaymentFormProps) => {
+const PaymentFormScreen = ({ type, onSave, onCancel, useCheckoutContext = true }: PaymentFormProps) => {
   const router = useRouter();
-  const { setPaymentMethod } = useCheckout();
+  let setPaymentMethod: ((data: any) => void) | undefined = undefined;
+  if (useCheckoutContext) {
+    try {
+      setPaymentMethod = useCheckout().setPaymentMethod;
+    } catch (e) {
+      setPaymentMethod = undefined;
+    }
+  }
   const [card, setCard] = useState({
     type: 'VISA',
     number: '',
@@ -185,11 +193,11 @@ const PaymentFormScreen = ({ type, onSave, onCancel }: PaymentFormProps) => {
       };
       
       // Save to checkout context
-      setPaymentMethod(cardData);
+      if (setPaymentMethod) setPaymentMethod(cardData);
       onSave && onSave(cardData);
       
-      // Navigate to checkout screen
-      router.push('/(root)/(tabs)/(checkout)/CheckoutScreen');
+      // Navigate back to previous screen
+      router.back();
     } else {
       // Validate phone number before saving
       if (!validatePhoneNumberForNetwork(mobileMoney.phone, mobileMoney.network)) {
@@ -205,11 +213,11 @@ const PaymentFormScreen = ({ type, onSave, onCancel }: PaymentFormProps) => {
       };
       
       // Save to checkout context
-      setPaymentMethod(mobileData);
+      if (setPaymentMethod) setPaymentMethod(mobileData);
       onSave && onSave(mobileData);
       
-      // Navigate to checkout screen
-      router.push('/(root)/(tabs)/(checkout)/CheckoutScreen');
+      // Navigate back to previous screen
+      router.back();
     }
   };
 

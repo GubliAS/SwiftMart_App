@@ -10,6 +10,7 @@ const AddAddressScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
   const editMode = params.editMode === 'true';
+  const returnTo = params.returnTo as string;
   
   const [formData, setFormData] = useState({
     country: 'Ghana',
@@ -67,8 +68,12 @@ const AddAddressScreen = () => {
       // Save back to storage
       await AsyncStorage.setItem('addresses', JSON.stringify(updatedAddresses));
 
-      // Navigate to Address Selection screen
-      router.replace('/(checkout)/AddressSelectionScreen');
+      // Navigate back to the appropriate screen
+      if (returnTo) {
+        router.replace(returnTo);
+      } else {
+        router.replace('/(checkout)/AddressSelectionScreen');
+      }
     } catch (e) {
       // Handle error (show toast, etc.)
       console.error('Failed to save address', e);
@@ -85,7 +90,13 @@ const AddAddressScreen = () => {
       <View className="flex-row items-center p-4 mt-16">
         <TouchableOpacity
           className="flex-row items-center"
-          onPress={() => router.back()}
+          onPress={() => {
+            if (returnTo) {
+              router.replace(returnTo);
+            } else {
+              router.back();
+            }
+          }}
         >
           <ChevronLeft size={24} color="#156651" />
           <Text className="text-BodyRegular font-Manrope text-primary ml-2">Back</Text>

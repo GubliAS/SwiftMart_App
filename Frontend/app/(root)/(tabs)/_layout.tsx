@@ -82,6 +82,7 @@ const Layout = () => (
                 />
               ),
           }}
+
         />
         <Tabs.Screen
           name="(checkout)"

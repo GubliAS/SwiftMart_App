@@ -79,8 +79,6 @@ const AddressSelectionScreen: React.FC = () => {
         zipCode: selectedAddress.code,
         phone: selectedAddress.phone,
       };
-      console.log("Selected address:", selectedAddress);
-      console.log("Address for checkout:", addressForCheckout);
       setAddress(addressForCheckout);
     }
     router.push("/CheckoutScreen");
