@@ -49,11 +49,16 @@ const CreateCartScreen = () => {
     setCartLink('');
     // If returnTo param is provided, go back to ProductDetail with productId
     if (params.returnTo && params.productId) {
-      router.replace({ pathname: params.returnTo as string, params: { productId: params.productId, closeCartModal: true } });
+      router.replace({
+        pathname: params.returnTo as any,
+        params: {
+          productId: params.productId as string,
+          closeCartModal: "true",
+        },
+      });
     } else {
       router.push('../CartScreen');
     }
-  };
 
   return (
     <KeyboardAvoidingView
@@ -66,7 +71,13 @@ const CreateCartScreen = () => {
         <View className="flex-row items-center mt-10 mb-6">
           <TouchableOpacity onPress={() => {
             if (params.returnTo && params.productId) {
-              router.replace({ pathname: params.returnTo as string, params: { productId: params.productId, closeCartModal: true } });
+              router.replace({
+                pathname: params.returnTo as any,
+                params: {
+                  productId: params.productId as string,
+                  closeCartModal: "true",
+                },
+              });
             } else {
               router.back();
             }
@@ -158,6 +169,6 @@ const CreateCartScreen = () => {
     </SafeAreaView>
     </KeyboardAvoidingView>
   );
-};
+};}
 
 export default CreateCartScreen;
