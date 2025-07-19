@@ -33,7 +33,7 @@ const carouselData = [
       "rgba(21, 102, 81, 0)",
     ] as const,
     buttonText: "Shop Now",
-    onPress: () => console.log("Shop Now pressed"),
+    onPress: () => {},
   },
   {
     title: "Shop Together\nPay Together",
@@ -41,7 +41,7 @@ const carouselData = [
     image: require("@/assets/images/carousel1.png"),
     gradientColors: ["rgba(0, 0, 0, 0.63)", "rgba(0, 0, 0, 0)"] as const,
     buttonText: "Create Cart",
-    onPress: () => console.log("Explore pressed"),
+    onPress: () => {},
   },
   {
     title: "Deals You Can't\nScroll Past!",
@@ -52,7 +52,7 @@ const carouselData = [
       "rgba(227, 173, 51, 0)",
     ] as const,
     buttonText: "Shop Now",
-    onPress: () => console.log("View More pressed"),
+    onPress: () => {},
   },
 ];
 
@@ -124,7 +124,7 @@ const Home = () => {
               />
               
             </Pressable>
-            <Pressable>
+            <Pressable onPress={() => router.push('/(root)/(profile)/Notifications')}>
               <Feather name="bell" size={28} color="#404040" />
               <View className="w-[10px] h-[10px] bg-alert rounded-full absolute right-1 " />
             </Pressable>

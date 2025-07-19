@@ -1,323 +1,184 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Switch } from "react-native";
-import { useNotification } from "@/context/NotificationContext";
-import { useRouter } from "expo-router";
-import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Modal, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import ProductCard from '@/components/ProductCard';
+import { Feather } from '@expo/vector-icons';
+import { ChevronLeft } from 'lucide-react-native';
+import productData from '@/constants/productData';
 
-// Mock notification data for buyer app
-const mockNotifications = [
+const markAllReadIcon = require('@/assets/images/mark-all-read.png');
+
+// Mock notifications by category with read property
+const mockNotifications: { [key: string]: { id: number; title: string; subtitle: string; read: boolean; }[] } = {
+  orders: [
+    { id: 1, title: 'Order #1234 shipped', subtitle: 'Your order has been shipped.', read: false },
+    { id: 2, title: 'Order #1234 delivered', subtitle: 'Your order has been delivered.', read: true },
+  ],
+  promotions: [
+    { id: 1, title: 'Flash Sale!', subtitle: '50% off on all electronics today only.', read: false },
+  ],
+  play: [],
+  prize: [],
+  gogo: [],
+};
+
+const messageCategories = [
   {
-    id: 1,
-    type: "order",
-    title: "Order Shipped! 🚚",
-    message: "Your order #SWM-2024-001 has been shipped and is on its way to you.",
-    time: "2 minutes ago",
-    read: false,
-    icon: "truck",
-    iconColor: "#156651",
+    key: 'orders',
+    icon: <Feather name="shopping-bag" size={24} color="#156651" />,
+    title: 'Orders',
+    subtitle: 'View important order messages and replies',
   },
   {
-    id: 2,
-    type: "promotion",
-    title: "Flash Sale Alert! ⚡",
-    message: "50% OFF on all electronics! Limited time offer, ends in 2 hours.",
-    time: "1 hour ago",
-    read: false,
-    icon: "zap",
-    iconColor: "#E55000",
+    key: 'promotions',
+    icon: <Feather name="percent" size={24} color="#E55000" />,
+    title: 'Promotions',
+    subtitle: 'Get discounts for you!',
   },
   {
-    id: 3,
-    type: "delivery",
-    title: "Package Delivered! 📦",
-    message: "Your package has been delivered to your doorstep. Enjoy your purchase!",
-    time: "3 hours ago",
-    read: true,
-    icon: "package",
-    iconColor: "#156651",
+    key: 'play',
+    icon: <Feather name="gift" size={24} color="#EBB65B" />,
+    title: 'Play & Earn',
+    subtitle: 'Earn by daily spin',
   },
   {
-    id: 4,
-    type: "announcement",
-    title: "New Features Available! ✨",
-    message: "We've added wishlist sharing and group buying features. Check them out!",
-    time: "1 day ago",
-    read: true,
-    icon: "star",
-    iconColor: "#EBB65B",
+    key: 'prize',
+    icon: <Feather name="star" size={24} color="#EBB65B" />,
+    title: 'Prize Land',
+    subtitle: 'Get great prizes for fun!',
   },
   {
-    id: 5,
-    type: "order",
-    title: "Order Confirmed! ✅",
-    message: "Your order #SWM-2024-002 has been confirmed and is being processed.",
-    time: "2 days ago",
-    read: true,
-    icon: "check-circle",
-    iconColor: "#156651",
-  },
-  {
-    id: 6,
-    type: "promotion",
-    title: "Birthday Special! 🎉",
-    message: "Happy Birthday! Enjoy 20% OFF on your next purchase with code BDAY20.",
-    time: "3 days ago",
-    read: true,
-    icon: "gift",
-    iconColor: "#E55000",
-  },
-  {
-    id: 7,
-    type: "delivery",
-    title: "Delivery Update 📍",
-    message: "Your package is out for delivery. Expected arrival: 2-4 PM today.",
-    time: "4 days ago",
-    read: true,
-    icon: "map-pin",
-    iconColor: "#156651",
+    key: 'gogo',
+    icon: <Feather name="bell" size={24} color="#156651" />,
+    title: 'GoGo Match Notification',
+    subtitle: 'Get notified for matches',
   },
 ];
 
+const moreToLoveProducts = [
+  productData.find(p => p.id === 2), // UltraBook 14 Pro
+  productData.find(p => p.id === 4), // Dumbbell Set
+].filter(Boolean);
+
 const Notifications = () => {
   const router = useRouter();
-  const {
-    newOrderNotification,
-    setNewOrderNotification,
-    lowStockNotification,
-    setLowStockNotification,
-    swiftMartAnnouncements,
-    setSwiftMartAnnouncements,
-  } = useNotification();
-
+  const [showModal, setShowModal] = useState(false);
   const [notifications, setNotifications] = useState(mockNotifications);
-  const [activeTab, setActiveTab] = useState<"all" | "unread">("all");
 
-  const markAsRead = (notificationId: number) => {
-    setNotifications(prev =>
-      prev.map(notification =>
-        notification.id === notificationId
-          ? { ...notification, read: true }
-          : notification
-      )
-    );
+  // Helper: check if a category has unread notifications
+  const hasUnread = (categoryKey: string) => {
+    return notifications[categoryKey]?.some((n: any) => !n.read);
   };
 
+  // Helper: mark all as read
   const markAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(notification => ({ ...notification, read: true }))
-    );
+    const updated = { ...notifications };
+    Object.keys(updated).forEach((cat) => {
+      updated[cat] = updated[cat].map((n) => ({ ...n, read: true }));
+    });
+    setNotifications(updated);
+    setShowModal(false);
   };
-
-  const getNotificationIcon = (iconName: string) => {
-    switch (iconName) {
-      case "truck":
-        return <Feather name="truck" size={20} color="#156651" />;
-      case "zap":
-        return <Feather name="zap" size={20} color="#E55000" />;
-      case "package":
-        return <Feather name="package" size={20} color="#156651" />;
-      case "star":
-        return <Feather name="star" size={20} color="#EBB65B" />;
-      case "check-circle":
-        return <Feather name="check-circle" size={20} color="#156651" />;
-      case "gift":
-        return <Feather name="gift" size={20} color="#E55000" />;
-      case "map-pin":
-        return <Feather name="map-pin" size={20} color="#156651" />;
-      default:
-        return <Feather name="bell" size={20} color="#156651" />;
-    }
-  };
-
-  const filteredNotifications = activeTab === "all" 
-    ? notifications 
-    : notifications.filter(n => !n.read);
-
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <SafeAreaView className="flex-1 bg-white font-Manrope">
       {/* Header */}
-      <View className="px-4 pt-6 pb-4 flex-row items-center justify-between">
-        <TouchableOpacity 
-          onPress={() => router.replace('/(root)/(tabs)/Profile')} 
-          className="mr-2"
-        >
-          <Feather name="chevron-left" size={28} color="#404040" />
+      <View className="flex-row items-center justify-between px-4 pt-6 pb-2 bg-white">
+        <TouchableOpacity onPress={() => router.back()}>
+          <ChevronLeft size={24} color="#156651" />
         </TouchableOpacity>
-        <Text className="text-Heading3 font-Manrope text-text flex-1 text-center">
-          Notifications
-        </Text>
-        <TouchableOpacity 
-          onPress={markAllAsRead}
-          className="ml-2"
-        >
-          <Text className="text-BodySmallBold text-primary">Mark all read</Text>
+        <Text className="text-Heading3 font-Manrope text-text flex-1 text-center">Messages</Text>
+        <TouchableOpacity onPress={() => setShowModal(true)}>
+          <Image source={markAllReadIcon} style={{ width: 28, height: 28 }} />
         </TouchableOpacity>
       </View>
 
-      {/* Tab Navigation */}
-      <View className="flex-row px-4 mb-4">
-        <TouchableOpacity
-          onPress={() => setActiveTab("all")}
-          className={`flex-1 py-3 px-4 rounded-lg mr-2 ${
-            activeTab === "all" ? "bg-primary" : "bg-neutral-10"
-          }`}
-        >
-          <Text
-            className={`text-BodyBold text-center ${
-              activeTab === "all" ? "text-white" : "text-text"
-            }`}
-          >
-            All ({notifications.length})
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setActiveTab("unread")}
-          className={`flex-1 py-3 px-4 rounded-lg ml-2 ${
-            activeTab === "unread" ? "bg-primary" : "bg-neutral-10"
-          }`}
-        >
-          <Text
-            className={`text-BodyBold text-center ${
-              activeTab === "unread" ? "text-white" : "text-text"
-            }`}
-          >
-            Unread ({unreadCount})
-          </Text>
+      {/* Notification Banner */}
+      <View className="flex-row items-center justify-between bg-[#F4EDD8] px-4 py-3 mx-4 mt-2 rounded-xl border border-[#EBB65B]">
+        <View className="flex-1">
+          <Text className="text-BodyBold text-[#404040]">Enable seller notifications</Text>
+          <Text className="text-BodySmallRegular text-[#404040] opacity-70">Get important notifications, messages and replies.</Text>
+        </View>
+        <TouchableOpacity className="ml-4 bg-[#EBB65B] px-4 py-2 rounded-lg">
+          <Text className="text-white text-BodyBold">OK</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Notification Settings */}
-      <View className="px-4 mb-4">
-        <Text className="text-BodyBold text-text mb-3">Notification Preferences</Text>
-        <View className="bg-neutral-10 rounded-14 p-4 space-y-4">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center flex-1">
-              <View className="w-10 h-10 bg-primary/10 rounded-lg items-center justify-center mr-3">
-                <Feather name="shopping-bag" size={20} color="#156651" />
+      {/* Message Categories */}
+      <ScrollView className="flex-1 mt-4 px-4" showsVerticalScrollIndicator={false}>
+        <View className="bg-white rounded-2xl p-2 mb-4">
+          {messageCategories.map((cat, idx) => (
+            <TouchableOpacity
+              key={cat.key}
+              className="flex-row items-center py-3 px-2 border-b border-neutral-20 last:border-b-0"
+              onPress={() => router.push({ pathname: '/(root)/(profile)/CategoryNotifications', params: { category: cat.key } })}
+            >
+              <View className="w-10 h-10 rounded-lg bg-[#F4EDD8] items-center justify-center mr-3">
+                {cat.icon}
               </View>
               <View className="flex-1">
-                <Text className="text-BodyBold text-text">Order Updates</Text>
-                <Text className="text-BodySmallRegular text-neutral-60">
-                  Get notified about your order status
-                </Text>
+                <Text className="text-BodyBold text-text">{cat.title}</Text>
+                <Text className="text-BodySmallRegular text-neutral-60">{cat.subtitle}</Text>
               </View>
-            </View>
-            <Switch
-              value={newOrderNotification}
-              onValueChange={setNewOrderNotification}
-              trackColor={{ false: "#E5E5E5", true: "#156651" }}
-              thumbColor={newOrderNotification ? "#FFFFFF" : "#FFFFFF"}
-            />
-          </View>
+              {hasUnread(cat.key) && <View className="w-2 h-2 bg-primary rounded-full ml-2" />}
+            </TouchableOpacity>
+          ))}
+        </View>
 
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center flex-1">
-              <View className="w-10 h-10 bg-alert/10 rounded-lg items-center justify-center mr-3">
-                <Feather name="zap" size={20} color="#E55000" />
+        {/* All Notifications List */}
+        <Text className="text-BodyBold text-text mb-2">All Notifications</Text>
+        <View className="space-y-2 mb-8">
+          {Object.entries(notifications).flatMap(([catKey, notifs]) =>
+            (notifs as any[]).map((notif) => (
+              <View key={catKey + notif.id} className="flex-row items-center bg-neutral-10 rounded-xl p-4 mb-2">
+                {!notif.read && <View className="w-2 h-2 bg-primary rounded-full mr-2" />}
+                <View className="flex-1">
+                  <Text className={`text-BodyBold ${!notif.read ? 'text-text' : 'text-neutral-60'}`}>{notif.title}</Text>
+                  <Text className="text-BodySmallRegular text-neutral-60">{notif.subtitle}</Text>
+                </View>
               </View>
-              <View className="flex-1">
-                <Text className="text-BodyBold text-text">Flash Sales & Deals</Text>
-                <Text className="text-BodySmallRegular text-neutral-60">
-                  Don't miss out on exclusive offers
-                </Text>
-              </View>
-            </View>
-            <Switch
-              value={lowStockNotification}
-              onValueChange={setLowStockNotification}
-              trackColor={{ false: "#E5E5E5", true: "#156651" }}
-              thumbColor={lowStockNotification ? "#FFFFFF" : "#FFFFFF"}
-            />
-          </View>
+            ))
+          )}
+        </View>
 
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center flex-1">
-              <View className="w-10 h-10 bg-secondary/10 rounded-lg items-center justify-center mr-3">
-                <Feather name="star" size={20} color="#EBB65B" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-BodyBold text-text">App Updates & News</Text>
-                <Text className="text-BodySmallRegular text-neutral-60">
-                  Stay updated with new features
-                </Text>
-              </View>
-            </View>
-            <Switch
-              value={swiftMartAnnouncements}
-              onValueChange={setSwiftMartAnnouncements}
-              trackColor={{ false: "#E5E5E5", true: "#156651" }}
-              thumbColor={swiftMartAnnouncements ? "#FFFFFF" : "#FFFFFF"}
-            />
+        {/* More to Love Section */}
+        <Text className="text-BodyBold text-text mb-2">More to Love</Text>
+        <View className="flex-row gap-4 mb-8">
+          {moreToLoveProducts.map((product) => (
+            product ? (
+              <TouchableOpacity
+                key={product.id}
+                className="w-[48%]"
+                onPress={() => router.push({ pathname: '/(root)/(Home)/ProductDetail', params: { productId: product.id } })}
+              >
+                <ProductCard
+                  {...product}
+                  price={Number(product.price)}
+                  originalPrice={Number(product.originalPrice)}
+                  discount={product.discount ? Number(product.discount) : undefined}
+                />
+              </TouchableOpacity>
+            ) : null
+          ))}
+        </View>
+      </ScrollView>
+
+      {/* Mark All As Read Modal */}
+      <Modal visible={showModal} transparent animationType="fade">
+        <View className="flex-1 justify-end bg-black/30">
+          <View className="bg-white rounded-t-2xl p-6 pb-10 items-center">
+            <Text className="text-Heading4 font-Manrope text-text mb-2">Mark All As Read?</Text>
+            <Text className="text-BodySmallRegular text-neutral-60 mb-6">This action cannot be undone.</Text>
+            <TouchableOpacity className="w-full bg-primary rounded-lg py-4 mb-2 items-center" onPress={markAllAsRead}>
+              <Text className="text-white text-BodyBold">Confirm</Text>
+            </TouchableOpacity>
+            <TouchableOpacity className="w-full bg-[#F4EDD8] rounded-lg py-4 items-center" onPress={() => setShowModal(false)}>
+              <Text className="text-primary text-BodyBold">Cancel</Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </View>
-
-      {/* Notifications List */}
-      <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
-        {filteredNotifications.length === 0 ? (
-          <View className="flex-1 items-center justify-center py-20">
-            <View className="w-20 h-20 bg-neutral-10 rounded-full items-center justify-center mb-4">
-              <Feather name="bell" size={32} color="#E5E5E5" />
-            </View>
-            <Text className="text-BodyBold text-neutral-60 mt-4">
-              {activeTab === "all" ? "No notifications yet" : "No unread notifications"}
-            </Text>
-            <Text className="text-BodySmallRegular text-neutral-40 mt-2 text-center px-8">
-              {activeTab === "all" 
-                ? "You'll see order updates, deals, and app news here."
-                : "All caught up! No unread notifications."
-              }
-            </Text>
-          </View>
-        ) : (
-          <View className="space-y-3 pb-6">
-            {filteredNotifications.map((notification) => (
-              <TouchableOpacity
-                key={notification.id}
-                onPress={() => markAsRead(notification.id)}
-                className={`bg-white rounded-14 p-4 border ${
-                  notification.read ? "border-neutral-20" : "border-primary"
-                }`}
-                style={{
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 4,
-                  elevation: 3,
-                }}
-              >
-                <View className="flex-row items-start">
-                  {/* Notification Icon */}
-                  <View className="w-12 h-12 bg-neutral-10 rounded-lg items-center justify-center mr-3 mt-1">
-                    {getNotificationIcon(notification.icon)}
-                  </View>
-
-                  {/* Notification Content */}
-                  <View className="flex-1">
-                    <View className="flex-row items-center justify-between mb-1">
-                      <Text className="text-BodyBold text-text flex-1">
-                        {notification.title}
-                      </Text>
-                      {!notification.read && (
-                        <View className="w-2 h-2 bg-primary rounded-full ml-2" />
-                      )}
-                    </View>
-                    <Text className="text-BodySmallRegular text-neutral-60 mb-2 leading-5">
-                      {notification.message}
-                    </Text>
-                    <Text className="text-Caption text-neutral-40">
-                      {notification.time}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-      </ScrollView>
+      </Modal>
     </SafeAreaView>
   );
 };

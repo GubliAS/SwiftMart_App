@@ -20,11 +20,6 @@ type AddressCardProps = {
 };
 
 export const AddressCard = ({ address, onEdit }: AddressCardProps) => {
-  console.log('AddressCard details:', {
-    name: address?.name,
-    zipCode: address?.zipCode,
-    fullAddress: address
-  });
 
   if (!address) {
     return (

@@ -20,12 +20,6 @@ const CheckoutScreen = () => {
   const params = useLocalSearchParams();
   const { address, paymentMethod } = useCheckout();
 
-  // Debug logging
-  useEffect(() => {
-    console.log('Address in checkout:', address);
-    console.log('Payment method in checkout:', paymentMethod);
-  }, [address, paymentMethod]);
-
   // Parse cart from params
   const cart = params.cart ? JSON.parse(params.cart as string) : undefined;
 
@@ -46,7 +40,6 @@ const CheckoutScreen = () => {
   const handleEditAddress = () => {
     // Navigate to address selection/edit screen
     router.push('/(root)/(tabs)/(checkout)/AddressSelectionScreen');
-    console.log('Edit address');
   };
 
   const handleEditPayment = () => {
@@ -57,25 +50,20 @@ const CheckoutScreen = () => {
   const handleOpenOrderModal = () => {
     if (!address || !paymentMethod) {
       // You can add a toast or alert here to inform the user
-      console.log('Please select address and payment method first');
       return;
     }
-    console.log('Opening order status modal');
     setIsOrderModalVisible(true);
   };
 
   const handleCloseOrderModal = () => {
-    console.log('Closing order status modal');
     setIsOrderModalVisible(false);
   };
 
   const handleCheckoutNow = () => {
     if (!address || !paymentMethod) {
       // You can add a toast or alert here to inform the user
-      console.log('Please select address and payment method first');
       return;
     }
-    console.log('Proceeding to checkout now');
     setIsCartModalVisible(true);
   };
 
@@ -253,16 +241,13 @@ const CheckoutScreen = () => {
           setIsOrderModalVisible(false);
         }}
         onGoToHomePage={() => {
-          console.log('Go to home page');
           setIsOrderModalVisible(false);
           router.push('/(root)/(tabs)/Home');
         }}
         onRetry={() => {
-          console.log('Retry order');
           setIsOrderModalVisible(false);
         }}
         onContactSupport={() => {
-          console.log('Contact support');
           setIsOrderModalVisible(false);
         }}
       />

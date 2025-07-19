@@ -173,9 +173,6 @@ const Login = () => {
       } else {
         // Email exists but sending failed - for now, let's proceed to code input
         // In production, you'd want to show an error message
-        console.log(
-          "Email sending failed, but email exists. Proceeding to code input for testing."
-        );
         setIsEmailAssigned(true);
         setIsEnteringCode(true);
       }
@@ -229,12 +226,10 @@ const Login = () => {
 
   const handlePasswordResetSubmit = async () => {
     if (newPassword !== confirmPassword) {
-      console.log("Passwords do not match!");
       return;
     }
 
     if (!isValidPassword(newPassword).length) {
-      console.log("Password does not meet the criteria!");
       return;
     }
 

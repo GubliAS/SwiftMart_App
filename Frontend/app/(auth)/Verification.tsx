@@ -50,7 +50,6 @@ const Verification = () => {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    console.log("Verifying code for email:", email, "code:", code.join(""));
     try {
       const response = await fetch(`${BASE_URL}/api/auth/verify-code`, {
         method: "POST",
@@ -93,7 +92,6 @@ const Verification = () => {
 
   const handleResendCode = async () => {
     setIsResending(true);
-    console.log("Resending code to email:", email);
     try {
       let endpoint = `${BASE_URL}/api/auth/send-verification-code`;
       if (role) {

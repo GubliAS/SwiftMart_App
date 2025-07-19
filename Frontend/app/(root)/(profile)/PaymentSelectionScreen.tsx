@@ -3,27 +3,17 @@ import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import SavedPaymentCard from './components/SavedPaymentCard';
-import PaymentFormScreen from './components/PaymentFormScreen';
-// import ChoosePaymentTypeScreen from './components/ChoosePaymentTypeScreen';
-import { PlusIcon } from 'react-native-heroicons/outline';
-import ChoosePaymentTypeScreen from './components/ChoosePaymentTypeScreen';
-import { useCheckout } from '@/context/_CheckoutContext';
+import SavedPaymentCard from '../(tabs)/(checkout)/components/SavedPaymentCard';
+import PaymentFormScreen from '../(tabs)/(checkout)/components/PaymentFormScreen';
+import ChoosePaymentTypeScreen from '../(tabs)/(checkout)/components/ChoosePaymentTypeScreen';
 import { usePaymentMethods, PaymentMethod } from '@/context/PaymentMethodsContext';
-import { useCallback } from 'react';
 
 const PaymentSelectionScreen = () => {
   const router = useRouter();
-  const { setPaymentMethod } = useCheckout();
   const { paymentMethods, addPaymentMethod, removePaymentMethod, setDefaultPaymentMethod } = usePaymentMethods();
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState<'card' | 'mobile'>('card');
   const [showChooser, setShowChooser] = useState(false);
-
-  const handleAddPayment = (type: 'card' | 'mobile') => {
-    setFormType(type);
-    setShowForm(true);
-  };
 
   const handleSavePayment = (newMethod: PaymentMethod, returnTo?: string) => {
     addPaymentMethod({
@@ -35,22 +25,9 @@ const PaymentSelectionScreen = () => {
         ? newMethod.phone ?? ''
         : newMethod.last4 ?? '',
     });
-    // Save to context
-    const paymentForCheckout = {
-      type: newMethod.type,
-      last4: newMethod.type === 'MobileMoney'
-        ? newMethod.phone ?? ''
-        : newMethod.last4 ?? '',
-      fullNumber: newMethod.type !== 'MobileMoney' ? (newMethod as any).number : undefined,
-      network: newMethod.type === 'MobileMoney' ? newMethod.network : undefined,
-      phone: newMethod.type === 'MobileMoney' ? newMethod.phone : undefined,
-      expiry: newMethod.type !== 'MobileMoney' ? (newMethod as any).expiry : undefined,
-      cvv: newMethod.type !== 'MobileMoney' ? (newMethod as any).cvv : undefined,
-    };
-    setPaymentMethod(paymentForCheckout);
     setShowForm(false);
     if (returnTo) {
-      router.replace(returnTo as any);
+      router.replace(returnTo);
     } else {
       router.back();
     }
@@ -100,30 +77,24 @@ const PaymentSelectionScreen = () => {
       ) : showForm ? (
         <PaymentFormScreen
           type={formType}
-          onSave={(data) => handleSavePayment(data, '/(root)/(tabs)/(checkout)/CheckoutScreen')}
+          onSave={(data) => handleSavePayment(data, '/(root)/(profile)')}
           onCancel={() => setShowForm(false)}
+          useCheckoutContext={false}
         />
       ) : (
         <ScrollView className="px-4 pb-4 flex-1">
           {paymentMethods.length > 0 ? (
             <View className="mt-4">
-              {paymentMethods.map((method) => {
-                const handleSelect = useCallback(() => {
-                  setPaymentMethod(method);
-                  router.replace('/(root)/(tabs)/(checkout)/CheckoutScreen');
-                }, [method]);
-                return (
-                  <TouchableOpacity key={method.id} activeOpacity={0.8} onPress={handleSelect}>
-                    <SavedPaymentCard 
-                      method={method}
-                      onEdit={() => {
-                        setFormType(method.type === 'MobileMoney' ? 'mobile' : 'card');
-                        setShowForm(true);
-                      }}
-                    />
-                  </TouchableOpacity>
-                );
-              })}
+              {paymentMethods.map((method) => (
+                <SavedPaymentCard 
+                  key={method.id}
+                  method={method}
+                  onEdit={() => {
+                    setFormType(method.type === 'MobileMoney' ? 'mobile' : 'card');
+                    setShowForm(true);
+                  }}
+                />
+              ))}
             </View>
           ) : (
             <View className="flex-1 justify-center items-center py-16">
@@ -173,4 +144,4 @@ const PaymentSelectionScreen = () => {
   );
 };
 
-export default PaymentSelectionScreen;
+export default PaymentSelectionScreen; 

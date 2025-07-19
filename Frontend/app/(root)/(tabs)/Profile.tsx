@@ -11,6 +11,8 @@ import { Entypo, Feather, MaterialIcons } from "@expo/vector-icons";
 import PrimaryButton from "@/components/PrimaryButton";
 import ProfileCard from "@/components/ProfileCard";
 import { router } from "expo-router";
+import { useUser } from '@/context/UserContext';
+import { navigateToTransactionPage } from '@/utils/orders/navigation';
 
 // Mock notification data for badge count (matching the notifications screen)
 const mockNotifications = [
@@ -24,6 +26,7 @@ const mockNotifications = [
 ];
 
 const Profile = () => {
+  const { user } = useUser();
   const unreadCount = mockNotifications.filter(n => !n.read).length;
   
   return (
@@ -62,17 +65,17 @@ const Profile = () => {
             <View className="rounded-full w-[64px] h-[64px] overflow-hidden">
               <ImageBackground
                 className="w-full h-full  "
-                source={require("@/assets/images/userPic.jpeg")}
+                source={user.photo}
               />
             </View>
             <View>
-              <Text className="text-Heading4 text-text">Claire Cooper</Text>
+              <Text className="text-Heading4 text-text">{user.name}</Text>
               <Text className="text-BodySmallRegular text-neutral-70">
-                claire.cooper@mail.com
+                {user.email}
               </Text>
             </View>
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(root)/(profile)/EditProfile')}>
             <Feather name="edit" size={24} color="#404040" />
           </TouchableOpacity>
         </View>
@@ -92,7 +95,7 @@ const Profile = () => {
                 text="Transaction"
                 IconComponent={MaterialIcons}
                 iconName="receipt"
-                onPress={() => console.log("Transaction card pressed!")}
+                onPress={navigateToTransactionPage}
               />
               {/* Settings Card */}
               <ProfileCard
@@ -106,14 +109,14 @@ const Profile = () => {
                 text="Saved Address"
                 IconComponent={Feather}
                 iconName="bookmark"
-                onPress={() => console.log("Saved Adress card pressed!")}
+                onPress={() => router.push("/(root)/(profile)/SavedAddressScreen")}
               />
               {/* Saved Address Card */}
               <ProfileCard
                 text="Payment Methods"
                 IconComponent={Feather}
                 iconName="credit-card"
-                onPress={() => console.log("Payment Methods card pressed!")}
+                onPress={() => router.push("/(root)/(profile)/PaymentSelectionScreen")}
               />
               {/* Notification Card */}
               <ProfileCard
@@ -122,24 +125,22 @@ const Profile = () => {
                 iconName="bell"
                 onPress={() => router.push("/(root)/(profile)/Notifications")}
               />
-              {/* Saved Address Card */}
+              {/* Security Card */}
               <ProfileCard
                 text="Security"
                 IconComponent={Feather}
                 iconName="lock"
-                onPress={() => console.log("Security card pressed!")}
+                onPress={() => router.push("/(root)/(profile)/SecurityScreen")}
               />
             </View>
             <View className="gap-4">
-              <Text className="text-BodyBold text-text">General</Text>
-              {/* Transaction Card */}
+              <Text className="text-BodyBold text-text">Support</Text>
+              {/* Contact Us Card */}
               <ProfileCard
                 text="Get in Touch With Us"
                 IconComponent={Feather}
                 iconName="user"
-                onPress={() =>
-                  console.log("Get in Touch With Us card pressed!")
-                }
+                onPress={() => router.push("/(root)/(profile)/ContactUsScreen")}
               />
             </View>
             <Text className="text-center text-neutral-60 text-Caption mt-4">
