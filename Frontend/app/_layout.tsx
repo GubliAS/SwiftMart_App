@@ -13,6 +13,7 @@ import { NotificationProvider } from "@/context/NotificationContext";
 import { UserProvider } from '@/context/UserContext';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { PaymentMethodsProvider } from "@/context/PaymentMethodsContext";
+import { FeedProvider } from './context/FeedContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -42,15 +43,17 @@ export default function RootLayout() {
             <SearchProvider>
               <CartProvider>
                 <PaymentMethodsProvider>
-                  <View className="font-Manrope" style={{ flex: 1 }}>
-                    <StatusBar style="dark" />
-                    <Stack screenOptions={{ headerShown: false }}>
-                      <Stack.Screen name="index" options={{ headerShown: false }} />
-                      <Stack.Screen name="(auth)" />
-                      <Stack.Screen name="(root)" options={{ headerShown: false }} />
-                      <Stack.Screen name="+not-found" />
-                    </Stack>
-                  </View>
+                  <FeedProvider>
+                    <View className="font-Manrope" style={{ flex: 1 }}>
+                      <StatusBar style="dark" />
+                      <Stack screenOptions={{ headerShown: false }}>
+                        <Stack.Screen name="index" options={{ headerShown: false }} />
+                        <Stack.Screen name="(auth)" />
+                        <Stack.Screen name="(root)" options={{ headerShown: false }} />
+                        <Stack.Screen name="+not-found" />
+                      </Stack>
+                    </View>
+                  </FeedProvider>
                 </PaymentMethodsProvider>
               </CartProvider>
             </SearchProvider>

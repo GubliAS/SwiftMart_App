@@ -27,7 +27,7 @@ const PaymentSelectionScreen = () => {
     });
     setShowForm(false);
     if (returnTo) {
-      router.replace(returnTo);
+      router.replace(returnTo as any);
     } else {
       router.back();
     }
