@@ -1,10 +1,9 @@
-import { View, Text } from 'react-native'
-import React from 'react'
 import { Redirect } from 'expo-router'
+import React from 'react'
 import "../global.css"
 
 const index = () => {
-  return <Redirect href="/(auth)/onboarding" />
+  return <Redirect href="/(auth)/SellerDashboard"/>
     
   
 }
