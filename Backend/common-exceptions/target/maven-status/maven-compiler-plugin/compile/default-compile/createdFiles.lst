@@ -1,0 +1,5 @@
+com\example\common\exception\InvalidOperationException.class
+com\example\common\exception\GlobalExceptionHandler$ErrorResponse.class
+com\example\common\exception\DuplicateResourceException.class
+com\example\common\exception\GlobalExceptionHandler.class
+com\example\common\exception\ResourceNotFoundException.class

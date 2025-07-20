@@ -1,0 +1,3 @@
+com\example\apigateway\config\GlobalExceptionHandler.class
+com\example\apigateway\ApiGatewayApplication.class
+com\example\apigateway\config\GlobalExceptionHandler$ErrorResponse.class

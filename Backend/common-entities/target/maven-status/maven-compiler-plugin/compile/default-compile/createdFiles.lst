@@ -1,0 +1,10 @@
+com\example\commonentities\OrderStatus.class
+com\example\commonentities\ShippingOption.class
+com\example\commonentities\RoleDTO.class
+com\example\commonentities\Role.class
+com\example\commonentities\SiteUserDTO.class
+com\example\commonentities\Wishlist.class
+com\example\commonentities\ProductVariant.class
+com\example\commonentities\ShopOrder.class
+com\example\commonentities\SiteUser.class
+com\example\commonentities\Product.class

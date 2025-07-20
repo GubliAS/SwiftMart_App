@@ -14,6 +14,7 @@ import { UserProvider } from '@/context/UserContext';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { PaymentMethodsProvider } from "@/context/PaymentMethodsContext";
 import { FeedProvider } from './context/FeedContext';
+import { AuthProvider } from '@/context/AuthContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -37,29 +38,31 @@ export default function RootLayout() {
 
   return (
     <ActionSheetProvider>
+      <AuthProvider>
       <UserProvider>
         <WishlistProvider>
           <NotificationProvider>
             <SearchProvider>
               <CartProvider>
                 <PaymentMethodsProvider>
-                  <FeedProvider>
-                    <View className="font-Manrope" style={{ flex: 1 }}>
-                      <StatusBar style="dark" />
-                      <Stack screenOptions={{ headerShown: false }}>
-                        <Stack.Screen name="index" options={{ headerShown: false }} />
-                        <Stack.Screen name="(auth)" />
-                        <Stack.Screen name="(root)" options={{ headerShown: false }} />
-                        <Stack.Screen name="+not-found" />
-                      </Stack>
-                    </View>
-                  </FeedProvider>
+                    <FeedProvider>
+                  <View className="font-Manrope" style={{ flex: 1 }}>
+                    <StatusBar style="dark" />
+                    <Stack screenOptions={{ headerShown: false }}>
+                      <Stack.Screen name="index" options={{ headerShown: false }} />
+                      <Stack.Screen name="(auth)" />
+                      <Stack.Screen name="(root)" options={{ headerShown: false }} />
+                      <Stack.Screen name="+not-found" />
+                    </Stack>
+                  </View>
+                    </FeedProvider>
                 </PaymentMethodsProvider>
               </CartProvider>
             </SearchProvider>
           </NotificationProvider>
         </WishlistProvider>
       </UserProvider>
+      </AuthProvider>
     </ActionSheetProvider>
   );
 }

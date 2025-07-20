@@ -1,32 +1,40 @@
 import React from "react";
-import { Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, ActivityIndicator } from "react-native";
 
 type PrimaryButtonProps = {
   BtnText: string; // Button text
   disabled?: boolean; // Disabled state
+  loading?: boolean; // Loading state
   onPress?: () => void; // Function to handle button press
 };
 
 const PrimaryButton = ({
   BtnText,
   disabled = false,
+  loading = false,
   onPress,
 }: PrimaryButtonProps) => {
+  const isDisabled = disabled || loading;
+  
   return (
     <TouchableOpacity
-      onPress={!disabled ? onPress : undefined} // Disable onPress if the button is disabled
+      onPress={!isDisabled ? onPress : undefined} // Disable onPress if the button is disabled or loading
       className={`items-center justify-center w-full rounded-lg px-[18px] py-3 ${
-        disabled ? "bg-neutral-10" : "bg-primary"
+        isDisabled ? "bg-neutral-10" : "bg-primary"
       }`}
-      disabled={disabled} // Disable touch events
+      disabled={isDisabled} // Disable touch events
     >
+      {loading ? (
+        <ActivityIndicator size="small" color="#156651" />
+      ) : (
       <Text
         className={`text-BodyBold ${
-          disabled ? "text-primary" : "text-white"
+            isDisabled ? "text-primary" : "text-white"
         } font-Manrope`}
       >
         {BtnText}
       </Text>
+      )}
     </TouchableOpacity>
   );
 };

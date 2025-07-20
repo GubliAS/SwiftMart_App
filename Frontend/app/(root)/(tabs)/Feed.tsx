@@ -11,12 +11,12 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import {
-  MessageCircle,
-  User,
-  Heart,
-  MessageSquare,
-  Share2,
+import { 
+  MessageCircle, 
+  User, 
+  Heart, 
+  MessageSquare, 
+  Share2, 
   MoreHorizontal,
   Play,
   X,
@@ -140,21 +140,21 @@ const Feed: React.FC = () => {
       style={{ width: '48%', marginBottom: 16 }}
     >
       <View className="bg-white rounded-2xl overflow-hidden" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 2 }}>
-        <View className="relative">
+      <View className="relative">
           <Image source={item.thumbnail || item.imageUrl} className="w-full h-40" resizeMode="cover" />
-          {item.type === 'video' && (
+        {item.type === 'video' && (
             <>
               <View className="absolute top-2 right-2 bg-black/60 rounded px-2 py-1">
                 <Text className="text-white text-xs font-bold">{item.duration}</Text>
               </View>
               <View className="absolute inset-0 items-center justify-center flex">
                 <Play size={36} color="white" />
-              </View>
+          </View>
             </>
           )}
           <View className="absolute left-2 right-2 bottom-2 bg-primary rounded-lg p-2 flex-row items-center" style={{ zIndex: 2 }}>
-            <ShoppingBag size={16} color="white" className="mr-2" />
-            <View className="flex-1">
+          <ShoppingBag size={16} color="white" className="mr-2" />
+          <View className="flex-1">
               <Text className="text-white text-xs font-bold" numberOfLines={1}>{item.product?.name}</Text>
               <Text className="text-white text-xs">{item.product ? `$${item.product.price}` : ''}</Text>
             </View>
@@ -162,30 +162,30 @@ const Feed: React.FC = () => {
         </View>
         <View className="px-3 pt-3 pb-2">
           <Text className="text-BodySmallRegular text-text mb-2" numberOfLines={2}>{item.title}</Text>
-          <View className="flex-row items-center justify-between mb-2">
+        <View className="flex-row items-center justify-between mb-2">
             <TouchableOpacity className="flex-row items-center" onPress={() => handleLike(item.id)}>
               <Heart size={16} color={item.isLiked ? '#EF4444' : '#6B7280'} fill={item.isLiked ? '#EF4444' : 'none'} />
-              <Text className="text-xs text-neutral-60 ml-1">{item.likes}</Text>
+            <Text className="text-xs text-neutral-60 ml-1">{item.likes}</Text>
             </TouchableOpacity>
             <TouchableOpacity className="flex-row items-center" onPress={() => { setSelectedPost(item); setShowComments(true); }}>
-              <MessageSquare size={16} color="#6B7280" />
-              <Text className="text-xs text-neutral-60 ml-1">{item.comments}</Text>
+            <MessageSquare size={16} color="#6B7280" />
+            <Text className="text-xs text-neutral-60 ml-1">{item.comments}</Text>
             </TouchableOpacity>
             <TouchableOpacity className="flex-row items-center" onPress={() => { setSelectedPost(item); setShowShare(true); }}>
-              <Share2 size={16} color="#6B7280" />
-              <Text className="text-xs text-neutral-60 ml-1">{item.shares}</Text>
+            <Share2 size={16} color="#6B7280" />
+            <Text className="text-xs text-neutral-60 ml-1">{item.shares}</Text>
             </TouchableOpacity>
           </View>
           <View className="flex-row items-center mt-1">
-            <Image source={item.user.avatar} className="w-6 h-6 rounded-full mr-2" />
-            <View className="flex-1">
+          <Image source={item.user.avatar} className="w-6 h-6 rounded-full mr-2" />
+          <View className="flex-1">
               <Text className="text-xs text-text font-medium" numberOfLines={1}>{item.user.username}</Text>
-              <Text className="text-xs text-neutral-60">{item.user.followers} followers</Text>
+            <Text className="text-xs text-neutral-60">{item.user.followers} followers</Text>
             </View>
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+          </TouchableOpacity>
   );
 
   // ...renderSuggestedUser and other UI code would go here...
@@ -201,10 +201,10 @@ const Feed: React.FC = () => {
         <View className="absolute right-4 items-center gap-4">
           <TouchableOpacity onPress={handleCameraPress} className="mr-2">
             <Image source={require('@/assets/images/camera-icon.png')} style={{ width: 24, height: 24 }} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push('/(root)/(tabs)/Profile')}>
-            <User size={24} color="#156651" />
-          </TouchableOpacity>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/(root)/(tabs)/Profile')}>
+          <User size={24} color="#156651" />
+        </TouchableOpacity>
         </View>
       </View>
 
@@ -294,7 +294,7 @@ const Feed: React.FC = () => {
                     <Text style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>1.2K followers</Text>
                     <TouchableOpacity style={{ backgroundColor: '#fff', borderRadius: 16, borderWidth: 1, borderColor: '#156651', paddingVertical: 6, paddingHorizontal: 18, width: '100%' }} onPress={() => {/* Unfollow logic here */}}>
                       <Text style={{ color: '#156651', fontWeight: '700', fontSize: 13, textAlign: 'center' }}>Unfollow</Text>
-                    </TouchableOpacity>
+                </TouchableOpacity>
                   </View>
                 ))}
               </ScrollView>
@@ -306,9 +306,9 @@ const Feed: React.FC = () => {
                     <Image source={user.avatar} style={{ width: 48, height: 48, borderRadius: 24, marginBottom: 6 }} />
                     <Text style={{ fontSize: 13, fontWeight: '600', color: '#222', textAlign: 'center', marginBottom: 2 }} numberOfLines={1}>{user.username}</Text>
                     <Text style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>1.2K followers</Text>
-                  </View>
-                ))}
-              </ScrollView>
+            </View>
+          ))}
+      </ScrollView>
               {/* Suggested For You Section */}
               {showSuggestions && suggestedUsers.length > 0 && (
                 <>
@@ -319,17 +319,17 @@ const Feed: React.FC = () => {
                         <View style={{ position: 'absolute', top: 8, right: 8, zIndex: 10 }}>
                           <TouchableOpacity onPress={() => handleRemoveSuggestion(item.id)}>
                             <X size={16} color="#6B7280" />
-                          </TouchableOpacity>
-                        </View>
+              </TouchableOpacity>
+            </View>
                         <Image source={item.avatar} style={{ width: 48, height: 48, borderRadius: 24, marginBottom: 6 }} />
                         <Text style={{ fontSize: 13, fontWeight: '600', color: '#222', textAlign: 'center', marginBottom: 2 }} numberOfLines={1}>{item.username}</Text>
                         <Text style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>{item.followers} followers</Text>
                         <TouchableOpacity style={{ backgroundColor: '#156651', borderRadius: 16, paddingVertical: 6, paddingHorizontal: 18, width: '100%' }} onPress={() => handleFollowSuggested(item.id)}>
                           <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13, textAlign: 'center' }}>Follow</Text>
-                        </TouchableOpacity>
-                      </View>
-                    ))}
-                  </ScrollView>
+                   </TouchableOpacity>
+                 </View>
+               ))}
+             </ScrollView>
                 </>
               )}
             </View>

@@ -1,0 +1,16 @@
+com\example\cartsharing\entity\CartShare$SharePermission.class
+com\example\cartsharing\repository\CartInvitationRepository.class
+com\example\cartsharing\service\CartSharingService.class
+com\example\cartsharing\dto\CartShareDTO.class
+com\example\cartsharing\CartSharingServiceApplication.class
+com\example\cartsharing\dto\CartInvitationDTO.class
+com\example\cartsharing\controller\CartSharingController$ErrorResponse.class
+com\example\cartsharing\entity\CartInvitation.class
+com\example\cartsharing\dto\AcceptInvitationRequest.class
+com\example\cartsharing\dto\CreateShareRequest.class
+com\example\cartsharing\entity\CartShare.class
+com\example\cartsharing\client\EmailClient.class
+com\example\cartsharing\dto\InviteUserRequest.class
+com\example\cartsharing\controller\CartSharingController.class
+com\example\cartsharing\client\EmailClient$EmailRequest.class
+com\example\cartsharing\repository\CartShareRepository.class

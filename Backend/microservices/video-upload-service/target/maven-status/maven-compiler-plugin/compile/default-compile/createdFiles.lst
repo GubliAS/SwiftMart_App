@@ -1,0 +1,15 @@
+com\example\videoupload\service\VideoSecurityService.class
+com\example\videoupload\VideoUploadServiceApplication.class
+com\example\videoupload\dto\VideoUploadDTO.class
+com\example\videoupload\repository\VideoUploadRepository.class
+com\example\videoupload\dto\VideoUploadResponse.class
+com\example\videoupload\mapper\VideoUploadMapper.class
+com\example\videoupload\service\VideoAuthService.class
+com\example\videoupload\service\VideoStreamingService.class
+com\example\videoupload\service\VideoCleanupService.class
+com\example\videoupload\dto\VideoUploadRequest.class
+com\example\videoupload\entity\VideoUpload.class
+com\example\videoupload\mapper\VideoUploadMapperImpl.class
+com\example\videoupload\service\VideoUploadService.class
+com\example\videoupload\controller\VideoUploadController.class
+com\example\videoupload\dto\VideoMetadataDTO.class

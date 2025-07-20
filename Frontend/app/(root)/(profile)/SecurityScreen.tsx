@@ -11,9 +11,13 @@ import {
 import { ChevronLeft, Eye, EyeOff, Shield, Lock, Smartphone, Bell } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '@/context/AuthContext';
+import { BASE_URL } from '@/constants/env';
+import Button from '@/components/Button';
 
 const SecurityScreen = () => {
   const router = useRouter();
+  const { token, logout } = useAuth();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -21,6 +25,8 @@ const SecurityScreen = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   
   // Security settings
   const [biometricEnabled, setBiometricEnabled] = useState(false);
@@ -29,40 +35,45 @@ const SecurityScreen = () => {
   const [transactionNotifications, setTransactionNotifications] = useState(true);
 
   const handleChangePassword = async () => {
+    setSuccessMsg('');
+    setErrorMsg('');
     if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields');
+      setErrorMsg('Please fill in all fields');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'New passwords do not match');
+      setErrorMsg('New passwords do not match');
       return;
     }
 
     if (newPassword.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters long');
+      setErrorMsg('Password must be at least 8 characters long');
       return;
     }
 
     setIsLoading(true);
     
     try {
-      // Here you would typically make an API call to change the password
-      // For now, we'll simulate the process
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Clear the form
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      
-      Alert.alert(
-        'Success', 
-        'Password changed successfully',
-        [{ text: 'OK' }]
-      );
-    } catch (error) {
-      Alert.alert('Error', 'Failed to change password. Please try again.');
+      const res = await fetch(`${BASE_URL}/api/auth/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      if (res.ok) {
+        setSuccessMsg('Password changed successfully!');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        const err = await res.text();
+        setErrorMsg(err || 'Failed to change password.');
+      }
+    } catch (e) {
+      setErrorMsg('Network error.');
     } finally {
       setIsLoading(false);
     }
@@ -107,6 +118,44 @@ const SecurityScreen = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    console.log('Attempting to delete account...');
+    Alert.alert(
+      'Delete Account',
+      'Are you sure you want to delete your account? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const res = await fetch(`${BASE_URL}/api/auth/user`, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+              console.log('Delete response status:', res.status);
+              const text = await res.text();
+              console.log('Delete response body:', text);
+              if (res.ok) {
+                await logout();
+                router.replace('/(auth)/Login');
+              } else {
+                Alert.alert('Error', text || 'Failed to delete account.');
+              }
+            } catch (e) {
+              console.log('Delete network error:', e);
+              Alert.alert('Error', 'Network error.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const SecurityOption = ({ 
     icon: Icon, 
     title, 
@@ -142,7 +191,7 @@ const SecurityScreen = () => {
   );
 
   return (
-    <View className="flex-1 bg-neutral-10">
+    <View className="flex-1 bg-neutral-10 pb-12">
       {/* Header */}
       <View className="flex-row items-center p-4 mt-16">
         <TouchableOpacity
@@ -243,6 +292,8 @@ const SecurityScreen = () => {
               {isLoading ? 'Changing Password...' : 'Change Password'}
             </Text>
           </TouchableOpacity>
+          {successMsg ? <Text className="text-green-600 text-center mt-2">{successMsg}</Text> : null}
+          {errorMsg ? <Text className="text-red-600 text-center mt-2">{errorMsg}</Text> : null}
         </View>
 
         {/* Security Options */}
@@ -288,6 +339,7 @@ const SecurityScreen = () => {
           <Text className="text-BodySmallRegular text-blue-700 mb-2">• Keep your app updated</Text>
           <Text className="text-BodySmallRegular text-blue-700">• Never share your login credentials</Text>
         </View>
+        <Button BtnText="Delete Account" bgColor="bg-alert" onPress={handleDeleteAccount} />
       </ScrollView>
     </View>
   );

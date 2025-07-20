@@ -1,0 +1,14 @@
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\repository\VideoUploadRepository.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\service\VideoUploadService.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\service\VideoStreamingService.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\controller\VideoUploadController.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\dto\VideoUploadResponse.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\VideoUploadServiceApplication.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\dto\VideoUploadDTO.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\entity\VideoUpload.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\mapper\VideoUploadMapper.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\service\VideoAuthService.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\service\VideoSecurityService.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\service\VideoCleanupService.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\dto\VideoMetadataDTO.java
+C:\Users\gsito\OneDrive\Desktop\SwiftMart_App\Backend\microservices\video-upload-service\src\main\java\com\example\videoupload\dto\VideoUploadRequest.java

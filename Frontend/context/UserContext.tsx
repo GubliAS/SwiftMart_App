@@ -1,9 +1,17 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface User {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  photo: any;
+  phoneNumber?: string;
+  role?: string;
+  verificationStatus?: string;
+  storeName?: string;
+  idCardType?: string;
+  idCardCountry?: string;
+  idCardNumber?: string;
+  photo?: any;
 }
 
 interface UserContextType {
@@ -14,8 +22,16 @@ interface UserContextType {
 const defaultProfilePic = require('@/assets/images/userPic.jpeg');
 
 const defaultUser: User = {
-  name: 'Claire Cooper',
+  firstName: 'Claire',
+  lastName: 'Cooper',
   email: 'claire.cooper@mail.com',
+  phoneNumber: '',
+  role: '',
+  verificationStatus: '',
+  storeName: '',
+  idCardType: '',
+  idCardCountry: '',
+  idCardNumber: '',
   photo: defaultProfilePic,
 };
 

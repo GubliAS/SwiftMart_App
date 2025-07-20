@@ -1,0 +1,160 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+      routes:
+        # Auth Service
+        - id: auth-service
+          uri: http://auth-service:8080
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=0
+
+        # Product Service
+        - id: product-service
+          uri: http://product-service:8081
+          predicates:
+            - Path=/api/products/**
+          filters:
+            - StripPrefix=0
+
+        # Address Service
+        - id: address-service
+          uri: http://address-service:8085
+          predicates:
+            - Path=/api/addresses/**
+          filters:
+            - StripPrefix=0
+
+        # Order Status Service
+        - id: order-status-service
+          uri: http://order-status-service:8083
+          predicates:
+            - Path=/api/order-statuses/**
+          filters:
+            - StripPrefix=0
+
+        # Payment Method Service
+        - id: payment-method-service
+          uri: http://payment-method-service:8082
+          predicates:
+            - Path=/api/payment-methods/**
+          filters:
+            - StripPrefix=0
+
+        # Order Status History Service
+        - id: order-status-history-service
+          uri: http://order-status-history-service:8084
+          predicates:
+            - Path=/api/order-status-history/**
+          filters:
+            - StripPrefix=0
+
+        # Email Service
+        - id: email-service
+          uri: http://email-service:8096
+          predicates:
+            - Path=/api/email/**
+          filters:
+            - StripPrefix=0
+
+        # Site User Service
+        - id: site-user-service
+          uri: http://site-user-service:8086
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=0
+
+        # User Review Service
+        - id: user-review-service
+          uri: http://user-review-service:8087
+          predicates:
+            - Path=/api/reviews/**
+          filters:
+            - StripPrefix=0
+
+        # Shop Order Service
+        - id: shop-order-service
+          uri: http://shop-order-service:8088
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - StripPrefix=0
+
+        # Shopping Cart Service
+        - id: shopping-cart-service
+          uri: http://shopping-cart-service:8089
+          predicates:
+            - Path=/api/cart/**
+          filters:
+            - StripPrefix=0
+
+        # Shipping Method Service
+        - id: shipping-method-service
+          uri: http://shipping-method-service:8090
+          predicates:
+            - Path=/api/shipping-methods/**
+          filters:
+            - StripPrefix=0
+
+        # Promotion Service
+        - id: promotion-service
+          uri: http://promotion-service:8091
+          predicates:
+            - Path=/api/promotions/**
+          filters:
+            - StripPrefix=0
+
+        # Barcode Search Service
+        - id: barcode-search-service
+          uri: http://barcode-search-service:8092
+          predicates:
+            - Path=/api/barcode/**
+          filters:
+            - StripPrefix=0
+
+        # Cart Sharing Service
+        - id: cart-sharing-service
+          uri: http://cart-sharing-service:8093
+          predicates:
+            - Path=/api/cart-sharing/**
+          filters:
+            - StripPrefix=0
+
+        # Video Upload Service
+        - id: video-upload-service
+          uri: http://video-upload-service:8094
+          predicates:
+            - Path=/api/video/**
+          filters:
+            - StripPrefix=0
+
+        # Verification Code Service
+        - id: verification-code-service
+          uri: http://verification-code-service:8095
+          predicates:
+            - Path=/api/verification/**
+          filters:
+            - StripPrefix=0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always 

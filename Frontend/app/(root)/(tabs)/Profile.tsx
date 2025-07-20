@@ -13,6 +13,11 @@ import ProfileCard from "@/components/ProfileCard";
 import { router } from "expo-router";
 import { useUser } from '@/context/UserContext';
 import { navigateToTransactionPage } from '@/utils/orders/navigation';
+import { useAuth } from '@/context/AuthContext';
+import Button from '@/components/Button';
+import SecondaryButton from "@/components/SecondaryButton";
+import { jwtDecode } from "jwt-decode";
+import { useFocusEffect } from '@react-navigation/native';
 
 // Mock notification data for badge count (matching the notifications screen)
 const mockNotifications = [
@@ -26,13 +31,62 @@ const mockNotifications = [
 ];
 
 const Profile = () => {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
+  const { logout, role, token } = useAuth();
+  const [loading, setLoading] = useState(!user.email);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchUser = async () => {
+        if (!token) return;
+        try {
+          const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL || ''}/api/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setUser((prev) => ({
+              ...prev,
+              ...data,
+              phoneNumber: data.phoneNumber || data.phone_number || prev.phoneNumber,
+            }));
+          }
+        } catch (e) {
+          // Optionally handle error
+        }
+      };
+      fetchUser();
+    }, [token, setUser])
+  );
+  React.useEffect(() => {
+    if (user.email) setLoading(false);
+  }, [user]);
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-neutral-10">
+        <Text className="text-Heading3 text-text">Loading profile...</Text>
+      </View>
+    );
+  }
+  if (token) {
+    try {
+      console.log("Decoded JWT:", jwtDecode(token));
+    } catch (e) {
+      console.log("Invalid JWT");
+    }
+  }
+  console.log("AuthContext role:", role);
+  const handleLogout = async () => {
+    await logout();
+    router.push('/Login');
+  };
   const unreadCount = mockNotifications.filter(n => !n.read).length;
+  const isSeller = role === "SELLER";
   
   return (
     <View className="flex-1 bg-neutral-10 pb-12 ">
       <ImageBackground
-        source={require("@/assets/images/ProfileBG.png")}
+        source={role === "SELLER" ? require("@/assets/images/ProfileBGseller.png") : require("@/assets/images/ProfileBG.png")}
         className="w-full z-10 flex-row justify-between items-center py-[56px] px-4 h-[192px]  "
         resizeMode="cover"
       >
@@ -65,13 +119,16 @@ const Profile = () => {
             <View className="rounded-full w-[64px] h-[64px] overflow-hidden">
               <ImageBackground
                 className="w-full h-full  "
-                source={user.photo}
+                source={user.photo ? user.photo : require("@/assets/images/userPic.jpeg")}
               />
             </View>
             <View>
-              <Text className="text-Heading4 text-text">{user.name}</Text>
+              <Text className="text-Heading4 text-text">{user.firstName} {user.lastName}</Text>
               <Text className="text-BodySmallRegular text-neutral-70">
                 {user.email}
+              </Text>
+              <Text className="text-BodySmallRegular text-neutral-70">
+                {user.phoneNumber}
               </Text>
             </View>
           </View>
@@ -86,7 +143,11 @@ const Profile = () => {
             contentContainerClassName="gap-4"
           >
             <View className="">
+              {isSeller ? (
+                <SecondaryButton BtnText="Seller Dashboard" onPress={() => router.push("/SellerDashboard")} />
+              ) : (
               <PrimaryButton BtnText="Become A Seller" onPress={() => { router.push("/(seller_dashboard)/SellerGetStarted") }} />
+              )}
             </View>
             <View className="gap-4">
               <Text className="text-BodyBold text-text">General</Text>
@@ -148,6 +209,9 @@ const Profile = () => {
             </Text>
           </ScrollView>
         </View>
+      </View>
+      <View className="px-4 mt-4">
+        <Button BtnText="Log Out" bgColor="bg-alert" onPress={handleLogout} />
       </View>
     </View>
   );

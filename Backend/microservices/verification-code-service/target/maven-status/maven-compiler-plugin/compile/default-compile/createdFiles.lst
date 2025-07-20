@@ -1,0 +1,8 @@
+com\example\verificationcode\controller\VerificationCodeController$EmailRequest.class
+com\example\verificationcode\service\VerificationCodeService.class
+com\example\verificationcode\controller\VerificationCodeController$VerifyCodeRequest.class
+com\example\verificationcode\controller\VerificationCodeController$ErrorResponse.class
+com\example\verificationcode\controller\VerificationCodeController.class
+com\example\verificationcode\service\VerificationCodeService$CodeInfo.class
+com\example\verificationcode\VerificationCodeServiceApplication.class
+com\example\verificationcode\service\EmailService.class

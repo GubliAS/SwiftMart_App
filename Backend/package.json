@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "jwt-decode": "^4.0.0",
+    "react-native-phone-number-input": "^2.1.0"
+  }
+}
