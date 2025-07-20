@@ -1,11 +1,9 @@
-import { Redirect } from 'expo-router'
-import React from 'react'
-import "../global.css"
+import { Redirect } from "expo-router";
+import "@/global.css";
 
 const index = () => {
-  return <Redirect href="/(auth)/SellerDashboard"/>
-    
-  
-}
+  return <Redirect href="/(root)/(tabs)/Home" />;
+};
 
-export default index
+
+export default index;

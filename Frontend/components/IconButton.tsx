@@ -1,21 +1,24 @@
 import React from "react";
-import { Image, Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
+import { SvgProps } from "react-native-svg";
 
 type IconButtonProps = {
   BtnText: string; // Text for the button
-  icon: any; // Path to the icon
+  IconComponent: React.FC<SvgProps>; // SVG component
   bgColor?: string; // Optional background color
-  borderColor?: string;
+  borderColor?: string; // Optional border color
   textColor?: string; // Optional text color
+  fillColor?: string; // Optional fill color for the SVG
   onPress?: () => void; // Function to handle button press
 };
 
 const IconButton = ({
   BtnText,
-  icon,
+  IconComponent,
   bgColor = "",
   borderColor = "border-primary",
   textColor = "text-neutral-10",
+  fillColor = "#156651", // Default fill color
   onPress,
 }: IconButtonProps) => {
   return (
@@ -23,10 +26,10 @@ const IconButton = ({
       onPress={onPress}
       className={`flex flex-row border items-center justify-center gap-[14px] rounded-lg px-[18px] py-3 ${bgColor} ${borderColor}`}
     >
-      {/* Icon */}
-      <Image source={icon} className="h-[24px] w-[24px]" />
+      {/* SVG Icon */}
+      <IconComponent width={24} height={24} fill={fillColor} />
       {/* Text */}
-      <Text className={`text-BodyBold ${textColor}`}>{BtnText}</Text>
+      <Text className={`text-BodyBold ${textColor} font-Manrope`}>{BtnText}</Text>
     </TouchableOpacity>
   );
 };

@@ -66,7 +66,7 @@ export default function Onboarding() {
               onPress={previousScreen}
               className="w-[20%] px-[18px] py-3 mr-4  rounded-lg"
             >
-              <Text className="text-BodyBold text-primary text-center">Back</Text>
+              <Text className="text-BodyBold text-primary text-center font-Manrope">Back</Text>
             </TouchableOpacity>
           ) : (
             <View />
@@ -76,7 +76,7 @@ export default function Onboarding() {
             onPress={nextScreen}
             className="flex-1 items-center rounded-lg bg-primary px-[18px] py-3"
           >
-            <Text className="text-BodyBold text-neutral-10">
+            <Text className="text-BodyBold text-neutral-10 font-Manrope">
               {index === screens.length - 1 ? 'Get Started' : 'Next'}
             </Text>
           </TouchableOpacity>

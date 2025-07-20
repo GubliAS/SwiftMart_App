@@ -4,29 +4,30 @@ import PrimaryButton from "@/components/PrimaryButton";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
+import { BASE_URL } from "@/constants/env";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Alert,
-  Animated,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
   PanResponder,
   Platform,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
   TouchableWithoutFeedback,
   View,
+  Animated,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-
-const validCredentials = [
-  { email: "user@example.com", password: "Password123!" },
-  { email: "test@example.com", password: "Test1234!" },
-  { email: "admin@example.com", password: "Admin123!" },
-];
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
+// @ts-ignore
+import * as SecureStore from "expo-secure-store";
+import GoogleIcon from "@/assets/svgs/google.svg";
+import Facebook from "@/assets/svgs/facebook.svg"
 
 const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -46,16 +47,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [emailTouched, setEmailTouched] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(false);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-
-  const [modalEmail, setModalEmail] = useState("");
-  const [modalEmailTouched, setModalEmailTouched] = useState(false);
-  const [isModalEmailValid, setIsModalEmailValid] = useState(false);
-  const [isEmailAssigned, setIsEmailAssigned] = useState(true);
-
   const [password, setPassword] = useState("");
   const [passwordTouched, setPasswordTouched] = useState(false);
-  const [passwordFocused, setPasswordFocused] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [passwordCriteria, setPasswordCriteria] = useState({
     length: false,
@@ -63,6 +56,15 @@ const Login = () => {
     specialChar: false,
     number: false,
   });
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(""); // State for error messages
+
+  const [modalEmail, setModalEmail] = useState("");
+  const [modalEmailTouched, setModalEmailTouched] = useState(false);
+  const [isModalEmailValid, setIsModalEmailValid] = useState(false);
+  const [isEmailAssigned, setIsEmailAssigned] = useState(true);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
 
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [isEnteringCode, setIsEnteringCode] = useState(false);
@@ -76,6 +78,8 @@ const Login = () => {
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [focusedCodeIndex, setFocusedCodeIndex] = useState<number | null>(null);
   const [normalCodeText, setNormalCodeText] = useState(true);
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const panY = useState(new Animated.Value(0))[0];
   const panResponder = useState(
@@ -121,13 +125,8 @@ const Login = () => {
       setIsResettingPassword(false);
       setNewPassword("");
       setConfirmPassword("");
+      setIsCheckingEmail(false);
     });
-  };
-
-  const checkCredentials = () => {
-    return validCredentials.some(
-      (cred) => cred.email === email && cred.password === password
-    );
   };
 
   useEffect(() => {
@@ -152,16 +151,39 @@ const Login = () => {
     setPasswordCriteria(isValidPassword(text));
   };
 
-  const handleEmailSubmit = () => {
+  const handleEmailSubmit = async () => {
     if (!isModalEmailValid) return;
 
-    const emailExists = validCredentials.some(
-      (cred) => cred.email === modalEmail
-    );
-    setIsEmailAssigned(emailExists);
+    setIsCheckingEmail(true);
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/auth/send-verification-code`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: modalEmail }),
+        }
+      );
 
-    if (emailExists) {
+      if (response.ok) {
+        setIsEmailAssigned(true);
+        setIsEnteringCode(true);
+      } else if (response.status === 404) {
+        setIsEmailAssigned(false);
+      } else {
+        // Email exists but sending failed - for now, let's proceed to code input
+        // In production, you'd want to show an error message
+        setIsEmailAssigned(true);
+        setIsEnteringCode(true);
+      }
+    } catch (error) {
+      console.error("Error sending verification code:", error);
+      // For testing purposes, if there's a network error, assume email exists
+      // In production, you'd want to show an error message
+      setIsEmailAssigned(true);
       setIsEnteringCode(true);
+    } finally {
+      setIsCheckingEmail(false);
     }
   };
 
@@ -177,183 +199,257 @@ const Login = () => {
     }
   };
 
-  const validCodes = ["1234", "5678", "9101"];
-
-  const handleCodeSubmit = () => {
+  const handleCodeSubmit = async () => {
     const enteredCode = code.join("");
 
-    if (validCodes.includes(enteredCode)) {
-      setIsResettingPassword(true);
-      setNormalCodeText(true);
-    } else {
+    try {
+      const response = await fetch(`${BASE_URL}/api/auth/verify-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: modalEmail,
+          code: enteredCode,
+        }),
+      });
+
+      if (response.ok) {
+        setIsResettingPassword(true);
+        setNormalCodeText(true);
+      } else {
+        setNormalCodeText(false);
+      }
+    } catch (error) {
+      console.error("Error verifying code:", error);
       setNormalCodeText(false);
     }
   };
 
-  const handlePasswordResetSubmit = () => {
+  const handlePasswordResetSubmit = async () => {
     if (newPassword !== confirmPassword) {
-      console.log("Passwords do not match!");
       return;
     }
 
     if (!isValidPassword(newPassword).length) {
-      console.log("Password does not meet the criteria!");
       return;
     }
 
-    closeModal();
+    try {
+      const response = await fetch(`${BASE_URL}/api/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: modalEmail,
+          code: code.join(""),
+          newPassword: newPassword,
+        }),
+      });
 
-    Alert.alert(
-      "Password Reset Successful",
-      "Your password has been successfully reset. You can now log in with your new password.",
-      [{ text: "OK" }]
-    );
-  };
-
-  const handleLogin = () => {
-    if (checkCredentials()) {
-      router.push("/Home");
-    } else {
+      if (response.ok) {
+        closeModal();
+        setShowSuccessModal(true);
+      } else {
+        const errorText = await response.text();
+        Alert.alert(
+          "Password Reset Failed",
+          errorText || "Failed to reset password. Please try again.",
+          [{ text: "OK" }]
+        );
+      }
+    } catch (error) {
+      console.error("Error resetting password:", error);
       Alert.alert(
-        "Invalid Credentials",
-        "The email or password you entered is incorrect. Please try again.",
+        "Error",
+        "An error occurred while resetting your password. Please try again.",
         [{ text: "OK" }]
       );
     }
   };
 
+  const handleLogin = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        await SecureStore.setItemAsync("token", data.token);
+        router.push("/Home");
+      } else {
+        setErrorMessage(
+          "The email or password you entered is incorrect. Please try again."
+        );
+      }
+    } catch (error) {
+      setErrorMessage("An error occurred. Please try again.");
+    }
+  };
+
   return (
     <>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <SafeAreaView className="flex-1 bg-neutral-10 p-4 gap-8">
-          <View className="w-[343px] gap-2">
-            <Text className="text-Heading2 text-text">Welcome Back!</Text>
-            <Text className="text-BodyRegular text-neutral-70">
-              Enter your email to start shopping and get awesome deals today!
-            </Text>
-          </View>
-
-          <View className="flex gap-6">
-            <View className="flex gap-4">
-              <View
-                className={`w-full border px-[18px] flex-row items-center gap-4 border-neutral-40 rounded-xl py-2 ${
-                  emailTouched && !isEmailValid
-                    ? "border-red-500"
-                    : "border-neutral-40"
-                }`}
-              >
-                <MaterialIcons name="mail-outline" size={24} color="#757575" />
-                <View className="gap-1 w-full">
-                  <Text className="text-BodySmallRegular text-neutral-70">
-                    Email
-                  </Text>
-                  <TextInput
-                    value={email}
-                    onChangeText={(text) => {
-                      setEmail(text);
-                      setIsEmailValid(isValidEmail(text));
-                    }}
-                    onFocus={() => setEmailTouched(true)}
-                    placeholder=""
-                    selectionColor={"#404040"}
-                    className="w-full text-text text-BodyRegular"
-                  />
-                </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        className="flex-1"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <SafeAreaView className="flex-1 bg-neutral-10 p-4 gap-8">
+            <ScrollView
+              className="flex-1 overflow-visible"
+              contentContainerClassName="gap-6"
+              keyboardShouldPersistTaps="handled"
+            >
+              <View className="w-[343px] gap-2">
+                <Text className="text-Heading2 text-text font-Manrope">Welcome Back!</Text>
+                <Text className="text-BodyRegular text-neutral-70 font-Manrope">
+                  Enter your email to start shopping and get awesome deals
+                  today!
+                </Text>
               </View>
 
-              <View className="mt-4">
-                <View
-                  className={`w-full flex flex-row gap-4 py-2 px-[18px] items-center border border-neutral-40 rounded-xl ${
-                    passwordTouched && !passwordCriteria.length
-                      ? "border-red-500"
-                      : "border-neutral-40"
-                  }`}
-                >
-                  <Feather name="lock" size={24} color="#757575" />
-                  <View className="gap-1 flex-1">
-                    <Text className="text-BodySmallRegular text-neutral-70">
-                      Password
-                    </Text>
-                    <TextInput
-                      value={password}
-                      onChangeText={handlePasswordChange}
-                      onFocus={() => {
-                        setPasswordFocused(true);
-                        setPasswordTouched(true);
-                      }}
-                      onBlur={() => setPasswordFocused(false)}
-                      placeholder=""
-                      secureTextEntry={!passwordVisible}
-                      className="w-full h-[20px] text-text text-BodyRegular"
-                      selectionColor={"#404040"}
-                    />
-                  </View>
-                  <Pressable
-                    onPress={() => setPasswordVisible(!passwordVisible)}
-                    style={{ padding: 4 }}
+              <View className="flex gap-6">
+                <View className="flex gap-4">
+                  {/* Email Input */}
+                  <View
+                    className={`w-full border px-[18px] flex-row items-center gap-4 border-neutral-40 rounded-xl py-2 ${
+                      emailTouched && !isEmailValid
+                        ? "border-red-500"
+                        : "border-neutral-40"
+                    }`}
                   >
-                    <Feather
-                      name={passwordVisible ? "eye" : "eye-off"}
+                    <MaterialIcons
+                      name="mail-outline"
                       size={24}
                       color="#757575"
                     />
+                    <View className="gap-1 w-full">
+                      <Text className="text-BodySmallRegular text-neutral-70">
+                        Email
+                      </Text>
+                      <TextInput
+                        value={email}
+                        onChangeText={(text) => {
+                          setEmail(text);
+                          setIsEmailValid(isValidEmail(text));
+                        }}
+                        onFocus={() => setEmailTouched(true)}
+                        placeholder=""
+                        selectionColor={"#404040"}
+                        className="w-full text-text text-BodyRegular"
+                      />
+                    </View>
+                  </View>
+
+                  {/* Password Input */}
+                  <View className="mt-4">
+                    <View
+                      className={`w-full flex flex-row gap-4 py-2 px-[18px] items-center border border-neutral-40 rounded-xl ${
+                        passwordTouched && !passwordCriteria.length
+                          ? "border-red-500"
+                          : "border-neutral-40"
+                      }`}
+                    >
+                      <Feather name="lock" size={24} color="#757575" />
+                      <View className="gap-1 flex-1">
+                        <Text className="text-BodySmallRegular text-neutral-70">
+                          Password
+                        </Text>
+                        <TextInput
+                          value={password}
+                          onChangeText={handlePasswordChange}
+                          onFocus={() => setPasswordTouched(true)}
+                          placeholder=""
+                          secureTextEntry={!passwordVisible}
+                          className="w-full h-[20px] text-text text-BodyRegular"
+                          selectionColor={"#404040"}
+                        />
+                      </View>
+                      <Pressable
+                        onPress={() => setPasswordVisible(!passwordVisible)}
+                        style={{ padding: 4 }}
+                      >
+                        <Feather
+                          name={passwordVisible ? "eye" : "eye-off"}
+                          size={24}
+                          color="#757575"
+                        />
+                      </Pressable>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Forgot Password */}
+                <View className="w-[170px]">
+                  <Pressable
+                    onPress={() => {
+                      setShowForgotPasswordModal(true);
+                    }}
+                  >
+                    <Text className="text-primary text-BodyRegular">
+                      Forgot your password?
+                    </Text>
                   </Pressable>
                 </View>
+
+                {/* Log In Button */}
+                <View className="w-full">
+                  <PrimaryButton
+                    BtnText="Log In"
+                    onPress={handleLogin}
+                    disabled={isButtonDisabled}
+                  />
+                </View>
+
+                {/* Error Message */}
+                {errorMessage !== "" && (
+                  <Text className="text-alert text-BodySmallRegular text-center font-Manrope">
+                    {errorMessage}
+                  </Text>
+                )}
               </View>
-              <View className="w-[170px]">
-                <Pressable
-                  onPress={() => {
-                    setShowForgotPasswordModal(true);
-                  }}
-                >
+
+              {/* OR Separator */}
+              <View className="flex flex-row items-center">
+                <View className="h-[1px] flex-1 bg-neutral-50" />
+                <Text className="mx-4 text-Caption text-text">OR</Text>
+                <View className="h-[1px] flex-1 bg-neutral-50" />
+              </View>
+
+                {/* Social Buttons */}
+            <IconButton
+            IconComponent={GoogleIcon}
+              BtnText="Continue with Google"
+              textColor="text-primary"
+              borderColor="border-primary"
+              bgColor="bg-neutral-10"
+            />
+
+            <IconButton
+            IconComponent={Facebook}
+            fillColor="#1877F2"
+            BtnText="Continue with Facebook"
+              textColor="text-primary"
+              borderColor="border-primary"
+              bgColor="bg-neutral-10"
+            />
+
+              {/* Register Link */}
+              <View className="flex-row items-center justify-center">
+                <Text className="text-BodyRegular text-text">
+                  Don't have an account?{" "}
+                </Text>
+                <Pressable onPress={() => router.push("/GetStarted")}>
                   <Text className="text-primary text-BodyRegular">
-                    Forgot your password?
+                    Register
                   </Text>
                 </Pressable>
               </View>
-            </View>
+            </ScrollView>
+          </SafeAreaView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
 
-            <View className="w-full">
-              <PrimaryButton
-                BtnText="Log In"
-                onPress={handleLogin}
-                disabled={isButtonDisabled}
-              />
-            </View>
-          </View>
-
-          <View className="flex flex-row items-center">
-            <View className="h-[1px] flex-1 bg-neutral-50" />
-            <Text className="mx-4 text-Caption text-text">OR</Text>
-            <View className="h-[1px] flex-1 bg-neutral-50" />
-          </View>
-
-          <IconButton
-            icon={require("@/assets/images/google-icon.png")}
-            BtnText="Continue with Google"
-            textColor="text-primary"
-            borderColor="border-primary"
-            bgColor="bg-neutral-10"
-          />
-          <IconButton
-            icon={require("@/assets/images/facebook-icon.png")}
-            BtnText="Continue with Facebook"
-            textColor="text-primary"
-            borderColor="border-primary"
-            bgColor="bg-neutral-10"
-          />
-
-          <View className="flex-row items-center justify-center">
-            <Text className="text-BodyRegular text-text">
-              Don't have an account?{" "}
-            </Text>
-            <Pressable onPress={() => router.push("/GetStarted")}>
-              <Text className="text-primary text-BodyRegular">Register</Text>
-            </Pressable>
-          </View>
-        </SafeAreaView>
-      </TouchableWithoutFeedback>
-
+      {/* Forgot Password Modal */}
       <Modal
         visible={showForgotPasswordModal}
         transparent={true}
@@ -412,10 +508,10 @@ const Login = () => {
                     {isResettingPassword ? (
                       <>
                         <View className="items-center gap-2 mb-2 w-[319px]">
-                          <Text className="text-Heading3 text-text ">
+                          <Text className="text-Heading3 text-text font-Manrope">
                             Create New Password!
                           </Text>
-                          <Text className="text-BodyRegular text-neutral-70 text-center ">
+                          <Text className="text-BodyRegular text-neutral-70 text-center font-Manrope">
                             The new passwords should match each other and also
                             meet the criteria.
                           </Text>
@@ -567,12 +663,12 @@ const Login = () => {
                     ) : isEnteringCode ? (
                       <>
                         <View className="items-center gap-2 mb-2 w-[319px]">
-                          <Text className="text-Heading3 text-text ">
+                          <Text className="text-Heading3 text-text font-Manrope">
                             {normalCodeText
                               ? "Forgot Password!"
                               : "Invalid Code!"}
                           </Text>
-                          <Text className="text-BodyRegular text-neutral-70 text-center ">
+                          <Text className="text-BodyRegular text-neutral-70 text-center font-Manrope">
                             {normalCodeText
                               ? "Enter code"
                               : "The code you entered is incorrect. Please try again."}
@@ -614,12 +710,12 @@ const Login = () => {
                     ) : (
                       <>
                         <View className="items-center gap-2 mb-2 w-[319px]">
-                          <Text className="text-Heading3 text-text ">
+                          <Text className="text-Heading3 text-text font-Manrope">
                             {isEmailAssigned
                               ? "Forgot Password!"
                               : "No Account Found!"}
                           </Text>
-                          <Text className="text-BodyRegular text-neutral-70 text-center ">
+                          <Text className="text-BodyRegular text-neutral-70 text-center font-Manrope">
                             {isEmailAssigned
                               ? "Enter your email"
                               : "The email address you entered is not linked to any SwiftMart account."}
@@ -657,8 +753,10 @@ const Login = () => {
 
                         <View className="w-full">
                           <PrimaryButton
-                            BtnText="Send Code"
-                            disabled={!isModalEmailValid}
+                            BtnText={
+                              isCheckingEmail ? "Checking..." : "Send Code"
+                            }
+                            disabled={!isModalEmailValid || isCheckingEmail}
                             onPress={handleEmailSubmit}
                           />
                         </View>
@@ -699,6 +797,35 @@ const Login = () => {
             </View>
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Password Reset Success Modal */}
+      <Modal
+        visible={showSuccessModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowSuccessModal(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-[rgba(0,0,0,0.4)]">
+          <View className="bg-neutral-10 rounded-[16px] px-4 py-6 gap-4 items-center w-[300px]">
+            <AntDesign name="checkcircle" size={64} color="#156651" />
+            <View>
+              <Text className="text-center text-Heading4 text-text">
+                Password Reset Successful
+              </Text>
+              <Text className="text-center text-BodySmallRegular text-neutral-70">
+                Your password has been successfully reset. You can now log in
+                with your new password.
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => setShowSuccessModal(false)}
+              className="bg-primary rounded-[8px] py-3 px-[18px] w-full items-center"
+            >
+              <Text className=" text-neutral-10 text-BodyBold">OK</Text>
+            </Pressable>
+          </View>
+        </View>
       </Modal>
     </>
   );

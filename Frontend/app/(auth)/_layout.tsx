@@ -6,7 +6,7 @@ import { Stack } from 'expo-router'
 
 const _layout = () => {
   return (
-    <View className='flex-1 bg-white'>
+    <View className='flex-1 font-Manrope  bg-white'>
         <StatusBar style="dark" />
         <Stack screenOptions={{ headerShown: false }} >
           <Stack.Screen name="GetStarted" />

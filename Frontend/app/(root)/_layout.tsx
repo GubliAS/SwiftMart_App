@@ -1,17 +1,23 @@
-import { View, Text, StatusBar } from 'react-native'
+import { View, Text } from 'react-native'
 import React from 'react'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { StatusBar } from 'expo-status-bar'
 import { Stack } from 'expo-router'
 
 const _layout = () => {
   return (
-    <View style={{ flex: 1 }}>
-    <StatusBar barStyle="dark-content" />
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" />
-      
-      <Stack.Screen name="+not-found" />
-    </Stack>
-  </View>
+    <View className='flex-1 font-Manrope bg-white'>
+        <StatusBar style="dark" />
+        <Stack 
+          screenOptions={{ 
+            headerShown: false,
+            animation: 'default'
+          }} 
+        >
+          <Stack.Screen name="+not-found" />
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+    </View>
   )
 }
 
