@@ -28,6 +28,8 @@ import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
 import GoogleIcon from "@/assets/svgs/google.svg";
 import Facebook from "@/assets/svgs/facebook.svg"
+import { useAuth } from "@/context/AuthContext";
+import { useUser } from "@/context/UserContext";
 
 const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -128,6 +130,10 @@ const Login = () => {
       setIsCheckingEmail(false);
     });
   };
+
+  const { login: authLogin } = useAuth();
+  const { setUser } = useUser();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setIsEmailValid(isValidEmail(email));
@@ -266,6 +272,7 @@ const Login = () => {
   };
 
   const handleLogin = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch(`${BASE_URL}/api/auth/login`, {
         method: "POST",
@@ -274,7 +281,30 @@ const Login = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        await SecureStore.setItemAsync("token", data.token);
+        console.log("Login response data:", data);
+        await authLogin(data.token);
+        // Fetch user profile
+        const profileRes = await fetch(`${BASE_URL}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${data.token}` },
+        });
+        if (profileRes.ok) {
+          const profile = await profileRes.json();
+          setUser({
+            firstName: profile.firstName || '',
+            lastName: profile.lastName || '',
+            email: profile.email || '',
+            phoneNumber: profile.phoneNumber || '',
+            role: profile.role || '',
+            verificationStatus: profile.verificationStatus || '',
+            storeName: profile.storeName || '',
+            idCardType: profile.idCardType || '',
+            idCardCountry: profile.idCardCountry || '',
+            idCardNumber: profile.idCardNumber || '',
+            photo: undefined, // You can update this if you add photo support
+          });
+        } else {
+          setErrorMessage("Failed to fetch user profile.");
+        }
         router.push("/Home");
       } else {
         setErrorMessage(
@@ -283,6 +313,8 @@ const Login = () => {
       }
     } catch (error) {
       setErrorMessage("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -394,9 +426,9 @@ const Login = () => {
                 {/* Log In Button */}
                 <View className="w-full">
                   <PrimaryButton
-                    BtnText="Log In"
+                    BtnText={isLoading ? "Logging In..." : "Log In"}
                     onPress={handleLogin}
-                    disabled={isButtonDisabled}
+                    disabled={isButtonDisabled || isLoading}
                   />
                 </View>
 

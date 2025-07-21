@@ -54,6 +54,7 @@ const BuyerRegister = () => {
   const [passwordTouched, setPasswordTouched] = useState(false); // Tracks if the field has been interacted with
   const [isPasswordValid, setIsPasswordValid] = useState(false); // Tracks if the password meets criteria
   const [passwordVisible, setPasswordVisible] = useState(false); // State to toggle password visibility
+  const [isLoading, setIsLoading] = useState(false); // Loading state for button
 
   // Helper functions for validation
   const isValidEmail = (email: string) =>
@@ -121,8 +122,13 @@ const BuyerRegister = () => {
   }, []);
 
   const handleSendCode = async () => {
+    setIsLoading(true);
+    setErrorMessage(""); // Clear any previous errors
+    console.log("Starting registration process for:", email);
+    
     try {
       // Send registration verification code
+      console.log("Sending request to:", `${BASE_URL}/api/auth/send-registration-code`);
       const response = await fetch(
         `${BASE_URL}/api/auth/send-registration-code`,
         {
@@ -131,7 +137,12 @@ const BuyerRegister = () => {
           body: JSON.stringify({ email }),
         }
       );
+      
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+      
       if (response.ok) {
+        console.log("Registration code sent successfully, navigating to verification");
         router.push({
           pathname: "/Verification",
           params: {
@@ -144,18 +155,28 @@ const BuyerRegister = () => {
           },
         });
       } else if (response.status === 409) {
+        console.log("Email already exists");
         setErrorMessage(
           "An account with this email already exists. Please log in or use a different email."
         );
       } else {
+        const errorText = await response.text();
+        console.log("Error response:", errorText);
+        if (errorText.includes("Email already registered")) {
+          setErrorMessage("An account with this email already exists. Please log in or use a different email.");
+      } else {
         setErrorMessage("Failed to send verification code.");
+        }
       }
     } catch (error) {
+      console.error("Network error:", error);
       setErrorMessage(
         `Network error: ${
           error instanceof Error ? error.message : "Unknown error"
         }`
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -409,6 +430,7 @@ const BuyerRegister = () => {
             <PrimaryButton
               BtnText="Create Account"
               disabled={isButtonDisabled}
+              loading={isLoading}
               onPress={handleSendCode}
             />
             {/* Error Message */}

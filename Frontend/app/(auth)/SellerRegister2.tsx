@@ -2,7 +2,7 @@ import IconButton from "@/components/IconButton";
 import SecondaryButton from "@/components/SecondaryButton";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { BASE_URL } from "@/constants/env";
 import React, { useEffect, useState } from "react";
 import {
@@ -33,6 +33,9 @@ const SellerRegister = () => {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState(""); // State for error messages
+  
+  // Get ID verification data from previous screen
+  const { storeName, idCardType, idCardCountry, idCardNumber } = useLocalSearchParams();
 
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isPhoneNumberValid, setIsPhoneNumberValid] = useState(true);
@@ -133,14 +136,19 @@ const SellerRegister = () => {
             firstName,
             lastName,
             role: "SELLER",
+            storeName,
+            idCardType,
+            idCardCountry,
+            idCardNumber,
           },
         });
-      } else if (response.status === 409) {
-        setErrorMessage(
-          "An account with this email already exists. Please log in or use a different email."
-        );
       } else {
-        setErrorMessage("Failed to send verification code.");
+        const errorText = await response.text();
+        if (errorText.includes("Email already registered")) {
+          setErrorMessage("An account with this email already exists. Please log in or use a different email.");
+        } else {
+          setErrorMessage("Failed to send verification code.");
+        }
       }
     } catch (error) {
       setErrorMessage(

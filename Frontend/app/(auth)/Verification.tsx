@@ -27,7 +27,7 @@ const Verification = () => {
   const [isCodeCorrect, setIsCodeCorrect] = useState<boolean | null>(null); // Tracks if the code is correct or incorrect
   const [showSuccessModal, setShowSuccessModal] = useState(false); // Tracks if the success modal is visible
   const inputRefs = useRef<(TextInput | null)[]>([]); // References to all input fields
-  const { email, password, phoneNumber, firstName, lastName, role } =
+  const { email, password, phoneNumber, firstName, lastName, role, storeName, idCardType, idCardCountry, idCardNumber } =
     useLocalSearchParams();
 
   const handleChangeText = (text: string, index: number) => {
@@ -50,43 +50,65 @@ const Verification = () => {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    console.log("Starting verification process for:", email);
+    console.log("Code entered:", code.join(""));
+    
     try {
+      // Step 1: Verify the code
+      console.log("Verifying code with auth service...");
       const response = await fetch(`${BASE_URL}/api/auth/verify-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: code.join("") }),
       });
+      
+      console.log("Verification response status:", response.status);
+      
       if (response.ok) {
-        // Now create the user account
-        const createResponse = await fetch(`${BASE_URL}/api/users`, {
+        console.log("Code verified successfully, creating user account...");
+        
+        // Step 2: Create the user account using auth service
+        const createResponse = await fetch(`${BASE_URL}/api/auth/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            user: {
-              emailAddress: email,
-              phoneNumber,
-              firstName,
-              lastName,
-              roles: [{ name: role }],
-            },
+            email,
             password,
+            firstName,
+            lastName,
+            phoneNumber,
+            role,
+            storeName,
+            idCardType,
+            idCardCountry,
+            idCardNumber,
           }),
         });
-        setIsSubmitting(false);
+        
+        console.log("User creation response status:", createResponse.status);
+        
         if (createResponse.ok) {
+          console.log("User account created successfully!");
           setIsCodeCorrect(true);
           setShowSuccessModal(true);
         } else {
+          const errorText = await createResponse.text();
+          console.error("User creation failed:", errorText);
           setIsCodeCorrect(false);
           Alert.alert("Account creation failed. Please try again.");
         }
       } else {
-        setIsSubmitting(false);
+        const errorText = await response.text();
+        console.error("Code verification failed:", errorText);
         setIsCodeCorrect(false);
+        Alert.alert("Invalid verification code. Please try again.");
       }
     } catch (error) {
-      setIsSubmitting(false);
+      console.error("Network error during verification:", error);
       setIsCodeCorrect(false);
+      Alert.alert("Network error. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

@@ -1,0 +1,195 @@
+version: '3.8'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 2784
+      POSTGRES_DB: swiftmart
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api-gateway:
+    build: ./microservices/api-gateway
+    ports:
+      - "9000:9000"
+    depends_on:
+      - auth-service
+      - product-service
+      - address-service
+      - order-status-service
+      - payment-method-service
+      - order-status-history-service
+      - email-service
+      - site-user-service
+      - user-review-service
+      - shop-order-service
+      - shopping-cart-service
+      - shipping-method-service
+      - promotion-service
+      - barcode-search-service
+      - cart-sharing-service
+      - verification-code-service
+      - video-upload-service
+
+  auth-service:
+    build: ./microservices/auth-service
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/swiftmart
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2784
+    ports:
+      - "8080:8080"
+
+  product-service:
+    build: ./microservices/product-service
+    depends_on:
+      - postgres
+      - elasticsearch
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/swiftmart
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2784
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+    ports:
+      - "8081:8081"
+
+  address-service:
+    build: ./microservices/address-service
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/swiftmart
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2784
+    ports:
+      - "8085:8085"
+
+  order-status-service:
+    build: ./microservices/order-status-service
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/swiftmart
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2784
+    ports:
+      - "8083:8083"
+
+  payment-method-service:
+    build: ./microservices/payment-method-service
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/swiftmart
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2784
+    ports:
+      - "8082:8082"
+
+  order-status-history-service:
+    build: ./microservices/order-status-history-service
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/swiftmart
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2784
+    ports:
+      - "8084:8084"
+
+  email-service:
+    build: ./microservices/email-service
+    ports:
+      - "8096:8096"
+
+  site-user-service:
+    build: ./microservices/site-user-service
+    ports:
+      - "8086:8086"
+
+  user-review-service:
+    build: ./microservices/user-review-service
+    ports:
+      - "8087:8087"
+
+  shop-order-service:
+    build: ./microservices/shop-order-service
+    ports:
+      - "8088:8088"
+
+  shopping-cart-service:
+    build: ./microservices/shopping-cart-service
+    ports:
+      - "8089:8089"
+
+  shipping-method-service:
+    build: ./microservices/shipping-method-service
+    ports:
+      - "8090:8090"
+
+  promotion-service:
+    build: ./microservices/promotion-service
+    ports:
+      - "8091:8091"
+
+  barcode-search-service:
+    build: ./microservices/barcode-search-service
+    depends_on:
+      - product-service
+    environment:
+      PRODUCT_SERVICE_URL: http://product-service:8081
+    ports:
+      - "8092:8092"
+
+  cart-sharing-service:
+    build: ./microservices/cart-sharing-service
+    depends_on:
+      - email-service
+    environment:
+      EMAIL_SERVICE_URL: http://email-service:8096
+    ports:
+      - "8093:8093"
+
+  verification-code-service:
+    build: ./microservices/verification-code-service
+    ports:
+      - "8095:8095"
+
+  video-upload-service:
+    build: ./microservices/video-upload-service
+    ports:
+      - "8094:8094"
+    volumes:
+      - video_uploads:/app/uploads
+    environment:
+      VIDEO_UPLOAD_DIRECTORY: /app/uploads/videos
+      VIDEO_UPLOAD_MAX_SIZE: 5242880
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+  elasticsearch_data:
+  video_uploads:
