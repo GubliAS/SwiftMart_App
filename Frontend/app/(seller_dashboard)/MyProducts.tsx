@@ -17,7 +17,7 @@ import Button from "../../components/Button";
 
 
 // Import the local image
-const erekoImage = require('../../assets/images/Ereko.png'); // Adjust the path if your folder structure is different
+const erekoImage = require('../../assets/images/yellow-chair.png'); // Adjust the path if your folder structure is different
 
 
 const FILTERS = ["All Products", "Active", "Out of Stock", "Archive"];

@@ -20,19 +20,11 @@ const PrimaryButton = ({
   
   return (
     <TouchableOpacity
-<<<<<<< HEAD
       onPress={!isDisabled ? onPress : undefined} // Disable onPress if the button is disabled or loading
       className={`items-center justify-center w-full rounded-lg px-[18px] py-3 ${
         isDisabled ? "bg-neutral-10" : "bg-primary"
       }`}
       disabled={isDisabled} // Disable touch events
-=======
-      onPress={!disabled ? onPress : undefined}
-      className={`items-center justify-center w-full rounded-lg px-[18px] py-3 ${
-        disabled ? "bg-neutral-10" : color === "secondary" ? "bg-secondary" : "bg-primary"
-      }`}
-      disabled={disabled}
->>>>>>> e7d43f7d (Fixed the seller screens to match the ui)
     >
       {loading ? (
         <ActivityIndicator size="small" color="#156651" />
