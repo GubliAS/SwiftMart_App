@@ -6,7 +6,6 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Switch, Image } from "react-native";
 import { Entypo } from "@expo/vector-icons";
-import PrimaryButton from "@/components/PrimaryButton";
 import { router, useLocalSearchParams } from "expo-router";
 import productData from "@/constants/productData";
 import { usePromo } from "@/context/PromoContext";

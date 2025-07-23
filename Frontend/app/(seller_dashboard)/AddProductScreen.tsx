@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import PrimaryButton from "../../components/PrimaryButton";
+import SecondaryButton from "../../components/SecondaryButton";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Required for type safety when receiving params from expo-router
@@ -318,10 +318,10 @@ const AddProductScreen: React.FC = () => {
         </View>
 
         {/* Next Button */}
-        <PrimaryButton
+        <SecondaryButton
           BtnText="Next"
           onPress={handleNext}
-          color="secondary"
+    
         />
       </ScrollView>
     </SafeAreaView>

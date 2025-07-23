@@ -12,7 +12,7 @@ import {
   View,
   Switch,
 } from "react-native";
-import PrimaryButton from "../../components/PrimaryButton";
+import SecondaryButton from "../../components/SecondaryButton";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Define the structure of a single variant
@@ -258,7 +258,7 @@ const Addvariant: React.FC = () => {
         </ScrollView>
         {/* Next button fixed at the absolute bottom */}
         <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16, paddingBottom: 16, backgroundColor: '#fff' }}>
-          <PrimaryButton
+          <SecondaryButton
             BtnText="Next"
             onPress={() => {
               if (variants.length > 0) {
@@ -269,7 +269,7 @@ const Addvariant: React.FC = () => {
                 router.push({ pathname: "/AddProductDetailScreen", params: { ...productData, showStock: "true", showImage: "true" } });
               }
             }}
-            color="secondary"
+           
           />
         </View>
       </View>

@@ -3,7 +3,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
-import PrimaryButton from "../../components/PrimaryButton";
+import SecondaryButton from "../../components/SecondaryButton";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const AddProductDetailScreen = () => {
@@ -86,11 +86,10 @@ const AddProductDetailScreen = () => {
         </View>
 
         {/* Publish Button */}
-        <PrimaryButton
-          BtnText="Publish"
-          onPress={handlePublish}
-          color="secondary"
-        />
+        <SecondaryButton
+          BtnText="Publish"
+          onPress={handlePublish}
+        />
       </ScrollView>
     </SafeAreaView>
   );
