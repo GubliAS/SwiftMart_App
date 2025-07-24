@@ -6,6 +6,7 @@ type PrimaryButtonProps = {
   disabled?: boolean; // Disabled state
   loading?: boolean; // Loading state
   onPress?: () => void; // Function to handle button press
+  color?: "primary" | "secondary"; // Button color
 };
 
 const PrimaryButton = ({
@@ -13,6 +14,7 @@ const PrimaryButton = ({
   disabled = false,
   loading = false,
   onPress,
+  color = "primary",
 }: PrimaryButtonProps) => {
   const isDisabled = disabled || loading;
   

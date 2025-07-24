@@ -149,7 +149,7 @@ const SellerSettings = () => {
         >
           {/* Header */}
           <View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/SellerDashboard')}>
               <Entypo name="chevron-left" size={24} color="black" />
             </TouchableOpacity>
             <Text className="text-text font-Manrope text-Heading3 text-center">
