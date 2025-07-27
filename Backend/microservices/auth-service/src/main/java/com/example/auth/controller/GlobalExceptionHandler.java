@@ -13,6 +13,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ResponseEntity<AuthController.ErrorResponse> handleAllExceptions(Exception ex) {
+        ex.printStackTrace(); // Log the stack trace for debugging
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new AuthController.ErrorResponse("Internal server error: " + ex.getMessage()));
     }

@@ -38,7 +38,7 @@ const SellerDashboardLayout = () => {
             </View>
           </SafeAreaView>
         </NotificationProvider>
-      </PayoutProvider>
+       </PayoutProvider>
     </PromoProvider>
   );
 };

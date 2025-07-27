@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -8,30 +10,48 @@ import {
 import { Text } from "react-native";
 import { ChevronLeft } from "lucide-react-native";
 import { useRouter } from "expo-router";
-import SavedAddressCard from "../(tabs)/(checkout)/components/SavedAddressCard";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import SavedAddressCard from '@/app/components/SavedAddressCard';
+import { useAuth } from '@/context/AuthContext';
+import { useUser } from '@/context/UserContext';
+import { fetchAddresses, deleteAddress, setDefaultAddress, Address } from '@/app/api/addressApi';
+import { useFocusEffect } from 'expo-router';
 
-type Address = {
-  id: string;
-  name: string;
-  phone: string;
-  code: string;
-  street: string;
-  city: string;
-  region: string;
-  house: string;
-  country: string;
-  isDefault?: boolean;
-};
 
 const SavedAddressScreen: React.FC = () => {
   const router = useRouter();
+  const { token } = useAuth();
+  const { user } = useUser();
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [defaultAddressId, setDefaultAddressId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const loadAddresses = async () => {
-    const stored = await AsyncStorage.getItem("addresses");
-    setAddresses(stored ? JSON.parse(stored) : []);
+    if (!user?.id || !token) return;
+    try {
+      const data = await fetchAddresses(user.id, token);
+      
+      // Find the default address from the backend response
+      const defaultAddress = data.find(addr => addr.isDefault === true);
+      setDefaultAddressId(defaultAddress?.id || null);
+      
+      // Sort addresses: default address first, then others
+      const sortedAddresses = data.sort((a, b) => {
+        const aIsDefault = a.isDefault === true;
+        const bIsDefault = b.isDefault === true;
+        
+        if (aIsDefault && !bIsDefault) return -1; // a comes first
+        if (!aIsDefault && bIsDefault) return 1;  // b comes first
+        return 0; // both have same default status, maintain original order
+      });
+      
+      setAddresses(sortedAddresses);
+      setErrorMsg(null);
+    } catch (error: any) {
+      console.error('Error loading addresses:', error);
+      setErrorMsg(error.message || 'Failed to load addresses');
+      setAddresses([]);
+    }
   };
 
   const onRefresh = async () => {
@@ -41,43 +61,56 @@ const SavedAddressScreen: React.FC = () => {
   };
 
   const handleAddAddress = async () => {
-    await router.replace({
-      pathname: "../(tabs)/(checkout)/components/AddAddress",
-      params: {
-        returnTo: "/(root)/(profile)/SavedAddressScreen"
-      }
-    });
-    // Refresh addresses after returning from add address screen
-    loadAddresses();
+    router.push('/(root)/(profile)/address/AddAddress');
   };
 
   const handleEditAddress = async (addressId: string) => {
-    await router.replace({
-      pathname: "../(tabs)/(checkout)/components/AddAddress",
+    router.push({
+      pathname: '/(root)/(profile)/address/AddAddress',
       params: {
         addressId,
-        editMode: "true",
-        returnTo: "/(root)/(profile)/SavedAddressScreen"
+        editMode: 'true',
+        returnTo: '/(root)/(profile)/SavedAddressScreen'
       },
     });
-    // Refresh addresses after returning from edit address screen
-    loadAddresses();
+  };
+
+  const handleSetDefault = async (addressId: string) => {
+    if (!user?.id || !token) return;
+    try {
+      await setDefaultAddress(user.id, addressId, token);
+      // Update the default address ID
+      setDefaultAddressId(addressId);
+      // Reload addresses to get updated default status
+      await loadAddresses();
+    } catch (error: any) {
+      setErrorMsg(error.message || 'Failed to set default address');
+      console.error('Set default error:', error);
+    }
   };
 
   const handleDeleteAddress = async (addressId: string) => {
-    const existing = await AsyncStorage.getItem("addresses");
-    const addresses = existing ? JSON.parse(existing) : [];
-    const updatedAddresses = addresses.filter(
-      (addr: any) => addr.id !== addressId
-    );
-    await AsyncStorage.setItem("addresses", JSON.stringify(updatedAddresses));
-    setAddresses(updatedAddresses);
+    if (!token || !user?.id) return;
+    try {
+      console.log('Attempting to delete address:', addressId);
+      await deleteAddress(Number(addressId), token, user.id);
+      setAddresses(addresses.filter((addr) => Number(addr.id) !== Number(addressId)));
+      
+      // If we deleted the default address, clear the default address ID
+      if (addressId === defaultAddressId) {
+        setDefaultAddressId(null);
+      }
+    } catch (error: any) {
+      setErrorMsg(error.message || 'Failed to delete address');
+      console.error('Delete error:', error);
+    }
   };
 
-  useEffect(() => {
-    // Load addresses when component mounts
-    loadAddresses();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      loadAddresses();
+    }, [user, token])
+  );
 
   return (
     <View className="flex-1 bg-white">
@@ -121,13 +154,13 @@ const SavedAddressScreen: React.FC = () => {
                 key={address.id}
                 address={{
                   ...address,
-                  countryCode: address.code,
-                  zipCode: address.code,
-                  isDefault: address.isDefault || false,
+                  countryCode: address.zipCode ?? '',
+                  zipCode: address.zipCode ?? '',
+                  isDefault: address.id === defaultAddressId,
                 }}
                 onEdit={() => handleEditAddress(address.id)}
                 onDelete={() => handleDeleteAddress(address.id)}
-                onPress={() => handleEditAddress(address.id)}
+                onSetDefault={() => handleSetDefault(address.id)}
               />
             ))}
           </View>
@@ -143,8 +176,10 @@ const SavedAddressScreen: React.FC = () => {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+      {errorMsg ? <Text style={{ color: 'red', textAlign: 'center' }}>{errorMsg}</Text> : null}
     </View>
   );
 };
+
 
 export default SavedAddressScreen; 

@@ -1,12 +1,26 @@
-import React from 'react';
-import { View, ScrollView, TouchableOpacity, Text, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, ScrollView, TouchableOpacity, Text, Image, Platform, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Package, Truck, Clock, CreditCard, MapPin, User, Star, ShoppingCart } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { getOrderById, getOrderLines } from '@/app/api/orderApi';
+import { fetchProductById } from '@/app/api/productApi';
+import { useAuth } from '@/context/AuthContext';
+import { useUser } from '@/context/UserContext';
+import type { Order, OrderLine } from '@/app/api/orderApi';
+import type { Product } from '@/app/api/productApi';
 
 const OrderInfoPage = () => {
   const router = useRouter();
   const { orderId, itemId, mode } = useLocalSearchParams();
+  const { token } = useAuth();
+  const { user } = useUser();
+  
+  const [order, setOrder] = useState<Order | null>(null);
+  const [orderLines, setOrderLines] = useState<OrderLine[]>([]);
+  const [products, setProducts] = useState<Map<number, Product>>(new Map());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const handleBackPress = () => {
     if (router.canGoBack()) {
@@ -17,108 +31,231 @@ const OrderInfoPage = () => {
     }
   };
 
-  // Mock comprehensive order data
-  const getOrderStatus = (orderId: string) => {
-    // Map order IDs to their statuses from OrderDetailsPage
-    const statusMap: Record<string, string> = {
-      'SWM93284': 'In Progress',
-      'SWM96254': 'In Progress', 
-      'SWM87456': 'Completed',
-      'SWM78901': 'Completed',
-      'SWM65432': 'Cancelled'
+  // Fetch real order data
+  useEffect(() => {
+    const fetchOrderInfo = async () => {
+      if (!orderId || !token) return;
+      
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch order details
+        const orderData = await getOrderById(Number(orderId), token);
+        setOrder(orderData);
+        
+        // Fetch order lines
+        const linesData = await getOrderLines(Number(orderId), token);
+        setOrderLines(linesData);
+        
+        // Fetch product details for each order line
+        const productMap = new Map<number, Product>();
+        const uniqueProductIds = [...new Set(linesData.map(line => line.productItemId))];
+        
+        await Promise.allSettled(
+          uniqueProductIds.map(async (productId) => {
+            try {
+              const product = await fetchProductById(productId);
+              productMap.set(productId, product);
+            } catch (err) {
+              console.error(`Failed to fetch product ${productId}:`, err);
+              // Create a fallback product object
+              productMap.set(productId, {
+                id: productId,
+                name: `Product #${productId}`,
+                description: `Product ${productId}`,
+                price: 0,
+                originalPrice: 0,
+                rating: '0',
+                productImage: '',
+                condition: 'new',
+                categoryId: 1
+              });
+            }
+          })
+        );
+        
+        setProducts(productMap);
+        
+      } catch (err) {
+        console.error('Error fetching order info:', err);
+        setError('Failed to load order information');
+      } finally {
+        setLoading(false);
+      }
     };
-    return statusMap[orderId] || 'In Progress';
-  };
 
-  const orderInfo = {
-    id: orderId || 'SWM93284',
-    status: getOrderStatus(orderId as string || 'SWM93284'),
-    amount: 274.13,
-    orderDate: '2024-01-10',
-    estimatedDelivery: '2024-01-15',
-    items: [
-      {
-        id: 1,
-        name: 'DEXO',
-        price: 230.00,
-        quantity: 1,
-        description: 'Comfortable ergonomic office chair with lumbar support and adjustable height. Perfect for long working hours.',
-        sku: 'DEXO-001',
-        category: 'Furniture',
-        image: require('../../assets/images/yellow-chair.png'),
-        rating: 4.5,
-        reviews: 128,
-        features: ['Ergonomic Design', 'Lumbar Support', 'Adjustable Height', 'Swivel Base']
-      },
-      {
-        id: 2,
-        name: 'REXO',
-        price: 230.00,
-        quantity: 1,
-        description: 'Modern living room sofa with premium fabric and comfortable cushioning.',
-        sku: 'REXO-002',
-        category: 'Furniture',
-        image: require('../../assets/images/sofa.jpeg'),
-        rating: 4.3,
-        reviews: 89,
-        features: ['Premium Fabric', 'Comfortable Cushioning', 'Modern Design', 'Durable Frame']
-      }
-    ],
-    customer: {
-      name: 'John Doe',
-      email: 'john.doe@email.com',
-      phone: '+1 (555) 123-4567'
-    },
-    shipping: {
-      address: {
-        street: '123 Main Street',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10001',
-        country: 'United States'
-      },
-      method: 'Standard Delivery',
-      carrier: 'UPS',
-      trackingNumber: '1Z999AA1234567890'
-    },
-    payment: {
-      method: 'Credit Card',
-      cardType: 'Visa',
-      last4: '1234',
-      billingAddress: {
-        street: '123 Main Street',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10001'
-      }
-    },
-    timeline: [
-      { status: 'Order Placed', date: '2024-01-10', time: '10:30 AM', completed: true },
-      { status: 'Payment Confirmed', date: '2024-01-10', time: '10:35 AM', completed: true },
-      { status: 'Processing', date: '2024-01-11', time: '2:15 PM', completed: true },
-      { status: 'Shipped', date: '2024-01-12', time: '9:00 AM', completed: true },
-      { status: 'Out for Delivery', date: '2024-01-15', time: 'Pending', completed: false },
-      { status: 'Delivered', date: '2024-01-15', time: 'Pending', completed: false }
-    ],
-    totals: {
-      subtotal: 230.00,
-      shipping: 15.00,
-      tax: 29.13,
-      total: 274.13
+    fetchOrderInfo();
+  }, [orderId, token]);
+
+  // Map backend status to frontend status
+  const mapStatus = (backendStatus: string): string => {
+    switch (backendStatus.toLowerCase()) {
+      case 'pending':
+        return 'In Progress';
+      case 'confirmed':
+        return 'In Progress';
+      case 'shipped':
+        return 'Shipped';
+      case 'delivered':
+        return 'Delivered';
+      case 'cancelled':
+        return 'Cancelled';
+      default:
+        return 'In Progress';
     }
   };
 
-  const InfoCard = ({ title, children, icon: Icon }: { title: string; children: React.ReactNode; icon: any }) => (
-    <View className="bg-white rounded-xl p-4 mb-4" style={{
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: 4,
+  // Get real order info
+  const getOrderInfo = () => {
+    if (!order || !orderLines.length) return null;
+    
+    // Log order data for debugging
+    console.log('Order ID:', order.id, 'Date:', order.orderDate);
+    
+    const items = orderLines.map((line) => {
+      const product = products.get(line.productItemId);
+      return {
+        id: line.id,
+        name: product?.name || `Product #${line.productItemId}`,
+        price: line.price,
+        quantity: line.qty,
+        description: product?.description || `Product ${line.productItemId}`,
+        sku: `SKU-${line.productItemId}`,
+        category: 'General',
+        image: product?.productImage 
+          ? { uri: product.productImage }
+          : require('../../assets/images/computer.png'),
+        rating: parseFloat(product?.rating || '0'),
+        reviews: 0,
+        features: []
+      };
+    });
+
+    // Parse order date from backend
+    let orderDate: Date;
+    if (order.orderDate) {
+      // The backend sends ISO format like "2025-07-26T20:09:47.822841"
+      orderDate = new Date(order.orderDate);
+      
+      // Check if the date is valid
+      if (isNaN(orderDate.getTime())) {
+        console.log('Invalid date from backend, using current date');
+        orderDate = new Date();
+      }
+    } else {
+      console.log('No order date from backend, using current date');
+      orderDate = new Date();
+    }
+    
+    const estimatedDelivery = new Date(orderDate);
+    estimatedDelivery.setDate(estimatedDelivery.getDate() + 5); // 5 days from order date
+
+    return {
+      id: order.id.toString(),
+      status: mapStatus(order.orderStatus),
+      amount: order.orderTotal,
+      orderDate: orderDate.toLocaleDateString(),
+      estimatedDelivery: estimatedDelivery.toLocaleDateString(),
+      items: items,
+      customer: {
+        name: user ? `${user.firstName} ${user.lastName}` : 'Customer',
+        email: user?.email || 'customer@email.com',
+        phone: '+1 (555) 123-4567'
       },
-      shadowOpacity: 0.15,
-      shadowRadius: 6,
-      elevation: 8,
-    }}>
+      shipping: {
+        address: {
+          street: order.shippingAddress || '123 Main Street',
+          city: 'City',
+          state: 'State',
+          zipCode: '12345',
+          country: 'United States'
+        },
+        method: 'Standard Delivery',
+        carrier: 'UPS',
+        trackingNumber: `TRK${order.id}${Date.now()}`
+      },
+      payment: {
+        method: 'Credit Card',
+        cardType: 'Visa',
+        last4: '1234',
+        billingAddress: {
+          street: order.shippingAddress || '123 Main Street',
+          city: 'City',
+          state: 'State',
+          zipCode: '12345'
+        }
+      },
+      timeline: [
+        { status: 'Order Placed', date: orderDate.toLocaleDateString(), time: orderDate.toLocaleTimeString(), completed: true },
+        { status: 'Payment Confirmed', date: orderDate.toLocaleDateString(), time: orderDate.toLocaleTimeString(), completed: true },
+        { status: 'Processing', date: orderDate.toLocaleDateString(), time: orderDate.toLocaleTimeString(), completed: order.orderStatus !== 'PENDING' },
+        { status: 'Shipped', date: orderDate.toLocaleDateString(), time: orderDate.toLocaleTimeString(), completed: order.orderStatus === 'SHIPPED' || order.orderStatus === 'DELIVERED' },
+        { status: 'Out for Delivery', date: estimatedDelivery.toLocaleDateString(), time: 'Pending', completed: false },
+        { status: 'Delivered', date: estimatedDelivery.toLocaleDateString(), time: 'Pending', completed: order.orderStatus === 'DELIVERED' }
+      ],
+      totals: {
+        subtotal: order.orderTotal,
+        shipping: 15.00,
+        tax: order.orderTotal * 0.1, // 10% tax
+        total: order.orderTotal
+      }
+    };
+  };
+
+  const orderInfo = getOrderInfo();
+
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center justify-center p-4 relative">
+          <TouchableOpacity 
+            onPress={handleBackPress}
+            className="absolute left-4"
+          >
+            <ChevronLeft size={24} color="#156651" />
+          </TouchableOpacity>
+          <Text className="text-Heading3 font-Manrope text-text">Order Information</Text>
+        </View>
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#156651" />
+          <Text className="text-gray-500 mt-4">Loading order information...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !orderInfo) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center justify-center p-4 relative">
+          <TouchableOpacity 
+            onPress={handleBackPress}
+            className="absolute left-4"
+          >
+            <ChevronLeft size={24} color="#156651" />
+          </TouchableOpacity>
+          <Text className="text-Heading3 font-Manrope text-text">Order Information</Text>
+        </View>
+        <View className="flex-1 justify-center items-center px-4">
+          <Text className="text-red-600 text-center text-lg">{error || 'Order not found'}</Text>
+          <Text className="text-gray-500 text-center mt-2">Could not load order information</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const InfoCard = ({ title, children, icon: Icon }: { title: string; children: React.ReactNode; icon: any }) => (
+    <View className="bg-white rounded-xl p-4 mb-4" style={Platform.select({
+      web: { boxShadow: '0px 2px 6px rgba(0,0,0,0.15)' },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+        elevation: 3,
+      }
+    })}>
       <View className="flex-row items-center mb-3">
         <Icon size={20} color="#156651" />
         <Text className="text-BodyBold font-Manrope text-text ml-2">{title}</Text>

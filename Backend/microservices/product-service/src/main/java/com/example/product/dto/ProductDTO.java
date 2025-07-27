@@ -7,11 +7,12 @@ import jakarta.validation.constraints.Size;
 
 @Data
 public class ProductDTO {
-    @NotNull
-    private Long id;
-
+     private Long id;
+     
     @NotNull
     private Long categoryId;
+
+    private Long sellerId;
 
     @NotBlank
     @Size(max = 255)

@@ -15,7 +15,6 @@ const _layout = () => {
           }} 
         >
           <Stack.Screen name="+not-found" />
-          <Stack.Screen name="(tabs)" />
         </Stack>
     </View>
   )

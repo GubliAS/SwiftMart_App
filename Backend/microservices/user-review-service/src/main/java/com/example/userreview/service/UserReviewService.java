@@ -28,9 +28,16 @@ public class UserReviewService {
                 .collect(Collectors.toList());
     }
 
+    public List<UserReviewDTO> getReviewsByProductId(Long productId) {
+        return reviewRepository.findAll().stream()
+                .filter(r -> r.getProductId() != null && r.getProductId().equals(productId))
+                .map(reviewMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
     public List<UserReviewDTO> getReviewsByUser(Long userId) {
         return reviewRepository.findAll().stream()
-                .filter(r -> r.getUser() != null && r.getUser().getId().equals(userId))
+                .filter(r -> r.getUserId() != null && r.getUserId().equals(userId))
                 .map(reviewMapper::toDto)
                 .collect(Collectors.toList());
     }

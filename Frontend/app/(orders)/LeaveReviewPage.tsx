@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, TouchableOpacity, Text, TextInput, Alert, Image } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Text, TextInput, Alert, Image, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Star, Camera, X, ChevronRight } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -158,17 +158,16 @@ const LeaveReviewPage = () => {
         {/* Order Card - Same as Transaction Page */}
         <TouchableOpacity
           className="bg-white rounded-xl p-4 mb-6"
-          style={{ 
-            height: 142,
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 4,
-            },
-            shadowOpacity: 0.15,
-            shadowRadius: 6,
-            elevation: 8,
-          }}
+          style={Platform.select({
+            web: { boxShadow: '0px 2px 6px rgba(0,0,0,0.15)' },
+            default: {
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.15,
+              shadowRadius: 6,
+              elevation: 3,
+            }
+          })}
         >
           {/* Single Row Layout */}
           <View className="flex-row items-center justify-between h-full">

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Image,
+
   Pressable,
   TextInput,
   TouchableWithoutFeedback,
@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   ImageBackground,
 } from "react-native";
+import { Image } from "expo-image";
 import Feather from "@expo/vector-icons/Feather";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import CarouselCard from "@/components/CarouselCard";
@@ -21,6 +22,9 @@ import productData from "@/constants/productData"; // Import the product data
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Logo from "@/assets/svgs/LogoLG2.svg"
+import { fetchProducts } from "@/app/api/productApi";
+
+
 
 const carouselData = [
   {
@@ -88,9 +92,41 @@ const categories = [
   { name: "Kids & Toys", image: require("@/assets/images/kids.png") },
 ];
 
+const categoryMap: Record<string, number> = {
+  "Electronics & Devices": 1,
+  "Sports & Fitness": 2,
+  "Computer & Accessories": 3,
+  "Beauty & Personal Care": 4,
+  "Office & Stationery": 5,
+  "Home & Living": 6,
+  "Fashion": 7,
+  "Automotive & Tools": 8,
+  "Groceries & Essentials": 9,
+  "Kids & Toys": 10,
+};
+
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  originalPrice: number;
+  discount?: number;
+  rating: string;
+  productImage: string;
+  
+};
+
 const Home = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [showCategory, setShowCategory] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetchProducts().then(data => {
+      
+      setProducts(data);
+    });
+  }, []);
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
@@ -104,10 +140,12 @@ const Home = () => {
   };
 
   const handleCategorySelection = (categoryName: string) => {
-    router.push({
-      pathname: "/FilteredProducts",
-      params: { categoryName },
-    });
+    if (categoryName === "All Products") {
+      router.push({ pathname: "/FilteredProducts" });
+    } else {
+      const categoryId = categoryMap[categoryName];
+      router.push({ pathname: "/FilteredProducts", params: { categoryId } });
+    }
   };
 
   return (
@@ -257,14 +295,16 @@ const Home = () => {
                     overflow: "visible", // Ensure shadows are not clipped
                   }}
                 >
-                  {productData.filter(product => product.discount).slice(0, 10).map((product) => (
-                    <TouchableOpacity activeOpacity={0.80} key={product.id} onPress={() => router.push({ pathname: '/(root)/(Home)/ProductDetail', params: { productId: product.id } })}>
+                  {products.filter(product => product.discount).slice(0, 10).map((product) => (
+                    <TouchableOpacity activeOpacity={0.80} key={product.id} onPress={() => router.push({ pathname: '/(root)/(Home)/ProductDetail', params: { productId: String(product.id) } })}>
                       <ProductCard
-                        image={product.image}
+                        image={ product.productImage }
                         name={product.name}
-                        price={parseFloat(product.price)}
-                        originalPrice={parseFloat(product.originalPrice)}
-                        discount={product.discount ? parseFloat(product.discount) : undefined}
+                        price={typeof product.price === "string" ? parseFloat(product.price) : product.price}
+                        originalPrice={typeof product.originalPrice === "string" ? parseFloat(product.originalPrice) : product.originalPrice}
+                        discount={product.discount !== undefined && product.discount !== null
+                          ? (typeof product.discount === "string" ? parseFloat(product.discount) : product.discount)
+                          : undefined}
                         rating={product.rating}
                       />
                     </TouchableOpacity>

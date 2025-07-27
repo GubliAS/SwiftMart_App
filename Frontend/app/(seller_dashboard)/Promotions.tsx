@@ -3,7 +3,7 @@
 // It includes a promo carousel, tab navigation, and joined promo management.
 
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, FlatList, Dimensions } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, FlatList, Dimensions, Platform } from "react-native";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";

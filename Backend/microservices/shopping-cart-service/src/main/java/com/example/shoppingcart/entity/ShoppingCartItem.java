@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class ShoppingCartItem {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -18,9 +19,10 @@ public class ShoppingCartItem {
     @JoinColumn(name = "product_item_id")
     private ProductItem productItem;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "variant_id")
-    private com.example.commonentities.ProductVariant variant;
+    // Removed ProductVariant reference as it's not available
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "variant_id")
+    // private com.example.commonentities.ProductVariant variant;
 
     private String size;
     private int quantity;

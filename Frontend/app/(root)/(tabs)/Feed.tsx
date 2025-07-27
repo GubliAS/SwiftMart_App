@@ -10,6 +10,7 @@ import {
   Alert,
   ScrollView,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import { 
   MessageCircle, 
@@ -139,7 +140,16 @@ const Feed: React.FC = () => {
       onPress={() => router.push({ pathname: '/(root)/feed/PostDetailModal', params: { post: JSON.stringify(item) } })}
       style={{ width: '48%', marginBottom: 16 }}
     >
-      <View className="bg-white rounded-2xl overflow-hidden" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 2 }}>
+      <View className="bg-white rounded-2xl overflow-hidden" style={Platform.select({
+        web: { boxShadow: '0px 2px 8px rgba(0,0,0,0.08)' },
+        default: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 8,
+          elevation: 2,
+        }
+      })}>
       <View className="relative">
           <Image source={item.thumbnail || item.imageUrl} className="w-full h-40" resizeMode="cover" />
         {item.type === 'video' && (
@@ -236,7 +246,16 @@ const Feed: React.FC = () => {
           <Text className="text-BodyBold text-text mb-3 px-4">Suggested For You</Text>
           <ScrollView className='h-fit  bg-white' contentContainerClassName='h-[170px] bg-white' horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16 }}>
             {suggestedUsers.map((item) => (
-              <View key={item.id} className="w-40 bg-white rounded-xl p-3 mr-4 " style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 }}>
+              <View key={item.id} className="w-40 bg-white rounded-xl p-3 mr-4 " style={Platform.select({
+                web: { boxShadow: '0px 2px 8px rgba(0,0,0,0.1)' },
+                default: {
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 3,
+                }
+              })}>
                 <View className="relative">
                   <TouchableOpacity 
                     className="absolute top-1 right-1 z-10"

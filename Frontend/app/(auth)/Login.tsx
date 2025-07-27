@@ -290,6 +290,7 @@ const Login = () => {
         if (profileRes.ok) {
           const profile = await profileRes.json();
           setUser({
+            id: profile.id, // Ensure id is always set
             firstName: profile.firstName || '',
             lastName: profile.lastName || '',
             email: profile.email || '',

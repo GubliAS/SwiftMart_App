@@ -11,7 +11,7 @@ const getBaseUrl = () => {
   
   // For physical devices on the same network, use the computer's IP address
   // This works for both Android and iOS physical devices
-  return "http://10.10.10.98:8080"; // Direct to auth service
+  return "http://10.10.11.87:8080"; // Direct to auth service
 };
 
 export const BASE_URL = getBaseUrl();

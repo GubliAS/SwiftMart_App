@@ -37,11 +37,17 @@ export interface ShippingInfo {
 }
 
 export interface Address {
+  id?: string | number;
+  name: string;
+  phone: string;
   street: string;
   city: string;
-  state: string;
+  region: string;
   zipCode: string;
-  country: string;
+  countryId: number;
+  countryCode?: string;
+  isDefault?: boolean;
+  country?: string;
 }
 
 export interface PaymentInfo {

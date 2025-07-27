@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class Address {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String unitNumber;
     private String streetNumber;
@@ -16,6 +17,9 @@ public class Address {
     private String city;
     private String region;
     private String postalCode;
+    private String name;
+    private String phone;
+    private String street;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "country_id")

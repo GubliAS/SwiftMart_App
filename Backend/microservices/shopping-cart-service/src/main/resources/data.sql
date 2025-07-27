@@ -1,0 +1,24 @@
+-- Insert all product items for demo
+INSERT INTO product_item (id) VALUES (1);
+INSERT INTO product_item (id) VALUES (2);
+INSERT INTO product_item (id) VALUES (3);
+INSERT INTO product_item (id) VALUES (4);
+INSERT INTO product_item (id) VALUES (5);
+INSERT INTO product_item (id) VALUES (6);
+INSERT INTO product_item (id) VALUES (7);
+INSERT INTO product_item (id) VALUES (8);
+INSERT INTO product_item (id) VALUES (9);
+INSERT INTO product_item (id) VALUES (10);
+INSERT INTO product_item (id) VALUES (11);
+INSERT INTO product_item (id) VALUES (12);
+INSERT INTO product_item (id) VALUES (13);
+INSERT INTO product_item (id) VALUES (14);
+INSERT INTO product_item (id) VALUES (15);
+INSERT INTO product_item (id) VALUES (16);
+INSERT INTO product_item (id) VALUES (17);
+INSERT INTO product_item (id) VALUES (18);
+INSERT INTO product_item (id) VALUES (19);
+INSERT INTO product_item (id) VALUES (20);
+INSERT INTO product_item (id) VALUES (21);
+INSERT INTO product_item (id) VALUES (22);
+INSERT INTO product_item (id) VALUES (23); 

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator, View } from 'react-native';
 
 export type PaymentMethod = {
   id: string;
@@ -21,18 +22,22 @@ const PaymentMethodsContext = createContext<PaymentMethodsContextType | undefine
 
 export const PaymentMethodsProvider = ({ children }: { children: ReactNode }) => {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       const stored = await AsyncStorage.getItem('payment_methods');
       if (stored) setPaymentMethods(JSON.parse(stored));
+      setLoading(false);
     };
     load();
   }, []);
 
   useEffect(() => {
-    AsyncStorage.setItem('payment_methods', JSON.stringify(paymentMethods));
-  }, [paymentMethods]);
+    if (!loading) {
+      AsyncStorage.setItem('payment_methods', JSON.stringify(paymentMethods));
+    }
+  }, [paymentMethods, loading]);
 
   const addPaymentMethod = (method: PaymentMethod) => {
     setPaymentMethods((prev) => {
@@ -51,6 +56,12 @@ export const PaymentMethodsProvider = ({ children }: { children: ReactNode }) =>
   const setDefaultPaymentMethod = (id: string) => {
     setPaymentMethods((prev) => prev.map((m) => ({ ...m, isDefault: m.id === id })));
   };
+
+  if (loading) return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <ActivityIndicator size="large" color="#156651" />
+    </View>
+  );
 
   return (
     <PaymentMethodsContext.Provider value={{ paymentMethods, addPaymentMethod, removePaymentMethod, setDefaultPaymentMethod }}>

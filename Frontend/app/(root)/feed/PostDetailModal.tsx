@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, TextInput, FlatList, Modal, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Video } from 'expo-av';
+import { Video } from 'expo-video';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Heart, MessageSquare, Share2, MoreHorizontal, X } from 'lucide-react-native';
 

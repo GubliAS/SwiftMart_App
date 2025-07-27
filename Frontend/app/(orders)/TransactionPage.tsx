@@ -1,14 +1,98 @@
-import React, { useState } from 'react';
-import { View, ScrollView, TouchableOpacity, Text } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, ScrollView, TouchableOpacity, Text, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import OrderCard from '@/components/orders/OrderCard';
 import { OrderListItem } from '@/types/orders';
+import { getOrdersByUser, getOrderLines } from '@/app/api/orderApi';
+import type { Order, OrderLine } from '@/app/api/orderApi';
+import { useAuth } from '@/context/AuthContext';
+import { useUser } from '@/context/UserContext';
 
 const TransactionPage = () => {
   const router = useRouter();
+  const { token } = useAuth();
+  const { user } = useUser();
   const [activeTab, setActiveTab] = useState('My Order');
+  const [orders, setOrders] = useState<OrderListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Get user ID from auth context
+  const userId = Number(user?.id) || 1;
+
+  const fetchOrders = async () => {
+    try {
+      setError(null);
+      const backendOrders = await getOrdersByUser(userId, token || undefined);
+      
+      // Map backend orders to OrderListItem format
+      const mappedOrders: OrderListItem[] = await Promise.all(
+        backendOrders.map(async (order) => {
+          // Fetch order lines for each order
+          const orderLines = await getOrderLines(order.id, token || undefined);
+          
+          // Map order lines to items format
+          const items = orderLines.map(line => ({
+            name: `Product #${line.productItemId}`, // In real app, fetch product name from product service
+            price: line.price,
+            quantity: line.qty
+          }));
+
+          // Map backend status to frontend status
+          const mapStatus = (backendStatus: string): OrderListItem['status'] => {
+            switch (backendStatus.toLowerCase()) {
+              case 'pending':
+                return 'In Progress';
+              case 'confirmed':
+                return 'In Progress';
+              case 'shipped':
+                return 'In Progress';
+              case 'delivered':
+                return 'In Progress';
+              case 'received':
+                return 'Received';
+              case 'cancelled':
+                return 'Cancelled';
+              default:
+                return 'In Progress';
+            }
+          };
+
+          return {
+            id: order.id.toString(),
+            amount: order.orderTotal,
+            size: orderLines.length, // Number of items in order
+            status: mapStatus(order.orderStatus),
+            items: items
+          };
+        })
+      );
+
+      setOrders(mappedOrders);
+    } catch (err) {
+      setError("Failed to load orders");
+      console.error("Error fetching orders:", err);
+      // Don't fallback to mock data - show empty state instead
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchOrders();
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+
 
   const handleBackPress = () => {
     if (router.canGoBack()) {
@@ -19,82 +103,21 @@ const TransactionPage = () => {
     }
   };
 
-  // Mock data for orders with different statuses
-  const allOrders: OrderListItem[] = [
-    {
-      id: 'SWM93284',
-      amount: 274.13,
-      size: 2,
-      status: 'In Progress',
-      items: [
-        { name: 'DEXO', price: 230.00, quantity: 1 },
-        { name: 'Office Supplies', price: 44.13, quantity: 1 }
-      ]
-    },
-    {
-      id: 'SWM96254',
-      amount: 1098.13,
-      size: 2,
-      status: 'Received',
-      items: [
-        { name: 'REXO', price: 590.13, quantity: 1 },
-        { name: 'Apple Device', price: 508.00, quantity: 1 }
-      ]
-    },
-    {
-      id: 'SWM87456',
-      amount: 450.75,
-      size: 1,
-      status: 'Completed',
-      items: [
-        { name: 'NEXO', price: 450.75, quantity: 1 }
-      ]
-    },
-    {
-      id: 'SWM78901',
-      amount: 320.50,
-      size: 1,
-      status: 'Completed',
-      items: [
-        { name: 'Wireless Headphones', price: 320.50, quantity: 1 }
-      ]
-    },
-    {
-      id: 'SWM65432',
-      amount: 156.75,
-      size: 2,
-      status: 'In Progress',
-      items: [
-        { name: 'Phone Case', price: 45.00, quantity: 1 },
-        { name: 'Screen Protector', price: 111.75, quantity: 1 }
-      ]
-    },
-    {
-      id: 'SWM11223',
-      amount: 89.99,
-      size: 1,
-      status: 'Cancelled',
-      items: [
-        { name: 'Bluetooth Speaker', price: 89.99, quantity: 1 }
-      ]
-    }
-  ];
-
   // Filter orders based on active tab
   const getFilteredOrders = () => {
     if (activeTab === 'History') {
       // History shows completed and cancelled orders
-      return allOrders.filter(order => 
+      return orders.filter(order => 
         order.status === 'Completed' || order.status === 'Cancelled'
       );
     }
     // My Order shows in progress and received orders
-    return allOrders.filter(order => 
+    return orders.filter(order => 
       order.status === 'In Progress' || order.status === 'Received'
     );
   };
 
-  const orders = getFilteredOrders();
+  const filteredOrders = getFilteredOrders();
 
   const handleOrderPress = (orderId: string) => {
     router.push({
@@ -102,6 +125,26 @@ const TransactionPage = () => {
       params: { orderId }
     });
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center justify-center p-4 relative mb-8">
+          <TouchableOpacity 
+            onPress={handleBackPress}
+            className="absolute left-4"
+          >
+            <ChevronLeft size={24} color="#156651" />
+          </TouchableOpacity>
+          <Text className="text-Heading3 font-Manrope text-text">Transaction</Text>
+        </View>
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#156651" />
+          <Text className="text-gray-500 mt-4">Loading orders...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -143,14 +186,45 @@ const TransactionPage = () => {
       </View>
 
       {/* Orders List */}
-      <ScrollView className="flex-1 px-4 pt-2">
-        {orders.map((order) => (
-          <OrderCard
-            key={order.id}
-            order={order}
-            onPress={handleOrderPress}
+      <ScrollView 
+        className="flex-1 px-4 pt-2"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#156651"]}
           />
-        ))}
+        }
+      >
+        {error && (
+          <View className="bg-red-50 p-4 rounded-lg mb-4">
+            <Text className="text-red-600 text-center">{error}</Text>
+          </View>
+        )}
+        
+        {filteredOrders.length === 0 ? (
+          <View className="flex-1 justify-center items-center py-20">
+            <Text className="text-xl font-semibold text-gray-500 mt-4">
+              No {activeTab === 'History' ? 'order history' : 'active orders'}
+            </Text>
+            <Text className="text-gray-400 text-center mt-2 px-8">
+              {activeTab === 'History' 
+                ? 'Your completed and cancelled orders will appear here'
+                : 'Your active orders will appear here'
+              }
+            </Text>
+          </View>
+        ) : (
+          <View className='flex-1 gap-4'>
+          {filteredOrders.map((order) => (
+            <OrderCard
+              key={order.id}
+              order={order}
+              onPress={handleOrderPress}
+            />
+          ))}
+        </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

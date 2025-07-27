@@ -24,26 +24,81 @@ import { Feather, Entypo } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
 import PrimaryButton from "@/components/PrimaryButton";
 import Button from "@/components/Button";
+import { fetchProducts, fetchProductsByCategoryId, fetchProductsBySearch } from "@/app/api/productApi";
+
+
+
+
 
 const FilteredProducts = () => {
   const router = useRouter();
-  const { categoryName, searchQuery, specialOffers } = useLocalSearchParams(); // Retrieve category name, search query, or special offers flag from route parameters
+  const { categoryId, categoryName, searchQuery, specialOffers } = useLocalSearchParams();
   const normalizedSearchQuery = Array.isArray(searchQuery)
     ? searchQuery.join(" ")
-    : searchQuery; // Ensure searchQuery is a string
-  const [searchInput, setSearchInput] = useState(normalizedSearchQuery || ""); // Initialize search input with normalizedSearchQuery if provided
-  const [submittedQuery, setSubmittedQuery] = useState(
-    normalizedSearchQuery || ""
-  ); // Initialize submitted query with normalizedSearchQuery if provided
-  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false); // State for modal visibility
+    : searchQuery;
+  const [searchInput, setSearchInput] = useState(normalizedSearchQuery || "");
+  const [submittedQuery, setSubmittedQuery] = useState(normalizedSearchQuery || "");
+  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Temporary filter state (used while the modal is open)
-  const [tempPriceRange, setTempPriceRange] = useState([0, Infinity]); // Temporary price range covers all
-  const [tempSelectedColor, setTempSelectedColor] = useState(""); // Temporary selected color
+  const [tempPriceRange, setTempPriceRange] = useState([0, Infinity]);
+  const [tempSelectedColor, setTempSelectedColor] = useState("");
 
   // Applied filter state (used to filter products after clicking "Apply Filter")
-  const [appliedPriceRange, setAppliedPriceRange] = useState([0, Infinity]); // Applied price range covers all
-  const [appliedSelectedColor, setAppliedSelectedColor] = useState(""); // Applied selected color
+  const [appliedPriceRange, setAppliedPriceRange] = useState([0, Infinity]);
+  const [appliedSelectedColor, setAppliedSelectedColor] = useState("");
+
+  const categoryMap: Record<string, number> = {
+    "Electronics & Devices": 1,
+    "Sports & Fitness": 2,
+    "Computer & Accessories": 3,
+    "Beauty & Personal Care": 4,
+    "Office & Stationery": 5,
+    "Home & Living": 6,
+    "Fashion": 7,
+    "Automotive & Tools": 8,
+    "Groceries & Essentials": 9,
+    "Kids & Toys": 10,
+  };
+
+  const getCategoryNameById = (id: number) => {
+    const cat = Object.entries(categoryMap).find(([name, cid]) => cid === id);
+    return cat ? cat[0] : undefined;
+  };
+
+  // Using the improved API client from productApi.ts
+
+  // Fetch products from backend based on filter
+  React.useEffect(() => {
+    setLoading(true);
+    const fetchData = async () => {
+      try {
+        let data = [];
+        if (specialOffers === "true") {
+          data = await fetchProducts(0, 100);
+          data = data.filter((p: any) => p.discount && Number(p.discount) > 0);
+        } else if (categoryId) {
+          data = await fetchProductsByCategoryId(Number(categoryId));
+        } else if (searchQuery && typeof searchQuery === 'string') {
+          data = await fetchProductsBySearch(searchQuery);
+        } else {
+          data = await fetchProducts(0, 100);
+        }
+        setProducts(data);
+      } catch (err) {
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [categoryId, searchQuery, specialOffers]);
+
+
+
+
 
   const panY = useState(new Animated.Value(0))[0];
   const panResponder = useState(
@@ -96,22 +151,8 @@ const FilteredProducts = () => {
     setAppliedSelectedColor(""); // Immediately apply the reset color
   };
 
-  // Determine the filtered products based on the access source
-  const filteredProducts = (() => {
-    if (specialOffers === "true") {
-      // Show only products with discounts
-      return productData.filter((product) => product.discount);
-    } else if (categoryName && categoryName !== "All Products") {
-      // Show products by category
-      return productData.filter((product) => product.category === categoryName);
-    } else {
-      // Show all products
-      return productData;
-    }
-  })();
-
   // Further filter products based on the submitted query and applied filters
-  const searchedProducts = filteredProducts.filter((product) => {
+  const searchedProducts = products.filter((product) => {
     const matchesQuery = product.name
       .toLowerCase()
       .includes(
@@ -121,7 +162,7 @@ const FilteredProducts = () => {
       parseFloat(product.price) >= appliedPriceRange[0] &&
       parseFloat(product.price) <= appliedPriceRange[1];
     const matchesColor = appliedSelectedColor
-      ? product.variants?.some(variant => variant.color === appliedSelectedColor) || false
+      ? product.variants?.some((variant: any) => variant.color === appliedSelectedColor) || false
       : true;
     return matchesQuery && matchesPrice && matchesColor;
   });
@@ -135,6 +176,8 @@ const FilteredProducts = () => {
   const getPageTitle = () => {
     if (specialOffers === "true") {
       return "Special Offers";
+    } else if (categoryId) {
+      return categoryNameFromId;
     } else if (categoryName) {
       return categoryName;
     } else {
@@ -152,6 +195,8 @@ const FilteredProducts = () => {
       return "Search products";
     }
   };
+
+  const categoryNameFromId = categoryId ? getCategoryNameById(Number(categoryId)) : undefined;
 
   return (
     <SafeAreaView className="font-Manrope bg-white gap-4 flex-1">
@@ -196,15 +241,15 @@ const FilteredProducts = () => {
 
       {/* Category Header */}
       <View className="px-4">
-        {(categoryName || specialOffers === "true") && (
+        {(categoryId || specialOffers === "true") ? (
           <View className="relative h-[132px] w-full rounded-[14px] overflow-hidden">
             <ImageBackground
               source={
-                specialOffers === "true" 
-                  ? require("@/assets/images/carousel1.png") // Use a special offers image
+                specialOffers === "true"
+                  ? require("@/assets/images/carousel1.png")
                   : categories.find(
                       (category: { name: string; image: any }) =>
-                        category.name === categoryName
+                        category.name === categoryNameFromId
                     )?.image
               }
               className="w-full h-full"
@@ -214,6 +259,22 @@ const FilteredProducts = () => {
               <View className="absolute h-full py-5 items-center w-full">
                 <Text className="text-neutral-10 text-Heading3 font-bold text-center">
                   {getPageTitle()}
+                </Text>
+              </View>
+            </ImageBackground>
+          </View>
+        ) : (
+          // All Products case: show default image and text
+          <View className="relative h-[132px] w-full rounded-[14px] overflow-hidden">
+            <ImageBackground
+              source={require("@/assets/images/carousel1.png")}
+              className="w-full h-full"
+              resizeMode="cover"
+            >
+              <View className="bg-black/20 absolute h-full w-full" />
+              <View className="absolute h-full py-5 items-center w-full">
+                <Text className="text-neutral-10 text-Heading3 font-bold text-center">
+                  All Products
                 </Text>
               </View>
             </ImageBackground>
@@ -368,7 +429,7 @@ const FilteredProducts = () => {
                   <View key={product.id} className="w-[48%]">
                     <TouchableOpacity activeOpacity={0.8} onPress={() => router.push({ pathname: '/(root)/(Home)/ProductDetail', params: { productId: product.id } })}>
                       <ProductCard
-                        image={product.image}
+                        image={product.productImage}
                         name={product.name}
                         price={parseFloat(product.price)}
                         originalPrice={parseFloat(product.originalPrice)}

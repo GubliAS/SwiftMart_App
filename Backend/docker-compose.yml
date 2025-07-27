@@ -1,4 +1,9 @@
-version: '3.8'
+version: "3.8"
+
+networks:
+  swiftmart-network:
+    driver: bridge
+
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
@@ -11,6 +16,8 @@ services:
       - "9200:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - swiftmart-network
 
   postgres:
     image: postgres:15
@@ -23,6 +30,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - swiftmart-network
 
   api-gateway:
     build: ./microservices/api-gateway
@@ -46,6 +55,8 @@ services:
       - cart-sharing-service
       - verification-code-service
       - video-upload-service
+    networks:
+      - swiftmart-network
 
   auth-service:
     build: ./microservices/auth-service
@@ -54,9 +65,11 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/swiftmart
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: 2784
+      SPRING_DATASOURCE_PASSWORD: 2784      
     ports:
       - "8080:8080"
+    networks:
+      - swiftmart-network
 
   product-service:
     build: ./microservices/product-service
@@ -69,7 +82,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: 2784
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
     ports:
-      - "8081:8081"
+      - "8097:8097"
+    networks:
+      - swiftmart-network
 
   address-service:
     build: ./microservices/address-service
@@ -81,6 +96,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: 2784
     ports:
       - "8085:8085"
+    networks:
+      - swiftmart-network
 
   order-status-service:
     build: ./microservices/order-status-service
@@ -92,6 +109,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: 2784
     ports:
       - "8083:8083"
+    networks:
+      - swiftmart-network
 
   payment-method-service:
     build: ./microservices/payment-method-service
@@ -103,6 +122,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: 2784
     ports:
       - "8082:8082"
+    networks:
+      - swiftmart-network
 
   order-status-history-service:
     build: ./microservices/order-status-history-service
@@ -114,41 +135,69 @@ services:
       SPRING_DATASOURCE_PASSWORD: 2784
     ports:
       - "8084:8084"
+    networks:
+      - swiftmart-network
 
   email-service:
     build: ./microservices/email-service
     ports:
       - "8096:8096"
+    networks:
+      - swiftmart-network
 
   site-user-service:
     build: ./microservices/site-user-service
     ports:
       - "8086:8086"
+    networks:
+      - swiftmart-network
 
   user-review-service:
     build: ./microservices/user-review-service
     ports:
       - "8087:8087"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/swiftmart
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2784
+    networks:
+      - swiftmart-network
 
   shop-order-service:
     build: ./microservices/shop-order-service
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/swiftmart
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2784
     ports:
       - "8088:8088"
+    networks:
+      - swiftmart-network
 
   shopping-cart-service:
     build: ./microservices/shopping-cart-service
     ports:
       - "8089:8089"
+    depends_on:
+      - postgres
+    networks:
+      - swiftmart-network
 
   shipping-method-service:
     build: ./microservices/shipping-method-service
     ports:
       - "8090:8090"
+    networks:
+      - swiftmart-network
 
   promotion-service:
     build: ./microservices/promotion-service
     ports:
       - "8091:8091"
+    networks:
+      - swiftmart-network
 
   barcode-search-service:
     build: ./microservices/barcode-search-service
@@ -158,6 +207,8 @@ services:
       PRODUCT_SERVICE_URL: http://product-service:8081
     ports:
       - "8092:8092"
+    networks:
+      - swiftmart-network
 
   cart-sharing-service:
     build: ./microservices/cart-sharing-service
@@ -167,11 +218,15 @@ services:
       EMAIL_SERVICE_URL: http://email-service:8096
     ports:
       - "8093:8093"
+    networks:
+      - swiftmart-network
 
   verification-code-service:
     build: ./microservices/verification-code-service
     ports:
       - "8095:8095"
+    networks:
+      - swiftmart-network
 
   video-upload-service:
     build: ./microservices/video-upload-service
@@ -182,12 +237,8 @@ services:
     environment:
       VIDEO_UPLOAD_DIRECTORY: /app/uploads/videos
       VIDEO_UPLOAD_MAX_SIZE: 5242880
-
-  redis:
-    image: redis:7
-    container_name: redis
-    ports:
-      - "6379:6379"
+    networks:
+      - swiftmart-network
 
 volumes:
   postgres_data:

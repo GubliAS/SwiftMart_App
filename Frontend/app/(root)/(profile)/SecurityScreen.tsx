@@ -7,6 +7,7 @@ import {
   TextInput,
   Alert,
   Switch,
+  Platform,
 } from 'react-native';
 import { ChevronLeft, Eye, EyeOff, Shield, Lock, Smartphone, Bell } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -167,7 +168,16 @@ const SecurityScreen = () => {
   }) => (
     <TouchableOpacity 
       className="flex-row items-center justify-between p-4 bg-white rounded-xl mb-3"
-      style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 }}
+      style={Platform.select({
+        web: { boxShadow: '0px 2px 4px rgba(0,0,0,0.1)' },
+        default: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 3,
+        }
+      })}
       onPress={onPress}
     >
       <View className="flex-row items-center flex-1">
@@ -214,7 +224,16 @@ const SecurityScreen = () => {
 
       <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
         {/* Password Change Section */}
-        <View className="bg-white rounded-xl p-4 mb-6" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 }}>
+        <View className="bg-white rounded-xl p-4 mb-6" style={Platform.select({
+          web: { boxShadow: '0px 2px 4px rgba(0,0,0,0.1)' },
+          default: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+          }
+        })}>
           <View className="flex-row items-center mb-4">
             <View className="w-10 h-10 bg-primary/10 rounded-lg items-center justify-center mr-3">
               <Lock size={20} color="#156651" />
@@ -332,7 +351,16 @@ const SecurityScreen = () => {
         />
 
         {/* Security Tips */}
-        <View className="bg-blue-50 rounded-xl p-4 mt-6 mb-8">
+        <View className="bg-blue-50 rounded-xl p-4 mt-6 mb-8" style={Platform.select({
+          web: { boxShadow: '0px 2px 4px rgba(0,0,0,0.1)' },
+          default: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+          }
+        })}>
           <Text className="text-Heading5 font-Manrope text-blue-800 mb-2">Security Tips</Text>
           <Text className="text-BodySmallRegular text-blue-700 mb-2">• Use a strong, unique password</Text>
           <Text className="text-BodySmallRegular text-blue-700 mb-2">• Enable two-factor authentication</Text>

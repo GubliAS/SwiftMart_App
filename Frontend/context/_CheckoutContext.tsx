@@ -1,14 +1,19 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator, View } from 'react-native';
 
 type Address = {
+  id?: string | number;
   name: string;
+  phone: string;
   street: string;
   city: string;
-  country: string;
-  region?: string;
-  zipCode?: string;
-  phone?: string;
+  region: string;
+  zipCode: string;
+  countryId: number;
+  countryCode?: string;
+  isDefault?: boolean;
+  country?: string;
 };
 
 type PaymentMethod = {
@@ -48,6 +53,26 @@ type CheckoutProviderProps = {
 export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({ children }) => {
   const [address, setAddressState] = useState<Address | undefined>();
   const [paymentMethod, setPaymentMethodState] = useState<PaymentMethod | undefined>();
+  const [loading, setLoading] = useState(true);
+
+  // Add this function to clear payment method if it no longer exists
+  const clearPaymentMethodIfInvalid = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('profile_payment_methods');
+      const checkoutPayment = await AsyncStorage.getItem('checkout_payment_method');
+      if (!checkoutPayment) return;
+      const current = JSON.parse(checkoutPayment);
+      let arr = [];
+      if (stored) arr = JSON.parse(stored);
+      const stillExists = arr.some((m: any) => m.id === current.id);
+      if (!stillExists) {
+        await AsyncStorage.removeItem('checkout_payment_method');
+        setPaymentMethodState(undefined);
+      }
+    } catch (e) {
+      // handle error
+    }
+  };
 
   // Load data from AsyncStorage on mount
   useEffect(() => {
@@ -63,8 +88,12 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({ children }) 
         if (savedPaymentMethod) {
           setPaymentMethodState(JSON.parse(savedPaymentMethod));
         }
+        // After loading, check if payment method is still valid
+        await clearPaymentMethodIfInvalid();
       } catch (error) {
         console.error('Error loading checkout data:', error);
+      } finally {
+        setLoading(false);
       }
     };
     
@@ -135,6 +164,12 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({ children }) 
     clearPaymentMethod,
     clearCheckoutData,
   };
+
+  if (loading) return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <ActivityIndicator size="large" color="#156651" />
+    </View>
+  );
 
   return (
     <CheckoutContext.Provider value={value}>

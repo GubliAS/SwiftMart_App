@@ -9,6 +9,7 @@ import {
   Animated,
   PanResponder,
   Modal,
+  Platform,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Feather, Entypo, AntDesign } from "@expo/vector-icons";
@@ -20,28 +21,136 @@ import Button from "@/components/Button";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "../../context/_CartContext";
 import type { Cart } from "../../context/_CartContext";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { fetchProductById } from "@/app/api/productApi";
+
+// Add Product type for backend data
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  originalPrice: number;
+  discount?: number;
+  rating: string;
+  productImage: string;
+  description: string;
+  condition: string;
+  variants?: any[];
+  shippingOptions?: any[];
+  [key: string]: any;
+}
 
 const ProductDetail = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const productId = params.productId;
+  const productId = Number(params.productId);
+
   let shouldCloseCartModal = false;
-  if (typeof params.closeCartModal === 'string') {
-    shouldCloseCartModal = params.closeCartModal === 'true';
+  if (typeof params.closeCartModal === "string") {
+    shouldCloseCartModal = params.closeCartModal === "true";
   } else if (Array.isArray(params.closeCartModal)) {
-    shouldCloseCartModal = params.closeCartModal.includes('true');
-  } else if (typeof params.closeCartModal === 'boolean') {
+    shouldCloseCartModal = params.closeCartModal.includes("true");
+  } else if (typeof params.closeCartModal === "boolean") {
     shouldCloseCartModal = params.closeCartModal;
   }
-  const product = productData.find((p) => p.id === Number(productId));
+  // Replace static lookup with backend fetch
+  const [product, setProduct] = useState<Product | null>(null);
+  useEffect(() => {
+    if (productId) {
+      fetchProductById(productId)
+        .then((data) => {
+  
+          setProduct(data);
+        })
+        .catch((err) => {
+          console.error("Error fetching product:", err);
+        });
+    }
+  }, [productId]);
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
-  const [selectedSize, setSelectedSize] = useState(
-    product?.variants?.[0]?.sizes?.[0] || ""
-  );
+  const [selectedColor, setSelectedColor] = useState<string>("");
+  const [selectedSize, setSelectedSize] = useState<string>("");
+
+  // Helper: get all unique sizes (optionally filtered by color)
+  const uniqueSizes = React.useMemo(() => {
+    if (!product?.variants) return [];
+    return Array.from(
+      new Set(
+        product.variants
+          .filter(v => !selectedColor || v.color === selectedColor)
+          .map(v => v.size)
+      )
+    );
+  }, [product?.variants, selectedColor]);
+
+  // Helper: get all unique colors (optionally filtered by size)
+  const uniqueColors = React.useMemo(() => {
+    if (!product?.variants) return [];
+    return Array.from(
+      new Set(
+        product.variants
+          .filter(v => !selectedSize || v.size === selectedSize)
+          .map(v => v.color)
+      )
+    );
+  }, [product?.variants, selectedSize]);
+
+  // Color mapping function
+  const getColorValue = (colorName: string): string => {
+    const colorMap: { [key: string]: string } = {
+      'Black': '#000000',
+      'White': '#FFFFFF',
+      'Blue': '#0000FF',
+      'Red': '#FF0000',
+      'Green': '#00FF00',
+      'Yellow': '#FFFF00',
+      'Purple': '#800080',
+      'Orange': '#FFA500',
+      'Pink': '#FFC0CB',
+      'Gray': '#808080',
+      'Brown': '#A52A2A',
+      'Navy': '#000080',
+      'Silver': '#C0C0C0',
+      'Gold': '#FFD700',
+      'Beige': '#F5F5DC',
+      'Cream': '#FFFDD0',
+      'Maroon': '#800000',
+      'Teal': '#008080',
+      'Cyan': '#00FFFF',
+      'Magenta': '#FF00FF'
+    };
+    return colorMap[colorName] || '#CCCCCC'; // Default to gray if color not found
+  };
+
+  // Find the selected variant
+  const selectedVariant = React.useMemo(() => {
+    if (!product?.variants) return null;
+    return product.variants.find(
+      v => v.color === selectedColor && v.size === selectedSize
+    );
+  }, [product?.variants, selectedColor, selectedSize]);
+
+  // Set initial color and size on product load
+  useEffect(() => {
+    if (product?.variants && product.variants.length > 0) {
+      const firstVariant = product.variants[0];
+      console.log("Setting initial color/size:", firstVariant.color, firstVariant.size);
+      setSelectedColor(firstVariant.color);
+      setSelectedSize(firstVariant.size);
+    }
+    // Reset image error state when product changes
+    setImageError(false);
+  }, [product?.variants]);
+
+  // Debug selectedVariant
+  useEffect(() => {
+    console.log("Selected variant:", selectedVariant);
+    console.log("Selected color:", selectedColor);
+    console.log("Selected size:", selectedSize);
+  }, [selectedVariant, selectedColor, selectedSize]);
   const [open, setOpen] = useState(false);
   const [sizeItems, setSizeItems] = useState(
-    product?.variants?.[selectedVariantIdx]?.sizes.map((size) => ({
+    product?.variants?.[selectedVariantIdx]?.sizes?.map((size: any) => ({
       label: size,
       value: size,
     })) || []
@@ -65,9 +174,17 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [cartDropdownOpen, setCartDropdownOpen] = useState(false);
   const [newCartName, setNewCartName] = useState("");
+  const [imageError, setImageError] = useState(false);
 
   const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist();
-  const { carts, selectedCartId, setSelectedCartId, addCart, addItemToCart, selectCart } = useCart();
+  const {
+    carts,
+    selectedCartId,
+    setSelectedCartId,
+    addCart,
+    addItemToCart,
+    selectCart,
+  } = useCart();
 
   // Drag-to-close modal state
   const panY = useState(new Animated.Value(0))[0];
@@ -143,8 +260,8 @@ const ProductDetail = () => {
       product.shippingOptions.length > 1
     ) {
       setSelectedShipping(
-        product.shippingOptions.find((opt) => opt.type === "Standard")?.type ||
-          product.shippingOptions[0].type
+        product.shippingOptions.find((opt: any) => opt.type === "Standard")
+          ?.type || product.shippingOptions[0].type
       );
     }
   }, [product?.shippingOptions]);
@@ -171,8 +288,6 @@ const ProductDetail = () => {
     );
   }
 
-  const variant = product.variants?.[selectedVariantIdx];
-
   // Calculate average rating from reviews
   const getAverageRating = (reviews: { rating?: number }[] = []): string => {
     if (!reviews || reviews.length === 0) return "0.0";
@@ -184,7 +299,8 @@ const ProductDetail = () => {
   };
 
   // Helper to get selected cart name
-  const selectedCart = carts.find((c: Cart) => c.id === selectedCartId)?.name || "My Cart";
+  const selectedCart =
+    carts.find((c: Cart) => c.id === selectedCartId)?.name || "My Cart";
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -197,17 +313,31 @@ const ProductDetail = () => {
           <TouchableOpacity
             onPress={() => {
               if (isWishlisted(product.id)) {
-                console.log('Removing from wishlist:', product.id, product.name);
+                console.log(
+                  "Removing from wishlist:",
+                  product.id,
+                  product.name
+                );
                 removeFromWishlist(product.id);
               } else {
-                console.log('Adding to wishlist:', product.id, product.name);
+        
                 addToWishlist({
                   id: product.id,
                   name: product.name,
-                  image: product.image,
-                  price: parseFloat(product.price),
-                  originalPrice: parseFloat(product.originalPrice),
-                  discount: product.discount ? parseFloat(product.discount) : undefined,
+                  image: product.productImage,
+                  price:
+                    typeof product.price === "string"
+                      ? parseFloat(product.price)
+                      : product.price,
+                  originalPrice:
+                    typeof product.originalPrice === "string"
+                      ? parseFloat(product.originalPrice)
+                      : product.originalPrice,
+                  discount: product.discount
+                    ? typeof product.discount === "string"
+                      ? parseFloat(product.discount)
+                      : product.discount
+                    : undefined,
                   rating: product.rating,
                 });
               }
@@ -215,44 +345,65 @@ const ProductDetail = () => {
             className="absolute top-2 right-4 z-10 bg-white/80 rounded-full p-2"
             style={{ elevation: 2 }}
           >
-            <AntDesign name={isWishlisted(product.id) ? "heart" : "hearto"} size={24} color="#EB1A1A" />
+            <AntDesign
+              name={isWishlisted(product.id) ? "heart" : "hearto"}
+              size={24}
+              color="#EB1A1A"
+            />
           </TouchableOpacity>
         </View>
         {/* Product Image */}
         <View className="items-center mt-2">
           <Image
-            source={variant?.image || product.image}
+            source={{ 
+              uri: selectedVariant?.image || product.productImage,
+              cache: 'reload'
+            }}
             style={{ width: 264, height: 264, borderRadius: 16 }}
             resizeMode="contain"
+            onError={(error) => {
+              console.log("Image loading error:", error.nativeEvent?.error);
+              setImageError(true);
+            }}
+            onLoad={() => {
+              console.log("Image loaded successfully");
+              setImageError(false);
+            }}
           />
+          {/* Fallback text only if image fails */}
+          {imageError && (
+            <Text style={{ marginTop: 8, color: '#666' }}>Image not available</Text>
+          )}
           {/* Variant Thumbnails */}
-          <View className="flex-row gap-4 mt-3">
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            className="flex-row gap-4 mt-3"
+          >
             {product.variants?.map((v, idx) => (
               <TouchableOpacity
-                key={v.color}
+                key={`variant-${v.color}-${v.size}-${idx}`}
                 onPress={() => {
-                  setSelectedVariantIdx(idx);
-                  setSelectedSize(v.sizes[0]);
-                  setSizeItems(
-                    v.sizes.map((size) => ({ label: size, value: size }))
-                  );
+                  setSelectedColor(v.color);
+                  setSelectedSize(v.size);
                 }}
                 style={{
-                  borderWidth: selectedVariantIdx === idx ? 2 : 1,
-                  borderColor: selectedVariantIdx === idx ? "#156651" : "#ccc",
+                  borderWidth: (selectedColor === v.color && selectedSize === v.size) ? 2 : 1,
+                  borderColor: (selectedColor === v.color && selectedSize === v.size) ? "#156651" : "#ccc",
                   borderRadius: 8,
                   padding: 2,
                   backgroundColor: "#fff",
+                  marginRight: 16,
                 }}
               >
                 <Image
-                  source={v.image}
+                  source={{ uri: v.image }}
                   style={{ width: 54, height: 54, borderRadius: 10 }}
                   resizeMode="contain"
                 />
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         </View>
         {/* Product Info */}
         <View className="px-4  gap-4 mt-[54px] ">
@@ -269,7 +420,7 @@ const ProductDetail = () => {
             </View>
             <View className="flex-row items-center gap-2 ">
               <Text className="text-Heading2 text-text font-Manrope">
-                ${variant?.price || product.price}
+                ${selectedVariant?.price || product.price}
               </Text>
               <Text className="text-BodySmallRegular line-through text-text font-Manrope">
                 ${product.originalPrice}
@@ -316,108 +467,119 @@ const ProductDetail = () => {
           {/* Colors */}
           <View className="gap-4 mt-4 mb-4">
             <Text className="text-Heading5 font-[700] ">Colors</Text>
-            <View className="flex-row gap-2 ">
-              {product.variants?.map((v, idx) => (
-                <TouchableOpacity
-                  key={v.color}
-                  onPress={() => {
-                    setSelectedVariantIdx(idx);
-                    setSelectedSize(v.sizes[0]);
-                    setSizeItems(
-                      v.sizes.map((size) => ({ label: size, value: size }))
-                    );
-                  }}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 16,
-                    backgroundColor: v.color,
-                    borderWidth: selectedVariantIdx === idx ? 2 : 1,
-                    borderColor:
-                      selectedVariantIdx === idx ? "#156651" : "#ccc",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  {selectedVariantIdx === idx && (
-                    <Feather name="check" size={20} color="#fff" />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
+            {uniqueColors.length > 0 ? (
+              <View className="flex-row gap-2 ">
+                            {uniqueColors.map((color, idx) => (
+              <TouchableOpacity
+                key={`color-${color}-${idx}-${selectedSize}`}
+                onPress={() => setSelectedColor(color)}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  backgroundColor: getColorValue(color),
+                  borderWidth: selectedColor === color ? 2 : 1,
+                  borderColor: selectedColor === color ? "#156651" : "#ccc",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {selectedColor === color && (
+                  <Feather name="check" size={20} color={getColorValue(color) === '#FFFFFF' ? "#000" : "#fff"} />
+                )}
+              </TouchableOpacity>
+            ))}
+              </View>
+            ) : (
+              <Text className="text-BodyRegular text-neutral-60">No color options available.</Text>
+            )}
           </View>
 
-          {/* Sizes Dropdown */}
-          {variant?.sizes && (
-            <View className="gap-4 mb-4">
-              <Text className="text-Heading5 font-[700] ">Sizes</Text>
-              <View className="z-50">
-                <DropDownPicker
-                  open={open}
-                  value={selectedSize}
-                  items={sizeItems}
-                  setOpen={setOpen}
-                  setValue={setSelectedSize}
-                  setItems={setSizeItems}
-                  placeholder="Select a size"
-                  style={{ minHeight: 48, zIndex: 1000 }}
-                  dropDownContainerStyle={{ zIndex: 2000 }}
-                  listMode="SCROLLVIEW"
-                />
+          {/* Sizes */}
+          <View className="gap-4 mb-4">
+            <Text className="text-Heading5 font-[700] ">Sizes</Text>
+            {uniqueSizes.length > 0 ? (
+              <View className="flex-row gap-2 ">
+                {uniqueSizes.map((size) => (
+                  <TouchableOpacity
+                    key={size}
+                    onPress={() => setSelectedSize(size)}
+                    style={{
+                      minWidth: 48,
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      borderRadius: 8,
+                      backgroundColor: selectedSize === size ? "#fff" : "#fff",
+                      borderWidth: selectedSize === size ? 2 : 1,
+                      borderColor: selectedSize === size ? "#156651" : "#ccc",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginRight: 8,
+                    }}
+                  >
+                    <Text style={{ color:"#156651" }}>{size}</Text>
+                  </TouchableOpacity>
+                ))}
               </View>
-            </View>
-          )}
+            ) : (
+              <Text className="text-BodyRegular text-neutral-60">No size options available.</Text>
+            )}
+          </View>
 
           {/* Shipping Options Section */}
           <View className="">
             <Text className="text-Heading5 font-[700] mb-2">
               Shipping Options
             </Text>
-            <View className="flex-row gap-4">
-              {product.shippingOptions.map((option, idx) => {
-                const isSelected = selectedShipping === option.type;
-                const isLocked = product.shippingOptions.length === 1;
-                return (
-                  <TouchableOpacity
-                    key={option.type}
-                    onPress={() => {
-                      if (!isLocked) setSelectedShipping(option.type);
-                    }}
-                    activeOpacity={isLocked ? 1 : 0.7}
-                    style={{
-                      flex: 1,
-                      opacity: isLocked || isSelected ? 1 : 0.7,
-                      borderWidth: 2,
-                      borderColor: isSelected ? "#156651" : "#ccc",
-                      borderRadius: 10,
-                      padding: 12,
-                      backgroundColor: isSelected ? "#e6f4ef" : "#fff",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      maxWidth: "50%",
-                    }}
-                    disabled={isLocked}
-                  >
-                    <Text className="text-BodyBold">
-                      {option.type} Shipping
-                    </Text>
-                    <Text className="text-BodySmallRegular text-neutral-60">
-                      {option.duration}
-                    </Text>
-                    <Text className="text-BodySmallRegular text-neutral-80 mt-1">
-                      {option.price === 0
-                        ? "Free"
-                        : `$${option.price.toFixed(2)}`}
-                    </Text>
-                    {isLocked && (
-                      <Text className="text-xs text-neutral-60 mt-1">
-                        Only option
+            {product.shippingOptions && product.shippingOptions.length > 0 ? (
+              <View className="flex-row gap-4">
+                {product.shippingOptions.map((option, idx) => {
+                  const isSelected = selectedShipping === option.type;
+                  const isLocked = product.shippingOptions && product.shippingOptions.length === 1;
+                  return (
+                    <TouchableOpacity
+                      key={`${option.id}-${option.type}`}
+                      onPress={() => {
+                        if (!isLocked) setSelectedShipping(option.type);
+                      }}
+                      activeOpacity={isLocked ? 1 : 0.7}
+                      style={{
+                        flex: 1,
+                        opacity: isLocked || isSelected ? 1 : 0.7,
+                        borderWidth: 2,
+                        borderColor: isSelected ? "#156651" : "#ccc",
+                        borderRadius: 10,
+                        padding: 12,
+                        backgroundColor: isSelected ? "#e6f4ef" : "#fff",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        maxWidth: "50%",
+                      }}
+                      disabled={isLocked}
+                    >
+                      <Text className="text-BodyBold">
+                        {option.type} Shipping
                       </Text>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+                      <Text className="text-BodySmallRegular text-neutral-60">
+                        {option.duration}
+                      </Text>
+                      <Text className="text-BodySmallRegular text-neutral-80 mt-1">
+                        {option.price === 0
+                          ? "Free"
+                          : `$${option.price.toFixed(2)}`}
+                      </Text>
+                      {isLocked && (
+                        <Text className="text-xs text-neutral-60 mt-1">
+                          Only option
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            ) : (
+              <Text className="text-BodyRegular text-neutral-60">No shipping options available.</Text>
+            )}
           </View>
 
           {/* Product Reviews Section */}
@@ -435,7 +597,7 @@ const ProductDetail = () => {
                 color="#404040"
               />
             </TouchableOpacity>
-            {reviewsOpen && product.reviews && product.reviews.length > 0 && (
+            {reviewsOpen && product.reviews && product.reviews.length > 0 ? (
               <View className="gap-[10px]">
                 <View className="gap-2 ">
                   {/* Average Rating and Review Count */}
@@ -447,7 +609,7 @@ const ProductDetail = () => {
                   </Text>
                 </View>
                 {/* Reviews List */}
-                {product.reviews.map((review, idx) => (
+                {product.reviews.map((review: any, idx: number) => (
                   <View key={idx} className="gap-2">
                     <View className="flex-row items-center gap-2 justify-between ">
                       <Text className="text-BodyBold">
@@ -492,6 +654,10 @@ const ProductDetail = () => {
                   </View>
                 ))}
               </View>
+            ) : (
+              reviewsOpen && (
+                <Text className="text-BodyRegular text-neutral-60">No reviews yet.</Text>
+              )
             )}
           </View>
         </View>
@@ -520,16 +686,26 @@ const ProductDetail = () => {
               addToWishlist({
                 id: product.id,
                 name: product.name,
-                image: product.image,
-                price: parseFloat(product.price),
-                originalPrice: parseFloat(product.originalPrice),
-                discount: product.discount ? parseFloat(product.discount) : undefined,
+                image: product.productImage,
+                price:
+                  typeof product.price === "string"
+                    ? parseFloat(product.price)
+                    : product.price,
+                originalPrice:
+                  typeof product.originalPrice === "string"
+                    ? parseFloat(product.originalPrice)
+                    : product.originalPrice,
+                discount: product.discount
+                  ? typeof product.discount === "string"
+                    ? parseFloat(product.discount)
+                    : product.discount
+                  : undefined,
                 rating: product.rating,
               });
               setWishlistAction("added");
             }
-              setShowAddedToWishlist(true);
-              setTimeout(() => setShowAddedToWishlist(false), 1500);
+            setShowAddedToWishlist(true);
+            setTimeout(() => setShowAddedToWishlist(false), 1500);
           }}
         >
           {isWishlisted(product.id) ? (
@@ -539,10 +715,7 @@ const ProductDetail = () => {
           )}
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <PrimaryButton
-            BtnText="Add to Cart"
-            onPress={openCartModal}
-          />
+          <PrimaryButton BtnText="Add to Cart" onPress={openCartModal} />
         </View>
       </View>
 
@@ -676,8 +849,12 @@ const ProductDetail = () => {
                     setCartModalVisible(false);
                     setTimeout(() => {
                       router.push({
-                        pathname: '/(root)/(tabs)/(checkout)/components/CreateCartScreen',
-                        params: { returnTo: '/(root)/(Home)/ProductDetail', productId: product.id }
+                        pathname:
+                          "/(root)/(checkout)/components/CreateCartScreen",
+                        params: {
+                          returnTo: "/(root)/(Home)/ProductDetail",
+                          productId: String(product.id),
+                        },
                       });
                     }, 100);
                   }}
@@ -718,22 +895,31 @@ const ProductDetail = () => {
               const cart = carts.find((c: Cart) => c.id === selectedCartId);
               if (!cart) return;
               // Find the selected shipping option object
-              const shippingOption = product.shippingOptions.find(opt => opt.type === selectedShipping);
+              const shippingOption = product.shippingOptions
+                ? product.shippingOptions.find(
+                    (opt) => opt.type === selectedShipping
+                  )
+                : undefined;
               // Prepare CartItem
               const item = {
-                id: (typeof crypto !== 'undefined' && crypto.randomUUID)
-                  ? crypto.randomUUID()
-                  : product.id.toString() + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
-                image: (variant?.image || product.image),
+                id: Number(product.id), // Use backend product ID (number)
+                image: selectedVariant?.image || product.productImage,
                 title: product.name,
                 name: product.name,
-                price: parseFloat(variant?.price || product.price),
-                oldPrice: parseFloat(product.originalPrice),
-                color: variant?.color || "",
+                price:
+                  typeof (selectedVariant?.price || product.price) === "string"
+                    ? parseFloat(selectedVariant?.price || product.price)
+                    : selectedVariant?.price || product.price,
+                oldPrice:
+                  typeof product.originalPrice === "string"
+                    ? parseFloat(product.originalPrice)
+                    : product.originalPrice,
+                color: selectedVariant?.color || "",
                 quantity,
                 shippingOption, // Add the selected shipping option
               };
-              addItemToCart(cart.id, item);
+              // Only add if not already in cart, or always add (idempotent)
+              addItemToCart(cart.id, { ...item, id: String(product.id) }); // Ensure id is a string for CartItem type
               setShowAddedToCart(true);
               setTimeout(() => setShowAddedToCart(false), 1500);
               setCartDropdownOpen(false);
@@ -755,3 +941,6 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
+
+
+

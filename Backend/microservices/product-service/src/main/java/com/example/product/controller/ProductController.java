@@ -15,6 +15,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 import jakarta.validation.Valid;
+import com.example.product.service.CloudinaryService;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/api/products")
@@ -24,6 +27,7 @@ public class ProductController {
     private final ProductService productService;
     private final ProductSearchService productSearchService;
     private final ProductMapper productMapper;
+    private final CloudinaryService cloudinaryService;
 
     @GetMapping
     public Page<ProductDTO> getAllProducts(
@@ -87,5 +91,20 @@ public class ProductController {
         return productSearchService.searchByCategory(categoryName).stream()
                 .map(productMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/category/id/{categoryId}")
+    public List<ProductDTO> getProductsByCategoryId(@PathVariable Long categoryId) {
+        return productService.searchProducts(null, categoryId, null, null);
+    }
+
+    @PostMapping("/upload-image")
+    public ResponseEntity<String> uploadProductImage(@RequestParam("file") MultipartFile file) {
+        try {
+            String imageUrl = cloudinaryService.uploadFile(file);
+            return ResponseEntity.ok(imageUrl);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image upload failed");
+        }
     }
 } 

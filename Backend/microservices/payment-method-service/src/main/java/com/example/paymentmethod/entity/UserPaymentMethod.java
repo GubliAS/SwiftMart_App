@@ -10,6 +10,7 @@ import com.example.commonentities.SiteUser;
 @Data
 public class UserPaymentMethod {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -23,6 +23,7 @@ public class SiteUser {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+    private String profilePhotoUrl; // Cloudinary URL for profile photo
     
     // Seller-specific fields
     private String storeName;
@@ -39,4 +40,13 @@ public class SiteUser {
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+    
+    // Manual getter and setter for profilePhotoUrl to ensure they exist
+    public String getProfilePhotoUrl() {
+        return profilePhotoUrl;
+    }
+    
+    public void setProfilePhotoUrl(String profilePhotoUrl) {
+        this.profilePhotoUrl = profilePhotoUrl;
+    }
 } 

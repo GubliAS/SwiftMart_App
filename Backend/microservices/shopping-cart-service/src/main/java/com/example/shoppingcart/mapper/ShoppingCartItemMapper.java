@@ -8,10 +8,10 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ShoppingCartItemMapper {
     @Mapping(source = "cart.id", target = "cartId")
-    @Mapping(source = "variant.id", target = "variantId")
+    @Mapping(source = "productItem.id", target = "productItemId")
     ShoppingCartItemDTO toDto(ShoppingCartItem item);
 
     @Mapping(source = "cartId", target = "cart.id")
-    @Mapping(source = "variantId", target = "variant.id")
+    @Mapping(source = "productItemId", target = "productItem.id")
     ShoppingCartItem toEntity(ShoppingCartItemDTO dto);
 } 

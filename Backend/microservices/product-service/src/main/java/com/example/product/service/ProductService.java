@@ -3,7 +3,7 @@ package com.example.product.service;
 import com.example.product.dto.ProductDTO;
 import com.example.product.entity.Product;
 import com.example.product.mapper.ProductMapper;
-import com.example.product.repository.ProductRepository;
+import com.example.product.repository.jpa.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +28,9 @@ public class ProductService {
     }
 
     public ProductDTO getProductById(Long id) {
-        return productRepository.findById(id)
+        return productRepository.findByIdWithShippingOptions(id)
                 .map(productMapper::toDto)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
     }
 
     public ProductDTO createProduct(ProductDTO dto) {
@@ -38,7 +40,7 @@ public class ProductService {
 
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setProductImage(dto.getProductImage());
@@ -51,8 +53,8 @@ public class ProductService {
     }
 
     public List<ProductDTO> searchProducts(String name, Long categoryId, BigDecimal minPrice, BigDecimal maxPrice) {
+        // For category filtering, we don't need the name parameter
         return productRepository.searchProducts(
-            name,
             categoryId,
             minPrice,
             maxPrice

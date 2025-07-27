@@ -1,7 +1,7 @@
 package com.example.product.service;
 
 import com.example.product.entity.Product;
-import com.example.product.repository.ProductSearchRepository;
+import com.example.product.repository.elasticsearch.ProductSearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +19,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.MultiMatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.FuzzyQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.PrefixQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -56,7 +57,23 @@ public class ProductSearchService {
 
     public List<Product> searchByCategory(String categoryName) {
         log.info("Searching products by category: {}", categoryName);
-        return productSearchRepository.findByCategoryCategoryNameContainingIgnoreCase(categoryName);
+        
+        // Use a proper Elasticsearch query instead of the problematic repository method
+        co.elastic.clients.elasticsearch._types.query_dsl.Query categoryQuery = co.elastic.clients.elasticsearch._types.query_dsl.Query.of(q -> q
+                .term(t -> t
+                        .field("category.categoryName.keyword")
+                        .value(categoryName)
+                )
+        );
+
+        org.springframework.data.elasticsearch.core.query.Query searchQuery = NativeQuery.builder()
+                .withQuery(categoryQuery)
+                .build();
+        
+        SearchHits<Product> searchHits = elasticsearchOperations.search(searchQuery, Product.class);
+        return searchHits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .collect(Collectors.toList());
     }
 
     public List<Product> fuzzySearch(String query) {

@@ -55,8 +55,7 @@ public class PaymentMethodService {
     }
 
     public List<UserPaymentMethodDTO> getPaymentMethodsForUser(Long userId) {
-        return userPaymentMethodRepository.findAll().stream()
-                .filter(pm -> pm.getUser().getId().equals(userId))
+        return userPaymentMethodRepository.findByUser_Id(userId).stream()
                 .map(userPaymentMethodMapper::toDto)
                 .collect(Collectors.toList());
     }

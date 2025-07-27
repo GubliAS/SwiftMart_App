@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Data
 public class ShopOrder {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "user_id")

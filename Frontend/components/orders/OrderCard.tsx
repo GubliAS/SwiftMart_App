@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
-import { OrderListItem } from '../types';
+import { OrderListItem } from '../../types/orders';
 
 interface OrderCardProps {
   order: OrderListItem;
@@ -27,18 +27,16 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onPress }) => {
   return (
     <TouchableOpacity
       className="bg-white rounded-xl p-4"
-      style={{ 
-        height: 142,
-        marginBottom: 32,
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 4,
-        },
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
-        elevation: 8,
-      }}
+      style={Platform.select({
+        web: { boxShadow: '0px 2px 6px rgba(0,0,0,0.15)' },
+        default: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.15,
+          shadowRadius: 6,
+          elevation: 3,
+        }
+      })}
       onPress={() => onPress(order.id)}
     >
       {/* Top Row: Order ID and Status */}

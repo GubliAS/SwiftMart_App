@@ -1,7 +1,8 @@
 import React from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import { router } from "expo-router";
+import { View, Text,  } from "react-native";
+import { Image } from 'expo-image';
+
 
 export interface ProductCardProps {
   image: any; // Replace `any` with the correct type for your image source
@@ -11,6 +12,11 @@ export interface ProductCardProps {
   discount?: number; // Optional discount
   rating: string;
   width?: string | number; // Optional width
+}
+
+function getCloudinaryThumb(url: string): string {
+  // Insert transformation after /upload/
+  return url.replace('/upload/', '/upload/w_300,h_300,c_fill/');
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -34,9 +40,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Product Image */}
       <View className="relative">
         <Image
-          source={image}
-          className="w-full h-[113px] object-cover"
-          resizeMode="cover"
+          source={{ uri: getCloudinaryThumb(image) }}
+          style={{
+            width: "100%",
+            height: 113,
+          }}
+          contentFit="contain"
+          transition={300}
         />
         {/* Discount Badge */}
         {discount && (

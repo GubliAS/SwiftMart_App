@@ -2,7 +2,6 @@ package com.example.userreview.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import com.example.commonentities.SiteUser;
 
 @Entity
 @Table(name = "user_review")
@@ -10,10 +9,6 @@ import com.example.commonentities.SiteUser;
 public class UserReview {
     @Id
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private SiteUser user;
 
     @Column(name = "ordered_product_id")
     private Long orderedProductId;
@@ -25,6 +20,9 @@ public class UserReview {
 
     @Column(name = "product_id")
     private Long productId;
+
+    @Column(name = "user_id")
+    private Long userId;
 
     @ElementCollection
     private java.util.List<String> images;

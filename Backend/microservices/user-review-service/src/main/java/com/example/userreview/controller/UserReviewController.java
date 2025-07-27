@@ -21,12 +21,17 @@ public class UserReviewController {
     }
 
     @GetMapping("/product/{orderedProductId}")
-    public List<UserReviewDTO> getReviewsForProduct(@PathVariable Long orderedProductId) {
+    public List<UserReviewDTO> getReviewsForProduct(@PathVariable("orderedProductId") Long orderedProductId) {
         return reviewService.getReviewsForProduct(orderedProductId);
     }
 
+    @GetMapping("/by-product/{productId}")
+    public List<UserReviewDTO> getReviewsByProductId(@PathVariable("productId") Long productId) {
+        return reviewService.getReviewsByProductId(productId);
+    }
+
     @GetMapping("/user/{userId}")
-    public List<UserReviewDTO> getReviewsByUser(@PathVariable Long userId) {
+    public List<UserReviewDTO> getReviewsByUser(@PathVariable("userId") Long userId) {
         return reviewService.getReviewsByUser(userId);
     }
 } 

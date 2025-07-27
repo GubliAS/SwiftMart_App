@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="api-gateway" />
+        <module name="common-entities" />
+        <module name="common-exceptions" />
+      </profile>
+      <profile name="Annotation profile for video-upload-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
+        </processorPath>
+        <module name="barcode-search-service" />
+        <module name="address-service" />
+        <module name="video-upload-service" />
+        <module name="order-status-history-service" />
+        <module name="promotion-service" />
+        <module name="site-user-service" />
+        <module name="product-service" />
+        <module name="shopping-cart-service" />
+        <module name="shop-order-service" />
+        <module name="verification-code-service" />
+        <module name="shipping-method-service" />
+        <module name="order-status-service" />
+        <module name="auth-service" />
+        <module name="cart-sharing-service" />
+        <module name="email-service" />
+        <module name="payment-method-service" />
+        <module name="user-review-service" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="address-service" options="-parameters -parameters" />
+      <module name="api-gateway" options="-parameters" />
+      <module name="auth-service" options="-parameters" />
+      <module name="barcode-search-service" options="-parameters" />
+      <module name="cart-sharing-service" options="-parameters" />
+      <module name="common-exceptions" options="-parameters" />
+      <module name="email-service" options="-parameters" />
+      <module name="order-status-history-service" options="-parameters" />
+      <module name="order-status-service" options="-parameters" />
+      <module name="payment-method-service" options="-parameters -parameters" />
+      <module name="product-service" options="-parameters -parameters" />
+      <module name="promotion-service" options="-parameters" />
+      <module name="shipping-method-service" options="-parameters" />
+      <module name="shop-order-service" options="-parameters" />
+      <module name="shopping-cart-service" options="-parameters" />
+      <module name="site-user-service" options="-parameters" />
+      <module name="user-review-service" options="-parameters" />
+      <module name="verification-code-service" options="-parameters" />
+      <module name="video-upload-service" options="-parameters" />
+    </option>
+  </component>
+</project>

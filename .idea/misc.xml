@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/Backend/microservices/api-gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/auth-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/email-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/address-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/product-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/promotion-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/site-user-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/shop-order-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/user-review-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/cart-sharing-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/order-status-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/video-upload-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/shopping-cart-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/barcode-search-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/payment-method-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/shipping-method-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/verification-code-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/microservices/order-status-history-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/common-entities/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend/common-exceptions/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_24" default="true" project-jdk-name="24" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

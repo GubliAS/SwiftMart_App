@@ -6,7 +6,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Electronics & Devices",
-    image: require("@/assets/images/smartphone.jpg"),
+    image: "smartphone.jpg",
     name: "Smartphone Pro X15",
     price: "1200.99",
     originalPrice: "1499.99",
@@ -21,13 +21,13 @@ const productData = [
       {
         color: "black",
         sizes: ["256GB", "512GB"],
-        image: require("@/assets/images/smartphone.jpg"),
+        image: "smartphone.jpg",
         price: "1200.99"
       },
       {
         color: "white",
         sizes: ["256GB", "512GB"],
-        image: require("@/assets/images/smartphone.jpg"),
+        image: "smartphone.jpg",
         price: "1200.99"
       }
     ],
@@ -37,7 +37,7 @@ const productData = [
         rating: 5,
         comment: "Absolutely love this phone! The camera is incredible and battery lasts me all day, even with heavy use.",
         date: "12 days ago",
-        images: [require("@/assets/images/smartphone.jpg")]
+        images: ["smartphone.jpg"]
       },
       {
         reviewerName: "James Lee",
@@ -51,7 +51,7 @@ const productData = [
         rating: 5,
         comment: "Switched from another brand and I'm impressed. Super fast and the screen is gorgeous!",
         date: "3 days ago",
-        images: [require("@/assets/images/smartphone.jpg"), require("@/assets/images/laptop.jpeg")]
+        images: ["smartphone.jpg", "laptop.jpeg"]
       }
     ]
   },
@@ -61,7 +61,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Electronics & Devices",
-    image: require("@/assets/images/laptop.jpeg"),
+    image: "laptop.jpeg",
     name: "UltraBook 14 Pro",
     price: "999.99",
     originalPrice: "1299.99",
@@ -77,13 +77,13 @@ const productData = [
       {
         color: "gray",
         sizes: ["14-inch"],
-        image: require("@/assets/images/laptop.jpeg"),
+        image: "laptop.jpeg",
         price: "999.99"
       },
       {
         color: "black",
         sizes: ["14-inch"],
-        image: require("@/assets/images/laptop.jpeg"),
+        image: "laptop.jpeg",
         price: "999.99"
       }
     ],
@@ -93,7 +93,7 @@ const productData = [
         rating: 5,
         comment: "Super fast and light. Battery easily lasts a full workday. Highly recommend for remote work!",
         date: "5 days ago",
-        images: [require("@/assets/images/laptop.jpeg")]
+        images: ["laptop.jpeg"]
       },
       {
         reviewerName: "Linda Zhao",
@@ -112,7 +112,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Sports & Fitness",
-    image: require("@/assets/images/yogamat.jpeg"),
+    image: "yogamat.jpeg",
     name: "EcoYoga Pro Mat",
     price: "49.99",
     originalPrice: "79.99",
@@ -128,7 +128,7 @@ const productData = [
         rating: 5,
         comment: "Very comfortable and doesn't slip, even during hot yoga!",
         date: "2 days ago",
-        images: [require("@/assets/images/yogamat.jpeg")]
+        images: ["yogamat.jpeg"]
       },
       {
         reviewerName: "Carlos Mendez",
@@ -145,7 +145,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Sports & Fitness",
-    image: require("@/assets/images/dumbellset.jpeg"),
+    image: "dumbellset.jpeg",
     name: "Dumbbell Set",
     price: "129.99",
     originalPrice: "199.99",
@@ -174,7 +174,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Computer & Accessories",
-    image: require("@/assets/images/mechanicalkeyboard.jpeg"),
+    image: "mechanicalkeyboard.jpeg",
     name: "Mechanical Keyboard",
     price: "89.99",
     originalPrice: "129.99",
@@ -189,13 +189,13 @@ const productData = [
       {
         color: "black",
         sizes: ["Full Size", "Tenkeyless"],
-        image: require("@/assets/images/mechanicalkeyboard.jpeg"),
+        image: "mechanicalkeyboard.jpeg",
         price: "89.99"
       },
       {
         color: "white",
         sizes: ["Full Size", "Tenkeyless"],
-        image: require("@/assets/images/mechanicalkeyboard.jpeg"),
+        image: "mechanicalkeyboard.jpeg",
         price: "89.99"
       }
     ],
@@ -214,7 +214,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Computer & Accessories",
-    image: require("@/assets/images/gamingmouse.jpeg"),
+    image: "gamingmouse.jpeg",
     name: "Gaming Mouse",
     price: "49.99",
     originalPrice: "79.99",
@@ -243,7 +243,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Beauty & Personal Care",
-    image: require("@/assets/images/facecream.jpeg"),
+    image: "facecream.jpeg",
     name: "Face Cream",
     price: "29.99",
     originalPrice: "49.99",
@@ -269,7 +269,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Beauty & Personal Care",
-    image: require("@/assets/images/hairdryer.jpeg"),
+    image: "hairdryer.jpeg",
     name: "Hair Dryer",
     price: "59.99",
     originalPrice: "99.99",
@@ -298,7 +298,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Office & Stationery",
-    image: require("@/assets/images/notebookset.jpeg"),
+    image: "notebookset.jpeg",
     name: "Notebook Set",
     price: "19.99",
     originalPrice: "29.99",
@@ -324,7 +324,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Office & Stationery",
-    image: require("@/assets/images/deskorganiser.jpeg"),
+    image: "deskorganiser.jpeg",
     name: "Desk Organizer",
     price: "39.99",
     originalPrice: "59.99",
@@ -353,7 +353,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Home & Living",
-    image: require("@/assets/images/sofa.jpeg"),
+    image: "sofa.jpeg",
     name: "Sofa",
     price: "499.99",
     originalPrice: "799.99",
@@ -368,13 +368,13 @@ const productData = [
       {
         color: "gray",
         sizes: ["2-seater", "3-seater"],
-        image: require("@/assets/images/sofa.jpeg"),
+        image: "sofa.jpeg",
         price: "499.99"
       },
       {
         color: "beige",
         sizes: ["2-seater", "3-seater"],
-        image: require("@/assets/images/sofa.jpeg"),
+        image: "sofa.jpeg",
         price: "499.99"
       }
     ],
@@ -393,7 +393,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Home & Living",
-    image: require("@/assets/images/diningtable.jpeg"),
+    image: "diningtable.jpeg",
     name: "Dining Table",
     price: "699.99",
     originalPrice: "999.99",
@@ -422,7 +422,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Fashion",
-    image: require("@/assets/images/leatherjacket.jpeg"),
+    image: "leatherjacket.jpeg",
     name: "Leather Jacket",
     price: "149.99",
     originalPrice: "199.99",
@@ -437,13 +437,13 @@ const productData = [
       {
         color: "black",
         sizes: ["S", "M", "L", "XL"],
-        image: require("@/assets/images/leatherjacket.jpeg"),
+        image: "leatherjacket.jpeg",
         price: "149.99"
       },
       {
         color: "brown",
         sizes: ["S", "M", "L", "XL"],
-        image: require("@/assets/images/leatherjacket.jpeg"),
+        image: "leatherjacket.jpeg",
         price: "149.99"
       }
     ],
@@ -462,7 +462,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Fashion",
-    image: require("@/assets/images/sneakers.jpeg"),
+    image: "sneakers.jpeg",
     name: "Sneakers",
     price: "99.99",
     originalPrice: "149.99",
@@ -478,13 +478,13 @@ const productData = [
       {
         color: "white",
         sizes: ["7", "8", "9", "10"],
-        image: require("@/assets/images/sneakers.jpeg"),
+        image: "sneakers.jpeg",
         price: "99.99"
       },
       {
         color: "blue",
         sizes: ["7", "8", "9", "10"],
-        image: require("@/assets/images/sneakers.jpeg"),
+        image: "sneakers.jpeg",
         price: "99.99"
       }
     ],
@@ -505,7 +505,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Automotive & Tools",
-    image: require("@/assets/images/vacuumcleaner.jpeg"),
+    image: "vacuumcleaner.jpeg",
     name: "Car Vacuum Cleaner",
     price: "79.99",
     originalPrice: "129.99",
@@ -531,7 +531,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Automotive & Tools",
-    image: require("@/assets/images/toolset.jpeg"),
+    image: "toolset.jpeg",
     name: "Tool Set",
     price: "99.99",
     originalPrice: "149.99",
@@ -560,7 +560,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Groceries & Essentials",
-    image: require("@/assets/images/organicrice.jpeg"),
+    image: "organicrice.jpeg",
     name: "Organic Rice",
     price: "19.99",
     originalPrice: "29.99",
@@ -586,7 +586,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Groceries & Essentials",
-    image: require("@/assets/images/cookingoil.jpeg"),
+    image: "cookingoil.jpeg",
     name: "Cooking Oil",
     price: "9.99",
     originalPrice: "14.99",
@@ -615,7 +615,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Kids & Toys",
-    image: require("@/assets/images/buildingblocks.jpeg"),
+    image: "buildingblocks.jpeg",
     name: "Building Blocks",
     price: "29.99",
     originalPrice: "49.99",
@@ -641,7 +641,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Kids & Toys",
-    image: require("@/assets/images/stuffedanimal.jpeg"),
+    image: "stuffedanimal.jpeg",
     name: "Stuffed Animal",
     price: "19.99",
     originalPrice: "29.99",
@@ -670,7 +670,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Electronics & Devices",
-    image: require("@/assets/images/ipad.jpeg"),
+    image: "ipad.jpeg",
     name: "Tablet Air 11",
     price: "599.99",
     originalPrice: "699.99",
@@ -696,7 +696,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Home & Living",
-    image: require("@/assets/images/modernlamp.jpeg"),
+    image: "modernlamp.jpeg",
     name: "Modern Table Lamp",
     price: "39.99",
     originalPrice: "39.99",
@@ -721,7 +721,7 @@ const productData = [
     promoId: null,
     promoPrice: null,
     category: "Fashion",
-    image: require("@/assets/images/jeans.jpg"),
+    image: "jeans.jpg",
     name: "Classic Blue Jeans",
     price: "59.99",
     originalPrice: "79.99",

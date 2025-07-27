@@ -15,10 +15,16 @@ import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { PaymentMethodsProvider } from "@/context/PaymentMethodsContext";
 import { FeedProvider } from './context/FeedContext';
 import { AuthProvider } from '@/context/AuthContext';
+import { CheckoutProvider } from '../context/_CheckoutContext';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  useEffect(() => {
+    return () => {
+    };
+  }, []);
+
   const [fontsLoaded] = useFonts({
     Manrope: require("@/assets/fonts/Manrope-VariableFont_wght.ttf"),
   });
@@ -36,32 +42,35 @@ export default function RootLayout() {
     return null; // or a loading indicator
   }
 
+  const devKey = __DEV__ ? Date.now() : undefined;
+
   return (
     <ActionSheetProvider>
-      <AuthProvider>
-      <UserProvider>
-        <WishlistProvider>
-          <NotificationProvider>
-            <SearchProvider>
-              <CartProvider>
-                <PaymentMethodsProvider>
+      <AuthProvider key={devKey}>
+        <UserProvider>
+          <WishlistProvider>
+            <NotificationProvider>
+              <SearchProvider>
+                <CartProvider>
+                  <PaymentMethodsProvider>
                     <FeedProvider>
-                  <View className="font-Manrope" style={{ flex: 1 }}>
-                    <StatusBar style="dark" />
-                    <Stack screenOptions={{ headerShown: false }}>
-                      <Stack.Screen name="index" options={{ headerShown: false }} />
-                      <Stack.Screen name="(auth)" />
-                      <Stack.Screen name="(root)" options={{ headerShown: false }} />
-                      <Stack.Screen name="+not-found" />
-                    </Stack>
-                  </View>
+                      <CheckoutProvider>
+                        <View className="font-Manrope" style={{ flex: 1 }}>
+                          <StatusBar style="dark" />
+                          <Stack screenOptions={{ headerShown: false }}>
+                            <Stack.Screen name="index" options={{ headerShown: false }} />
+                            <Stack.Screen name="(auth)" />
+                            <Stack.Screen name="+not-found" />
+                          </Stack>
+                        </View>
+                      </CheckoutProvider>
                     </FeedProvider>
-                </PaymentMethodsProvider>
-              </CartProvider>
-            </SearchProvider>
-          </NotificationProvider>
-        </WishlistProvider>
-      </UserProvider>
+                  </PaymentMethodsProvider>
+                </CartProvider>
+              </SearchProvider>
+            </NotificationProvider>
+          </WishlistProvider>
+        </UserProvider>
       </AuthProvider>
     </ActionSheetProvider>
   );

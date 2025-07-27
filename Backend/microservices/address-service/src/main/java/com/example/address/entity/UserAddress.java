@@ -11,11 +11,6 @@ public class UserAddress {
     private UserAddressId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("userId")
-    @JoinColumn(name = "user_id")
-    private SiteUser user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("addressId")
     @JoinColumn(name = "address_id")
     private Address address;

@@ -15,7 +15,7 @@ public class OrderStatusHistoryController {
     private final OrderStatusHistoryService orderStatusHistoryService;
 
     @GetMapping("/order/{orderId}")
-    public List<OrderStatusHistoryDTO> getOrderStatusHistory(@PathVariable Long orderId) {
+    public List<OrderStatusHistoryDTO> getOrderStatusHistory(@PathVariable("orderId") Long orderId) {
         return orderStatusHistoryService.getOrderStatusHistory(orderId);
     }
 } 

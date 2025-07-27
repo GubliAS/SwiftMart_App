@@ -93,7 +93,16 @@ const ContactUsScreen = () => {
   }) => (
     <TouchableOpacity 
       className="flex-row items-center p-4 bg-white rounded-xl mb-3"
-      style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 }}
+      style={Platform.select({
+        web: { boxShadow: '0px 2px 4px rgba(0,0,0,0.1)' },
+        default: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 3,
+        }
+      })}
       onPress={action}
     >
       <View className={`w-12 h-12 ${bgColor} rounded-lg items-center justify-center mr-4`}>
@@ -106,7 +115,14 @@ const ContactUsScreen = () => {
     </TouchableOpacity>
   );
 
-  const ContactInfo = ({ icon: Icon, title, value, color = "#156651" }) => (
+  type ContactInfoProps = {
+    icon: React.ComponentType<{ size: number; color: string }>;
+    title: string;
+    value: string;
+    color?: string;
+  };
+
+  const ContactInfo = ({ icon: Icon, title, value, color = "#156651" }: ContactInfoProps) => (
     <View className="flex-row items-center mb-4">
       <View className="w-8 h-8 bg-primary/10 rounded-lg items-center justify-center mr-3">
         <Icon size={16} color={color} />
@@ -190,7 +206,16 @@ const ContactUsScreen = () => {
         />
 
         {/* Office Information */}
-        <View className="bg-white rounded-xl p-4 mt-6 mb-6" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 }}>
+        <View className="bg-white rounded-xl p-4 mt-6 mb-6" style={Platform.select({
+          web: { boxShadow: '0px 2px 4px rgba(0,0,0,0.1)' },
+          default: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+          }
+        })}>
           <Text className="text-Heading4 font-Manrope text-text mb-4">Office Information</Text>
           
           <ContactInfo
@@ -219,7 +244,16 @@ const ContactUsScreen = () => {
         </View>
 
         {/* Contact Form */}
-        <View className="bg-white rounded-xl p-4 mb-6" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 }}>
+        <View className="bg-white rounded-xl p-4 mb-6" style={Platform.select({
+          web: { boxShadow: '0px 2px 4px rgba(0,0,0,0.1)' },
+          default: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+          }
+        })}>
           <View className="flex-row items-center mb-4">
             <View className="w-10 h-10 bg-primary/10 rounded-lg items-center justify-center mr-3">
               <MessageSquare size={20} color="#156651" />

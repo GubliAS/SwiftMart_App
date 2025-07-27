@@ -17,8 +17,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.HashSet;
 import java.util.Set;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import java.util.concurrent.ConcurrentHashMap;
+import com.example.auth.entity.VerificationCode;
+import com.example.auth.repository.VerificationCodeRepository;
+import java.time.LocalDateTime;
+import com.example.auth.service.VerificationCodeService;
 
 @RequiredArgsConstructor
 @RestController
@@ -29,7 +33,8 @@ public class AuthController {
     private final EmailService emailService;
     private final SiteUserRepository siteUserRepository;
     private final RoleRepository roleRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final VerificationCodeRepository verificationCodeRepository;
+    private final VerificationCodeService verificationCodeService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
@@ -132,9 +137,14 @@ public class AuthController {
         Optional<SiteUser> user = siteUserRepository.findByEmailAddress(request.getEmail());
         if (user.isPresent()) {
             String code = String.format("%04d", (int)(Math.random() * 10000));
-            redisTemplate.opsForValue().set("verification:" + request.getEmail(), code);
-            emailService.sendVerificationCode(request.getEmail(), code);
-            return ResponseEntity.ok(new MessageResponse("Verification code sent"));
+            try {
+                verificationCodeService.saveCode(request.getEmail(), code);
+                emailService.sendVerificationCode(request.getEmail(), code);
+                return ResponseEntity.ok(new MessageResponse("Verification code sent"));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(500).body(new ErrorResponse("Internal server error: " + e.getMessage()));
+            }
         } else {
             return ResponseEntity.status(404).body(new ErrorResponse("User not found"));
         }
@@ -142,22 +152,45 @@ public class AuthController {
 
     @PostMapping("/send-registration-code")
     public ResponseEntity<?> sendRegistrationCode(@RequestBody VerificationCodeRequest request) {
+        System.out.println("📧 [SEND-REGISTRATION-CODE] Request received for email: " + request.getEmail());
+        
         if (siteUserRepository.findByEmailAddress(request.getEmail()).isPresent()) {
+            System.out.println("❌ [SEND-REGISTRATION-CODE] Email already registered: " + request.getEmail());
             return ResponseEntity.badRequest().body(new ErrorResponse("Email already registered"));
         }
+        
         String code = String.format("%04d", (int)(Math.random() * 10000));
-        redisTemplate.opsForValue().set("registration:" + request.getEmail(), code);
-        emailService.sendRegistrationCode(request.getEmail(), code);
-        return ResponseEntity.ok(new MessageResponse("Registration code sent"));
+        System.out.println("🔢 [SEND-REGISTRATION-CODE] Generated code: " + code + " for email: " + request.getEmail());
+        
+        try {
+            System.out.println("💾 [SEND-REGISTRATION-CODE] Saving code to database...");
+            verificationCodeService.saveCode(request.getEmail(), code);
+            
+            System.out.println("📤 [SEND-REGISTRATION-CODE] Sending email...");
+            emailService.sendRegistrationCode(request.getEmail(), code);
+            
+            System.out.println("✅ [SEND-REGISTRATION-CODE] Successfully sent registration code to: " + request.getEmail());
+            return ResponseEntity.ok(new MessageResponse("Registration code sent"));
+        } catch (Exception e) {
+            System.err.println("❌ [SEND-REGISTRATION-CODE] Error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(new ErrorResponse("Internal server error: " + e.getMessage()));
+        }
     }
 
     @PostMapping("/verify-code")
     public ResponseEntity<?> verifyCode(@RequestBody VerifyCodeRequest request) {
-        String storedCode = (String) redisTemplate.opsForValue().get("verification:" + request.getEmail());
-        if (storedCode != null && storedCode.equals(request.getCode())) {
-            redisTemplate.delete("verification:" + request.getEmail());
+        System.out.println("🔍 [VERIFY-CODE] Request received for email: " + request.getEmail() + " with code: " + request.getCode());
+        
+        Optional<VerificationCode> codeOpt = verificationCodeService.getCode(request.getEmail())
+            .filter(vc -> vc.getCode().equals(request.getCode()));
+        
+        if (codeOpt.isPresent()) {
+            System.out.println("✅ [VERIFY-CODE] Code verified successfully for: " + request.getEmail());
+            verificationCodeService.deleteCode(request.getEmail());
             return ResponseEntity.ok(new MessageResponse("Code verified successfully"));
         } else {
+            System.out.println("❌ [VERIFY-CODE] Invalid code for: " + request.getEmail());
             return ResponseEntity.badRequest().body(new ErrorResponse("Invalid verification code"));
         }
     }
@@ -187,6 +220,7 @@ public class AuthController {
         SiteUser user = userOpt.get();
         String role = user.getRoles().iterator().next().getName();
         Map<String, Object> profile = new HashMap<>();
+        profile.put("id", user.getId());
         profile.put("email", user.getEmailAddress());
         profile.put("firstName", user.getFirstName());
         profile.put("lastName", user.getLastName());
@@ -197,12 +231,19 @@ public class AuthController {
         profile.put("idCardCountry", user.getIdCardCountry());
         profile.put("idCardNumber", user.getIdCardNumber());
         profile.put("verificationStatus", user.getVerificationStatus());
+        if (user.getProfilePhotoUrl() != null) {
+            Map<String, String> photoMap = new HashMap<>();
+            photoMap.put("uri", user.getProfilePhotoUrl());
+            profile.put("photo", photoMap);
+        } else {
+            profile.put("photo", null);
+        }
         return ResponseEntity.ok(profile);
     }
 
     @PutMapping("/me")
     public ResponseEntity<?> updateProfile(@RequestHeader("Authorization") String authHeader, @RequestBody UpdateProfileRequest req) {
-        System.out.println("[PUT /me] Incoming update: firstName=" + req.getFirstName() + ", lastName=" + req.getLastName() + ", phoneNumber=" + req.getPhoneNumber());
+        System.out.println("[PUT /me] Incoming update: firstName=" + req.getFirstName() + ", lastName=" + req.getLastName() + ", phoneNumber=" + req.getPhoneNumber() + ", photoUrl=" + req.getPhotoUrl());
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(new ErrorResponse("Missing or invalid Authorization header"));
         }
@@ -216,6 +257,7 @@ public class AuthController {
         if (req.getFirstName() != null) user.setFirstName(req.getFirstName());
         if (req.getLastName() != null) user.setLastName(req.getLastName());
         if (req.getPhoneNumber() != null) user.setPhoneNumber(req.getPhoneNumber());
+        if (req.getPhotoUrl() != null) user.setProfilePhotoUrl(req.getPhotoUrl());
         siteUserRepository.save(user);
         return ResponseEntity.ok(new MessageResponse("Profile updated successfully"));
     }
@@ -334,6 +376,7 @@ public class AuthController {
         private String firstName;
         private String lastName;
         private String phoneNumber;
+        private String photoUrl;
     }
     @Data
     public static class ChangePasswordRequest {
