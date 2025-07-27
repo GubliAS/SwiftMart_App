@@ -1,7 +1,0 @@
-{
-<<<<<<< HEAD
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-=======
-    "java.compile.nullAnalysis.mode": "automatic"
->>>>>>> bf9c4fe9655a8112f0fbb86ca27c4f86192a72a5
-}
